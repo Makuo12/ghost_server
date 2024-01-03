@@ -1,4 +1,4 @@
-www.flizzup-server.com {
+www.flizzup-ghost.com {
   # node-app:4000 is the docker container running the Node.js application
   # in our case it's exposed on port 4000
   reverse_proxy api:8080  {
