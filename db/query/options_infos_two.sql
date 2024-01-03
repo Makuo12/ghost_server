@@ -1,0 +1,299 @@
+-- name: GetOptionInfoMain :one
+SELECT oi.id,
+oi.co_host_id,
+oi.option_user_id,
+oi.host_id,
+oi.primary_user_id,
+oi.deep_link_id,
+oi.is_active,
+oi.is_complete,
+oi.is_verified,
+od.host_name_option,
+oi.category,
+oi.category_two,
+oi.category_three,
+oi.category_four,
+oi.is_top_seller,
+oi.time_zone,
+oi.currency,
+oi.option_img,
+oi.option_type,
+oi.main_option_type,
+oi.created_at,
+oi.completed,
+oi.updated_at,
+u.id AS u_id,
+u.user_id,
+u.deep_link_id AS user_deep_link_id,
+u.firebase_id,
+u.hashed_password,
+u.firebase_password,
+u.email,
+u.phone_number,
+u.first_name,
+u.username,
+u.last_name,
+u.date_of_birth,
+u.dial_code,
+u.dial_country,
+u.current_option_id,
+u.currency AS u_currency,
+u.default_card,
+u.default_payout_card,
+u.default_account_id,
+u.is_active AS u_is_active,
+u.photo,
+u.password_changed_at AS u_password_changed_at,
+u.created_at AS u_created_at,
+u.updated_at AS u_updated_at,
+CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.insights::boolean
+   WHEN oi.host_id = sqlc.arg(main_host_id) THEN true
+	ELSE false -- Optional: Handle other cases if needed
+END AS insight,
+CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.calender::boolean
+   WHEN oi.host_id = sqlc.arg(main_host_id) THEN true
+	ELSE false -- Optional: Handle other cases if needed
+END AS calender,
+CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.edit_co_hosts::boolean
+   WHEN oi.host_id = sqlc.arg(main_host_id) THEN true
+	ELSE false -- Optional: Handle other cases if needed
+END AS edit_co_hosts,
+CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.edit_option_info::boolean
+   WHEN oi.host_id = sqlc.arg(main_host_id) THEN true
+	ELSE false -- Optional: Handle other cases if needed
+END AS edit_option_info,
+CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.edit_event_dates_times::boolean
+   WHEN oi.host_id = sqlc.arg(main_host_id) THEN true
+	ELSE false -- Optional: Handle other cases if needed
+END AS edit_event_dates_times,
+CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.post::boolean
+   WHEN oi.host_id = sqlc.arg(main_host_id) THEN true
+	ELSE false -- Optional: Handle other cases if needed
+END AS post,
+CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.scan_code::boolean
+   WHEN oi.host_id = sqlc.arg(main_host_id) THEN true
+	ELSE false -- Optional: Handle other cases if needed
+END AS scan_code,
+CASE WHEN och_subquery.reservations IS NOT NULL THEN och_subquery.scan_code::boolean
+   WHEN oi.host_id = sqlc.arg(main_host_id) THEN true
+   ELSE false -- Optional: Handle other cases if needed
+END AS reservations,
+CASE WHEN och_subquery.option_id IS NOT NULL THEN 'co_host'
+   WHEN oi.host_id = sqlc.arg(main_host_id) THEN 'main_host'
+   ELSE 'none' -- Optional: Handle other cases if needed
+END AS host_type
+FROM options_infos oi
+JOIN options_info_details od ON od.option_id = oi.id
+JOIN users u ON u.id = oi.host_id
+LEFT JOIN (
+   SELECT DISTINCT option_id, scan_code, reservations, post, calender, edit_co_hosts, edit_option_info, edit_event_dates_times, insights
+   FROM option_co_hosts AS och
+   WHERE och.co_user_id = sqlc.arg(co_user_id) AND och.accepted = true
+) AS och_subquery ON oi.id = och_subquery.option_id
+WHERE ((oi.id = sqlc.arg(option_id) AND oi.host_id = sqlc.arg(main_host_id)) OR (oi.co_host_id = sqlc.arg(option_co_host_id) AND och_subquery.option_id IS NOT NULL)) AND oi.is_complete = true;
+
+
+-- name: ListOptionExperienceByLocation :many
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+FROM options_infos o_i
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+   JOIN shortlets s on o_i.id = s.option_id
+   JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+   JOIN option_questions o_q on o_i.id = o_q.option_id
+   JOIN options_prices o_p on o_i.id = o_p.option_id
+   JOIN locations l on o_i.id = l.option_id
+   JOIN users u on o_i.host_id = u.id
+   JOIN identity i_d on u.id = i_d.user_id
+WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND (o_i.category = $5 OR o_i.category_two = $5 OR o_i.category_three = $5)
+ORDER BY CASE WHEN lOWER(l.country)= $6 AND LOWER(l.state) = $7 THEN 0 ELSE 1 END, o_i.created_at DESC
+LIMIT $8
+OFFSET $9;
+
+-- name: GetOptionExperienceByOptionUserID :one
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+FROM options_infos o_i
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+   JOIN shortlets s on o_i.id = s.option_id
+   JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+   JOIN option_questions o_q on o_i.id = o_q.option_id
+   JOIN options_prices o_p on o_i.id = o_p.option_id
+   JOIN locations l on o_i.id = l.option_id
+   JOIN users u on o_i.host_id = u.id
+   JOIN identity i_d on u.id = i_d.user_id
+WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two));
+
+-- name: GetOptionExperienceByDeepLinkID :one
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+FROM options_infos o_i
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+   JOIN shortlets s on o_i.id = s.option_id
+   JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+   JOIN option_questions o_q on o_i.id = o_q.option_id
+   JOIN options_prices o_p on o_i.id = o_p.option_id
+   JOIN locations l on o_i.id = l.option_id
+   JOIN users u on o_i.host_id = u.id
+   JOIN identity i_d on u.id = i_d.user_id
+WHERE  o_i.deep_link_id = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two));
+
+-- name: GetOptionExperienceMap :one
+SELECT o_i.option_user_id, o_i.currency, o_i_d.host_name_option, o_i_p.cover_image, o_i.is_verified, o_p.price, l.state, l.country, o_i.category
+FROM options_infos o_i
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+   JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+   JOIN options_prices o_p on o_i.id = o_p.option_id
+   JOIN locations l on o_i.id = l.option_id
+   JOIN users u on o_i.host_id = u.id
+WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two));
+
+-- name: ListOptionExperience :many
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category
+FROM options_infos o_i
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+   JOIN shortlets s on o_i.id = s.option_id
+   JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+   JOIN option_questions o_q on o_i.id = o_q.option_id
+   JOIN options_prices o_p on o_i.id = o_p.option_id
+   JOIN locations l on o_i.id = l.option_id
+   JOIN users u on o_i.host_id = u.id
+   JOIN identity i_d on u.id = i_d.user_id
+WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND (o_i.category = $5 OR o_i.category_two = $5 OR o_i.category_three = $5);
+
+-- name: GetOptionExperienceCount :one
+SELECT COUNT(*)
+FROM options_infos o_i
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+   JOIN shortlets s on o_i.id = s.option_id
+   JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+   JOIN option_questions o_q on o_i.id = o_q.option_id
+   JOIN options_prices o_p on o_i.id = o_p.option_id
+   JOIN users u on u.id = o_i.host_id
+WHERE o_i.is_complete = $1 AND o_i.is_active = $2 AND o_i.main_option_type = $3 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND (o_i.category = $4 OR o_i.category_two = $4 OR o_i.category_three = $4) AND u.is_active = $5;
+
+-- name: GetOptionCount :one
+SELECT COUNT(*)
+FROM options_infos o_i
+WHERE host_id = $1;
+
+-- name: ListEventExperienceByLocation :many
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+FROM options_infos o_i
+JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+   JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+   JOIN option_questions o_q on o_i.id = o_q.option_id
+   JOIN event_infos e_i on o_i.id = e_i.option_id
+   JOIN users u on o_i.host_id = u.id
+   JOIN identity i_d on u.id = i_d.user_id
+LEFT JOIN event_date_times e_d_t on e_i.option_id = e_d_t.event_info_id
+LEFT JOIN event_date_locations e_d_l ON e_d_t.id = e_d_l.event_date_time_id
+WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND (o_i.category = $5 OR o_i.category_two = $5 OR o_i.category_three = $5)
+ORDER BY CASE WHEN LOWER(e_d_l.country) = $6 AND LOWER(e_d_l.state) = $7 THEN 0 ELSE 1 END, o_i.created_at DESC
+LIMIT $8
+OFFSET $9;
+
+
+-- name: ListEventExperience :many
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+FROM options_infos o_i
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+   JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+   JOIN option_questions o_q on o_i.id = o_q.option_id
+   JOIN event_infos e_i on o_i.id = e_i.option_id
+   JOIN users u on o_i.host_id = u.id
+   JOIN identity i_d on u.id = i_d.user_id
+WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND (o_i.category = $5 OR o_i.category_two = $5 OR o_i.category_three = $5);
+
+-- name: GetEventExperienceByOptionUserID :one
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+FROM options_infos o_i
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+   JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+   JOIN option_questions o_q on o_i.id = o_q.option_id
+   JOIN event_infos e_i on o_i.id = e_i.option_id
+   JOIN users u on o_i.host_id = u.id
+   JOIN identity i_d on u.id = i_d.user_id
+LEFT JOIN event_date_times e_d_t on e_i.option_id = e_d_t.event_info_id
+LEFT JOIN event_date_locations e_d_l ON e_d_t.id = e_d_l.event_date_time_id
+WHERE o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two));
+
+-- name: GetEventExperienceByDeepLinkID :one
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+FROM options_infos o_i
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+   JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+   JOIN option_questions o_q on o_i.id = o_q.option_id
+   JOIN event_infos e_i on o_i.id = e_i.option_id
+   JOIN users u on o_i.host_id = u.id
+   JOIN identity i_d on u.id = i_d.user_id
+LEFT JOIN event_date_times e_d_t on e_i.option_id = e_d_t.event_info_id
+LEFT JOIN event_date_locations e_d_l ON e_d_t.id = e_d_l.event_date_time_id
+WHERE o_i.deep_link_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two));
+
+-- name: GetEventExperienceCount :one
+SELECT COUNT(*)
+FROM options_infos o_i
+LEFT JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+LEFT JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+LEFT JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+LEFT JOIN event_infos e_i on o_i.id = e_i.option_id
+LEFT JOIN event_date_times e_d_t on e_i.option_id = e_d_t.event_info_id
+LEFT JOIN event_date_locations e_d_l ON e_d_t.id = e_d_l.event_date_time_id
+LEFT JOIN users u on u.id = o_i.host_id
+WHERE o_i.is_complete = $1 AND o_i.is_active = $2 AND o_i.main_option_type = $3 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND e_d_t.is_active = true AND (o_i.category = $4 OR o_i.category_two = $4 OR o_i.category_three = $4) AND u.is_active = $5;
+
+-- name: CountOptionInfoInsight :one
+SELECT Count(*)
+FROM options_infos oi
+   JOIN options_info_details od on oi.id = od.option_id
+   JOIN options_infos_status ois on ois.option_id = od.option_id
+   JOIN complete_option_info coi on oi.id = coi.option_id
+   JOIN options_info_photos op on oi.id = op.option_id
+   LEFT JOIN (
+   SELECT DISTINCT option_id, scan_code, reservations, post, calender, edit_co_hosts, insights, edit_option_info, edit_event_dates_times
+   FROM option_co_hosts AS och
+   WHERE och.co_user_id = $2 AND och.accepted = true
+) AS och_subquery ON oi.id = och_subquery.option_id
+WHERE (oi.host_id = $1 OR och_subquery.option_id IS NOT NULL) AND (oi.host_id = $1 OR och_subquery.insights = true) AND oi.is_complete = $3 AND oi.is_active = $4 AND oi.main_option_type = $5;
+
+
+-- name: ListOptionInfoInsight :many
+SELECT oi.id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.cover_image, ois.status AS option_status, oi.option_user_id,
+CASE
+   WHEN och_subquery.option_id IS NOT NULL THEN 'co_host'
+   WHEN oi.host_id = $1 THEN 'main_host'
+   ELSE 'none' -- Optional: Handle other cases if needed
+END AS host_type
+FROM options_infos oi
+   JOIN options_info_details od on oi.id = od.option_id
+   JOIN options_infos_status ois on ois.option_id = od.option_id
+   JOIN complete_option_info coi on oi.id = coi.option_id
+   JOIN options_info_photos op on oi.id = op.option_id
+   LEFT JOIN (
+   SELECT DISTINCT option_id, scan_code, reservations, post, calender, edit_co_hosts, insights, edit_option_info, edit_event_dates_times
+   FROM option_co_hosts AS och
+   WHERE och.co_user_id = $2 AND och.accepted = true
+) AS och_subquery ON oi.id = och_subquery.option_id
+WHERE (oi.host_id = $1 OR och_subquery.option_id IS NOT NULL) AND (oi.host_id = $1 OR och_subquery.insights = true) AND oi.is_complete = $3 AND oi.is_active = $4  AND oi.main_option_type = $5
+ORDER BY oi.created_at DESC
+LIMIT $6
+OFFSET $7;
+
+-- name: GetOptionInfoStartYear :one
+SELECT oi.created_at AS start_year
+FROM options_infos oi
+   LEFT JOIN (
+   SELECT DISTINCT option_id, scan_code, reservations, post, calender, edit_co_hosts, insights, edit_option_info, edit_event_dates_times
+   FROM option_co_hosts AS och
+   WHERE och.co_user_id = $2 AND och.accepted = true
+) AS och_subquery ON oi.id = och_subquery.option_id
+WHERE (oi.host_id = $1 OR och_subquery.option_id IS NOT NULL) AND (oi.host_id = $1 OR och_subquery.insights = true) AND oi.is_complete = $3 AND oi.is_active = $4 AND oi.main_option_type = $5
+ORDER BY oi.created_at ASC;

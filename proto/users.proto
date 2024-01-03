@@ -1,0 +1,16 @@
+syntax = "proto3";
+package pb;
+import "google/protobuf/timestamp.proto";
+option go_package = "flex_server/pb";
+
+
+
+message User {
+    string password  = 1;
+    string email = 2;
+    string username = 3;
+    string first_name = 4;
+    string currency = 5;
+    string last_name = 6;
+    google.protobuf.Timestamp date_of_birth = 7;
+}
