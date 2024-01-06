@@ -1225,17 +1225,142 @@ func (q *Queries) GetOptionInfoUserByUserID(ctx context.Context, optionUserID uu
 }
 
 const getOptionInfoUserIDByUserID = `-- name: GetOptionInfoUserIDByUserID :one
-SELECT u.user_id
+SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, photo, password_changed_at, u.created_at, u.updated_at, option_id, des, space_des, guest_access_des, interact_with_guests_des, pets_allowed, other_des, neighborhood_des, get_around_des, host_name_option, option_highlight, o_i_d.created_at, o_i_d.updated_at
 FROM options_infos o_i
    JOIN users u on o_i.host_id = u.id
+   JOIN options_info_details o_i_d on o_i_d.option_id = o_i.id
 WHERE o_i.option_user_id=$1
 `
 
-func (q *Queries) GetOptionInfoUserIDByUserID(ctx context.Context, optionUserID uuid.UUID) (uuid.UUID, error) {
+type GetOptionInfoUserIDByUserIDRow struct {
+	ID                    uuid.UUID `json:"id"`
+	CoHostID              uuid.UUID `json:"co_host_id"`
+	OptionUserID          uuid.UUID `json:"option_user_id"`
+	HostID                uuid.UUID `json:"host_id"`
+	DeepLinkID            uuid.UUID `json:"deep_link_id"`
+	PrimaryUserID         uuid.UUID `json:"primary_user_id"`
+	IsActive              bool      `json:"is_active"`
+	IsComplete            bool      `json:"is_complete"`
+	IsVerified            bool      `json:"is_verified"`
+	Category              string    `json:"category"`
+	CategoryTwo           string    `json:"category_two"`
+	CategoryThree         string    `json:"category_three"`
+	CategoryFour          string    `json:"category_four"`
+	IsTopSeller           bool      `json:"is_top_seller"`
+	TimeZone              string    `json:"time_zone"`
+	Currency              string    `json:"currency"`
+	OptionImg             string    `json:"option_img"`
+	OptionType            string    `json:"option_type"`
+	MainOptionType        string    `json:"main_option_type"`
+	CreatedAt             time.Time `json:"created_at"`
+	Completed             time.Time `json:"completed"`
+	UpdatedAt             time.Time `json:"updated_at"`
+	ID_2                  uuid.UUID `json:"id_2"`
+	UserID                uuid.UUID `json:"user_id"`
+	FirebaseID            uuid.UUID `json:"firebase_id"`
+	PublicID              uuid.UUID `json:"public_id"`
+	HashedPassword        string    `json:"hashed_password"`
+	DeepLinkID_2          uuid.UUID `json:"deep_link_id_2"`
+	FirebasePassword      string    `json:"firebase_password"`
+	Email                 string    `json:"email"`
+	PhoneNumber           string    `json:"phone_number"`
+	FirstName             string    `json:"first_name"`
+	Username              string    `json:"username"`
+	LastName              string    `json:"last_name"`
+	DateOfBirth           time.Time `json:"date_of_birth"`
+	DialCode              string    `json:"dial_code"`
+	DialCountry           string    `json:"dial_country"`
+	CurrentOptionID       string    `json:"current_option_id"`
+	Currency_2            string    `json:"currency_2"`
+	DefaultCard           string    `json:"default_card"`
+	DefaultPayoutCard     string    `json:"default_payout_card"`
+	DefaultAccountID      string    `json:"default_account_id"`
+	IsActive_2            bool      `json:"is_active_2"`
+	Photo                 string    `json:"photo"`
+	PasswordChangedAt     time.Time `json:"password_changed_at"`
+	CreatedAt_2           time.Time `json:"created_at_2"`
+	UpdatedAt_2           time.Time `json:"updated_at_2"`
+	OptionID              uuid.UUID `json:"option_id"`
+	Des                   string    `json:"des"`
+	SpaceDes              string    `json:"space_des"`
+	GuestAccessDes        string    `json:"guest_access_des"`
+	InteractWithGuestsDes string    `json:"interact_with_guests_des"`
+	PetsAllowed           bool      `json:"pets_allowed"`
+	OtherDes              string    `json:"other_des"`
+	NeighborhoodDes       string    `json:"neighborhood_des"`
+	GetAroundDes          string    `json:"get_around_des"`
+	HostNameOption        string    `json:"host_name_option"`
+	OptionHighlight       []string  `json:"option_highlight"`
+	CreatedAt_3           time.Time `json:"created_at_3"`
+	UpdatedAt_3           time.Time `json:"updated_at_3"`
+}
+
+func (q *Queries) GetOptionInfoUserIDByUserID(ctx context.Context, optionUserID uuid.UUID) (GetOptionInfoUserIDByUserIDRow, error) {
 	row := q.db.QueryRow(ctx, getOptionInfoUserIDByUserID, optionUserID)
-	var user_id uuid.UUID
-	err := row.Scan(&user_id)
-	return user_id, err
+	var i GetOptionInfoUserIDByUserIDRow
+	err := row.Scan(
+		&i.ID,
+		&i.CoHostID,
+		&i.OptionUserID,
+		&i.HostID,
+		&i.DeepLinkID,
+		&i.PrimaryUserID,
+		&i.IsActive,
+		&i.IsComplete,
+		&i.IsVerified,
+		&i.Category,
+		&i.CategoryTwo,
+		&i.CategoryThree,
+		&i.CategoryFour,
+		&i.IsTopSeller,
+		&i.TimeZone,
+		&i.Currency,
+		&i.OptionImg,
+		&i.OptionType,
+		&i.MainOptionType,
+		&i.CreatedAt,
+		&i.Completed,
+		&i.UpdatedAt,
+		&i.ID_2,
+		&i.UserID,
+		&i.FirebaseID,
+		&i.PublicID,
+		&i.HashedPassword,
+		&i.DeepLinkID_2,
+		&i.FirebasePassword,
+		&i.Email,
+		&i.PhoneNumber,
+		&i.FirstName,
+		&i.Username,
+		&i.LastName,
+		&i.DateOfBirth,
+		&i.DialCode,
+		&i.DialCountry,
+		&i.CurrentOptionID,
+		&i.Currency_2,
+		&i.DefaultCard,
+		&i.DefaultPayoutCard,
+		&i.DefaultAccountID,
+		&i.IsActive_2,
+		&i.Photo,
+		&i.PasswordChangedAt,
+		&i.CreatedAt_2,
+		&i.UpdatedAt_2,
+		&i.OptionID,
+		&i.Des,
+		&i.SpaceDes,
+		&i.GuestAccessDes,
+		&i.InteractWithGuestsDes,
+		&i.PetsAllowed,
+		&i.OtherDes,
+		&i.NeighborhoodDes,
+		&i.GetAroundDes,
+		&i.HostNameOption,
+		&i.OptionHighlight,
+		&i.CreatedAt_3,
+		&i.UpdatedAt_3,
+	)
+	return i, err
 }
 
 const getOptionShortletUHMData = `-- name: GetOptionShortletUHMData :one

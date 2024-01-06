@@ -17,8 +17,6 @@ import (
 	"github.com/nyaruka/phonenumbers"
 )
 
-
-
 func (server *Server) ForgotPasswordNotLogged(ctx *gin.Context) {
 	var req ForgotPasswordNotLoggedRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -126,8 +124,8 @@ func (server *Server) ForgotPasswordNotLogged(ctx *gin.Context) {
 			return
 		}
 		username = utils.RandomName()
-		name = user.FirstName + " " + user.LastName
-		err = SendEmailVerifyCode(server, req.Email, name, username, "ForgotPasswordNotLogged")
+		name = tools.CapitalizeFirstCharacter(user.FirstName) + " " + tools.CapitalizeFirstCharacter(user.LastName)
+		err = BrevoEmailCode(ctx, server, req.Email, name, username, "ForgotPasswordNotLogged")
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return

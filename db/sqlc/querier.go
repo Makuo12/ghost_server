@@ -330,7 +330,7 @@ type Querier interface {
 	GetOptionInfoStartYear(ctx context.Context, arg GetOptionInfoStartYearParams) (time.Time, error)
 	GetOptionInfoStatus(ctx context.Context, optionID uuid.UUID) (GetOptionInfoStatusRow, error)
 	GetOptionInfoUserByUserID(ctx context.Context, optionUserID uuid.UUID) (GetOptionInfoUserByUserIDRow, error)
-	GetOptionInfoUserIDByUserID(ctx context.Context, optionUserID uuid.UUID) (uuid.UUID, error)
+	GetOptionInfoUserIDByUserID(ctx context.Context, optionUserID uuid.UUID) (GetOptionInfoUserIDByUserIDRow, error)
 	GetOptionMessage(ctx context.Context, arg GetOptionMessageParams) (GetOptionMessageRow, error)
 	GetOptionPhotoCaption(ctx context.Context, arg GetOptionPhotoCaptionParams) (GetOptionPhotoCaptionRow, error)
 	GetOptionPrice(ctx context.Context, optionID uuid.UUID) (OptionsPrice, error)

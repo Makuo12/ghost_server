@@ -5,6 +5,7 @@ go 1.18
 require (
 	cloud.google.com/go/storage v1.27.0
 	firebase.google.com/go v3.13.0+incompatible
+	github.com/getbrevo/brevo-go v1.0.0
 	github.com/gorilla/websocket v1.5.0
 	github.com/jackc/pgx/v5 v5.3.1
 	github.com/robfig/cron/v3 v3.0.1
@@ -21,6 +22,7 @@ require (
 	cloud.google.com/go/firestore v1.9.0 // indirect
 	cloud.google.com/go/iam v0.8.0 // indirect
 	cloud.google.com/go/longrunning v0.3.0 // indirect
+	github.com/antihax/optional v1.0.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.2.1 // indirect
 	github.com/googleapis/gax-go/v2 v2.7.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

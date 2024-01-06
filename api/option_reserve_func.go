@@ -522,7 +522,7 @@ func HandleOptionReserveRequest(server *Server, ctx context.Context, payMethodRe
 	}
 	// Next want want to send a message
 	// We do this by storing it in the database
-	receiverID, err := server.store.GetOptionInfoUserIDByUserID(ctx, optionUserID)
+	receiver, err := server.store.GetOptionInfoUserIDByUserID(ctx, optionUserID)
 	if err != nil {
 		log.Printf("Error at HandleOptionReserveRequest in GetOptionInfoByUserID: %v optionID: %v referenceID: %v, pay_method_reference: %v\n", err.Error(), optionUserID, charge.Reference, payMethodReference)
 		err = fmt.Errorf("error 300 occurred, pls contact us")
@@ -533,25 +533,26 @@ func HandleOptionReserveRequest(server *Server, ctx context.Context, payMethodRe
 	// First we create a CreateMessageParams struct
 	// SenderID is the user because that is the person booking
 	// ReceiverID is the option.host_id because that is the owner
-
+	startDate, err := tools.ConvertDateFormat(reserveData.StartDate, tools.DateDMM)
+	if err != nil {
+		startDate = reserveData.StartDate
+	}
+	endDate, err := tools.ConvertDateFormat(reserveData.EndDate, tools.DateDMM)
+	if err != nil {
+		endDate = reserveData.EndDate
+	}
 	if len(msg) == 0 {
-		startDate, err := tools.ConvertDateFormat(reserveData.StartDate, tools.DateDMM)
-		if err != nil {
-			startDate = reserveData.StartDate
-		}
-		endDate, err := tools.ConvertDateFormat(reserveData.EndDate, tools.DateDMM)
-		if err != nil {
-			endDate = reserveData.EndDate
-		}
-		msg = fmt.Sprintf("Hey, I'd want to know if it's possible for me to stay at your place from %v to %v.", startDate, endDate)
+
+		msg = fmt.Sprintf("Hey, I'd want to know if it's possible for me to stay at %v from %v to %v.", receiver.HostNameOption, startDate, endDate)
 
 	}
+	header := fmt.Sprintf("Reservation request for %v, from %v.\nDates from %v to %v", receiver.HostNameOption, user.FirstName, startDate, endDate)
 	createdAt := time.Now().UTC()
 	// When a user makes a request for something we actually store it directly to redis
 	msgD, err := server.store.CreateMessage(ctx, db.CreateMessageParams{
 		MsgID:      uuid.New(),
 		SenderID:   user.UserID,
-		ReceiverID: receiverID,
+		ReceiverID: receiver.UserID,
 		Message:    msg,
 		Type:       "user_request",
 		Photo:      "none",
@@ -565,9 +566,12 @@ func HandleOptionReserveRequest(server *Server, ctx context.Context, payMethodRe
 		err = fmt.Errorf("error 301-e occurred, pls contact us")
 		return
 	}
-	HandleUserIdApn(ctx, server, receiverID, "Reservation request", msg)
+	// Send an email notification
+	BrevoReservationRequest(ctx, server, receiver.Email, receiver.FirstName, header, msg, "HandleOptionReserveRequest", user.ID)
+	//
+	HandleUserIdApn(ctx, server, receiver.ID, header, msg)
 	// When we create a message we want to create a room is this user and the receiver doesn't have a room
-	_, err = SingleContextRoom(ctx, server, user.UserID, receiverID, "HandleOptionReserveRequest")
+	_, err = SingleContextRoom(ctx, server, user.UserID, receiver.ID, "HandleOptionReserveRequest")
 	if err != nil {
 		log.Printf("Error at HandleOptionReserveRequest in SingleContextRoom: %v optionID: %v referenceID: %v, pay_method_reference: %v\n", err.Error(), optionUserID, charge.Reference, payMethodReference)
 	}

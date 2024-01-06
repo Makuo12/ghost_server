@@ -31,6 +31,7 @@ import (
 	"firebase.google.com/go/auth"
 	"firebase.google.com/go/messaging"
 
+	brevo "github.com/getbrevo/brevo-go/lib"
 	"google.golang.org/api/option"
 )
 
@@ -45,6 +46,7 @@ type Server struct {
 	Bucket     *storage.BucketHandle
 	ClientFire *auth.Client
 	ApnFire    *messaging.Client
+	Cfg        *brevo.Configuration
 }
 
 var RedisContext = context.Background()
@@ -84,6 +86,9 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	if err != nil {
 		log.Fatalln(err)
 	}
+	cfg := brevo.NewConfiguration()
+	//Configure API key authorization: api-key
+	cfg.AddDefaultHeader("api-key", config.BrevoApiKey)
 	server := &Server{
 		config:     config,
 		store:      store,
@@ -91,6 +96,7 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 		Bucket:     bucket,
 		ClientFire: clientFire,
 		ApnFire:    apnFire,
+		Cfg:        cfg,
 	}
 	// adr := []string{"redis_flex:6379"}
 	// rdb := redis.NewFailoverClient(&redis.FailoverOptions{

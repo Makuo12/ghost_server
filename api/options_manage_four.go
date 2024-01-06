@@ -102,7 +102,8 @@ func (server *Server) CreateOptionCoHost(ctx *gin.Context) {
 	case "events":
 		mainOption = "Events"
 	}
-	err = SendEmailInvitationCode(server, coHost.Email, "Co-host", option.MainOptionType, user.FirstName, mainOption, "CreateOptionCoHost", coHost.ID)
+
+	err = BrevoEmailInvitationCode(ctx, server, coHost.Email, "Co-host", mainOption, user.FirstName, option.MainOptionType, "CreateOptionCoHost", coHost.ID)
 	// we want to send an email to the cost host
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -466,7 +467,7 @@ func (server *Server) ResendInviteCoHost(ctx *gin.Context) {
 	case "events":
 		mainOption = "Events"
 	}
-	err = SendEmailInvitationCode(server, coHost.CoHostEmail, "Co-host", coHost.HostNameOption, coHost.MainHostName, mainOption, "ResendInviteCoHost", coHost.CoID)
+	err = BrevoEmailInvitationCode(ctx, server, coHost.CoHostEmail, "Co-host", mainOption, user.FirstName, option.MainOptionType, "ResendInviteCoHost", coHost.CoID)
 	// we want to send an email to the cost host
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

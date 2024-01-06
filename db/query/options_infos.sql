@@ -82,9 +82,10 @@ FROM options_infos o_i
 WHERE o_i.option_user_id=$1;
 
 -- name: GetOptionInfoUserIDByUserID :one
-SELECT u.user_id
+SELECT *
 FROM options_infos o_i
    JOIN users u on o_i.host_id = u.id
+   JOIN options_info_details o_i_d on o_i_d.option_id = o_i.id
 WHERE o_i.option_user_id=$1;
 
 -- name: GetOptionInfoUserByUserID :one

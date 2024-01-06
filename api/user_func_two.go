@@ -55,8 +55,8 @@ func (server *Server) ForgotPasswordLogged(ctx *gin.Context) {
 	case "email":
 		//EMAIL
 		username = utils.RandomName()
-		name := user.FirstName + " " + user.LastName
-		err = SendEmailVerifyCode(server, user.Email, name, username, "ForgotPasswordNotLogged")
+		name := tools.CapitalizeFirstCharacter(user.FirstName) + " " + tools.CapitalizeFirstCharacter(user.LastName)
+		err = BrevoEmailCode(ctx, server, user.Email, name, username, "ForgotPasswordNotLogged")
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
@@ -104,8 +104,8 @@ func (server *Server) JoinVerifyEmail(ctx *gin.Context) {
 		return
 	}
 	username = utils.RandomName()
-	name = "z"
-	err = SendEmailVerifyCode(server, req.Email, name, username, "ForgotPasswordNotLogged")
+	name = ""
+	err = BrevoEmailCode(ctx, server, req.Email, name, username, "ForgotPasswordNotLogged")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -160,9 +160,9 @@ func (server *Server) UpdateVerifyEmailPhone(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
 		}
-		name := user.FirstName + " " + user.LastName
+		name := tools.CapitalizeFirstCharacter(user.FirstName) + " " + tools.CapitalizeFirstCharacter(user.LastName)
 		username := utils.RandomName()
-		err = SendEmailVerifyCode(server, req.Email, name, username, "ForgotPasswordNotLogged")
+		err = BrevoEmailCode(ctx, server, req.Email, name, username, "ForgotPasswordNotLogged")
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
@@ -438,7 +438,7 @@ func (server *Server) CreateUserAPNDetail(ctx *gin.Context) {
 	// Once we create the delete the remaining
 	err = server.store.RemoveAllUserAPNDetailButOne(ctx, db.RemoveAllUserAPNDetailButOneParams{
 		UserID: user.ID,
-		ID: id,
+		ID:     id,
 	})
 	if err != nil {
 		log.Printf("Error at CreateUserAPNDetail in RemoveAllUserAPNDetailButOne err: %v, user: %v\n", err, ctx.ClientIP)

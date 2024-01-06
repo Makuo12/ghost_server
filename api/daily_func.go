@@ -162,10 +162,9 @@ func DailyDeactivateCoHost(ctx context.Context, server *Server) func() {
 				continue
 			}
 			topHeader := "End to co-hosting session."
-			header := fmt.Sprintf("%v, has ending the co-hosting session for %v.", coHost.CoUserFirstName, coHost.HostNameOption)
-			msg := fmt.Sprintf("Hey %v, %v has ending the co-hosting session for %v so all access you gave to %v would be removed.", coHost.MainHostName, coHost.CoUserFirstName, coHost.HostNameOption, coHost.CoUserFirstName)
+			msg := fmt.Sprintf("Hey %v, %v has ending the co-hosting session for %v so all access you gave to %v would be removed.", tools.CapitalizeFirstCharacter(coHost.MainHostName), tools.CapitalizeFirstCharacter(HandleSqlNullString(coHost.CoUserFirstName)), coHost.HostNameOption, tools.CapitalizeFirstCharacter(HandleSqlNullString(coHost.CoUserFirstName)))
 			// We would send an email
-			err = SendCustomEmail(server, coHost.MainUserEmail, coHost.MainHostName, header, topHeader, msg, "DailyDeactivateCoHost")
+			err = BrevoCoHostDeactivate(ctx, server, coHost.MainUserEmail, coHost.HostNameOption, tools.CapitalizeFirstCharacter(HandleSqlNullString(coHost.CoUserFirstName)), coHost.MainHostName, "DailyDeactivateCoHost", coHost.CoID)
 			if err != nil {
 				log.Printf("DailyDeactivateCoHost in SendCustomEmail: %v, err:%v, time: \n", id, err.Error())
 			}
