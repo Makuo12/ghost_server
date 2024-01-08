@@ -80,7 +80,7 @@ func (q *Queries) ListUidAPNDetail(ctx context.Context, userID uuid.UUID) ([]Use
 }
 
 const listUserIdAPNDetail = `-- name: ListUserIdAPNDetail :many
-SELECT ua.id, ua.user_id, device_name, model, identifier_for_vendor, token, ua.created_at, ua.updated_at, u.id, u.user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, photo, password_changed_at, u.created_at, u.updated_at
+SELECT ua.id, ua.user_id, device_name, model, identifier_for_vendor, token, ua.created_at, ua.updated_at, u.id, u.user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, password_changed_at, u.created_at, u.updated_at
 FROM user_apn_details ua
 JOIN users u on u.id = ua.user_id
 WHERE u.user_id = $1
@@ -116,6 +116,7 @@ type ListUserIdAPNDetailRow struct {
 	DefaultPayoutCard   string    `json:"default_payout_card"`
 	DefaultAccountID    string    `json:"default_account_id"`
 	IsActive            bool      `json:"is_active"`
+	IsDeleted           bool      `json:"is_deleted"`
 	Photo               string    `json:"photo"`
 	PasswordChangedAt   time.Time `json:"password_changed_at"`
 	CreatedAt_2         time.Time `json:"created_at_2"`
@@ -161,6 +162,7 @@ func (q *Queries) ListUserIdAPNDetail(ctx context.Context, userID uuid.UUID) ([]
 			&i.DefaultPayoutCard,
 			&i.DefaultAccountID,
 			&i.IsActive,
+			&i.IsDeleted,
 			&i.Photo,
 			&i.PasswordChangedAt,
 			&i.CreatedAt_2,

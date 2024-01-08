@@ -979,6 +979,7 @@ type User struct {
 	DefaultPayoutCard string    `json:"default_payout_card"`
 	DefaultAccountID  string    `json:"default_account_id"`
 	IsActive          bool      `json:"is_active"`
+	IsDeleted         bool      `json:"is_deleted"`
 	Photo             string    `json:"photo"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`

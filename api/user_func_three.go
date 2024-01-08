@@ -82,6 +82,11 @@ func (server *Server) JoinWithPhone(ctx *gin.Context) {
 		ctx.JSON(http.StatusForbidden, errorResponse(err))
 		return
 	}
+	if user.IsDeleted {
+		err = fmt.Errorf("this account does not exist")
+		ctx.JSON(http.StatusNotFound, errorResponse(err))
+		return
+	}
 	dial_number_code := num.GetCountryCode() // +234
 	dial_country := req.CountryName          // Nigeria
 	username = utils.RandomName()
@@ -259,6 +264,11 @@ func (server *Server) ConfirmCodeJoin(ctx *gin.Context) {
 		if !user.IsActive {
 			err = fmt.Errorf("your request is forbidden as your account is deactivated. Contact our support team to know how to activate your account")
 			ctx.JSON(http.StatusForbidden, errorResponse(err))
+			return
+		}
+		if user.IsDeleted {
+			err = fmt.Errorf("this account does not exist")
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
 

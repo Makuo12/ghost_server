@@ -25,6 +25,7 @@ CREATE TABLE "users" (
   "default_payout_card" varchar NOT NULL DEFAULT 'none',
   "default_account_id" varchar NOT NULL DEFAULT 'none',
   "is_active" boolean NOT NULL DEFAULT true,
+  "is_deleted" boolean NOT NULL DEFAULT false,
   "photo" varchar NOT NULL DEFAULT 'none',
   "password_changed_at" timestamptz NOT NULL DEFAULT (now()),
   "created_at" timestamptz NOT NULL DEFAULT (now()),

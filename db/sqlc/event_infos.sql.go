@@ -102,7 +102,7 @@ func (q *Queries) GetEventInfoAnyPolicy(ctx context.Context, optionID uuid.UUID)
 }
 
 const getEventInfoByOption = `-- name: GetEventInfoByOption :one
-SELECT option_id, sub_category_type, event_type, e_i.created_at, e_i.updated_at, o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, photo, password_changed_at, u.created_at, u.updated_at
+SELECT option_id, sub_category_type, event_type, e_i.created_at, e_i.updated_at, o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, photo, password_changed_at, u.created_at, u.updated_at
 FROM event_infos e_i
    JOIN options_infos o_i on o_i.id = e_i.option_id
    JOIN users u on u.id = o_i.host_id
@@ -164,6 +164,7 @@ type GetEventInfoByOptionRow struct {
 	DefaultPayoutCard string    `json:"default_payout_card"`
 	DefaultAccountID  string    `json:"default_account_id"`
 	IsActive_2        bool      `json:"is_active_2"`
+	IsDeleted         bool      `json:"is_deleted"`
 	Photo             string    `json:"photo"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt_3       time.Time `json:"created_at_3"`
@@ -222,6 +223,7 @@ func (q *Queries) GetEventInfoByOption(ctx context.Context, arg GetEventInfoByOp
 		&i.DefaultPayoutCard,
 		&i.DefaultAccountID,
 		&i.IsActive_2,
+		&i.IsDeleted,
 		&i.Photo,
 		&i.PasswordChangedAt,
 		&i.CreatedAt_3,

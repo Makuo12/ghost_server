@@ -194,6 +194,16 @@ func (server *Server) LoginUser(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
+	if !user.IsActive {
+		err = fmt.Errorf("your request is forbidden as your account is deactivated. Contact our support team to know how to activate your account")
+		ctx.JSON(http.StatusForbidden, errorResponse(err))
+		return
+	}
+	if user.IsDeleted {
+		err = fmt.Errorf("this email isn't registered with Flizzup, try entering the email again or signing up")
+		ctx.JSON(http.StatusNotFound, errorResponse(err))
+		return
+	}
 	err = utils.CheckPassword(req.Password, user.HashedPassword)
 	if err != nil {
 		log.Printf("error at LoginUser at CheckPassword: %v \n", err)
@@ -257,6 +267,11 @@ func (server *Server) UpdateCurrency(ctx *gin.Context) {
 	if !user.IsActive {
 		err = fmt.Errorf("your request is forbidden as your account is deactivated. Contact our support team to know how to activate your account")
 		ctx.JSON(http.StatusForbidden, errorResponse(err))
+		return
+	}
+	if user.IsDeleted {
+		err = fmt.Errorf("this account does not exist")
+		ctx.JSON(http.StatusNotFound, errorResponse(err))
 		return
 	}
 	// We just want to update the currency

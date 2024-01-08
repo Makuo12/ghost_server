@@ -76,6 +76,11 @@ func (server *Server) ForgotPasswordNotLogged(ctx *gin.Context) {
 			ctx.JSON(http.StatusForbidden, errorResponse(err))
 			return
 		}
+		if user.IsDeleted {
+			err = fmt.Errorf("this account does not exist")
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
 		dial_number_code := num.GetCountryCode() // +234
 		dial_country := req.CountryName          // Nigeria
 		username = utils.RandomName()
@@ -118,9 +123,9 @@ func (server *Server) ForgotPasswordNotLogged(ctx *gin.Context) {
 			ctx.JSON(http.StatusForbidden, errorResponse(err))
 			return
 		}
-		if !user.IsActive {
-			err = fmt.Errorf("your request is forbidden as your account is deactivated. Contact our support team to know how to activate your account")
-			ctx.JSON(http.StatusForbidden, errorResponse(err))
+		if user.IsDeleted {
+			err = fmt.Errorf("this account does not exist")
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return
 		}
 		username = utils.RandomName()
@@ -196,6 +201,11 @@ func (server *Server) ConfirmCodeLogin(ctx *gin.Context) {
 	if !user.IsActive {
 		err = fmt.Errorf("your request is forbidden as your account is deactivated. Contact our support team to know how to activate your account")
 		ctx.JSON(http.StatusForbidden, errorResponse(err))
+		return
+	}
+	if user.IsDeleted {
+		err = fmt.Errorf("this account does not exist")
+		ctx.JSON(http.StatusNotFound, errorResponse(err))
 		return
 	}
 	accessToken, refreshToken, accessPayloadStringTime, err := HandleUserSession(ctx, server, user, "ConfirmCodeLogin")
@@ -503,7 +513,11 @@ func (server *Server) UpdatedConfirmCodeLogin(ctx *gin.Context) {
 			ctx.JSON(http.StatusForbidden, errorResponse(err))
 			return
 		}
-
+		if user.IsDeleted {
+			err = fmt.Errorf("this account does not exist")
+			ctx.JSON(http.StatusNotFound, errorResponse(err))
+			return
+		}
 		accessToken, refreshToken, accessPayloadStringTime, err = HandleUserSession(ctx, server, user, "ConfirmCodeLogin")
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))

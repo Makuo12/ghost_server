@@ -9,13 +9,14 @@ import (
 	brevo "github.com/getbrevo/brevo-go/lib"
 )
 
-func SendEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName string, toEmail string, code string, templateID string, funcName string, appKey string) (err error) {
+func SendEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName string, toEmail string, code string, templateID string, funcName string, appKey string, expire string) (err error) {
 	//cfg := brevo.NewConfiguration()
 	////Configure API key authorization: api-key
 	//cfg.AddDefaultHeader("api-key", appKey)
 	params := map[string]any{
-		"code": code,
-		"year": fmt.Sprint(time.Now().Year()),
+		"code":   code,
+		"year":   fmt.Sprint(time.Now().Year()),
+		"expire": expire,
 	}
 	dataString := fmt.Sprintf("<html><body><h1>Verify your email address</h1><div>Please verify your email address by entering the six-digit code to continue on Flizzup</div><div>%v</div><footer>Team Flizzup</footer></body></html", code)
 	tID, err := strconv.Atoi(templateID)

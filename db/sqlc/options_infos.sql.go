@@ -709,7 +709,7 @@ func (q *Queries) GetOptionInfoByUserID(ctx context.Context, optionUserID uuid.U
 }
 
 const getOptionInfoCustomer = `-- name: GetOptionInfoCustomer :one
-SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, u.email, u.phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, photo, password_changed_at, u.created_at, u.updated_at, o_i_d.option_id, des, space_des, guest_access_des, interact_with_guests_des, pets_allowed, other_des, neighborhood_des, get_around_des, host_name_option, option_highlight, o_i_d.created_at, o_i_d.updated_at, o_i_s.option_id, status, status_reason, snooze_start_date, snooze_end_date, unlist_reason, unlist_des, o_i_s.created_at, o_i_s.updated_at, s.option_id, space_type, any_space_shared, guest_welcomed, publish_check_in_steps, year_built, check_in_method, check_in_method_des, property_size, shared_spaces_with, property_size_unit, type_of_shortlet, s.created_at, s.updated_at, c_o_i.option_id, current_state, previous_state, c_o_i.created_at, c_o_i.updated_at, o_p.option_id, price, weekend_price, o_p.created_at, o_p.updated_at, o_a_s.option_id, advance_notice, auto_block_dates, advance_notice_condition, preparation_time, availability_window, o_a_s.created_at, o_a_s.updated_at, o_t_l.option_id, min_stay_day, max_stay_night, manual_approve_request_pass_max, allow_reservation_request, o_t_l.created_at, o_t_l.updated_at, o_b_m.option_id, instant_book, identity_verified, good_track_record, pre_book_msg, o_b_m.created_at, o_b_m.updated_at, b_m.option_id, b_m.email, b_m.phone_number, rules, payment_info, profile_photo, b_m.created_at, b_m.updated_at
+SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, u.email, u.phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, photo, password_changed_at, u.created_at, u.updated_at, o_i_d.option_id, des, space_des, guest_access_des, interact_with_guests_des, pets_allowed, other_des, neighborhood_des, get_around_des, host_name_option, option_highlight, o_i_d.created_at, o_i_d.updated_at, o_i_s.option_id, status, status_reason, snooze_start_date, snooze_end_date, unlist_reason, unlist_des, o_i_s.created_at, o_i_s.updated_at, s.option_id, space_type, any_space_shared, guest_welcomed, publish_check_in_steps, year_built, check_in_method, check_in_method_des, property_size, shared_spaces_with, property_size_unit, type_of_shortlet, s.created_at, s.updated_at, c_o_i.option_id, current_state, previous_state, c_o_i.created_at, c_o_i.updated_at, o_p.option_id, price, weekend_price, o_p.created_at, o_p.updated_at, o_a_s.option_id, advance_notice, auto_block_dates, advance_notice_condition, preparation_time, availability_window, o_a_s.created_at, o_a_s.updated_at, o_t_l.option_id, min_stay_day, max_stay_night, manual_approve_request_pass_max, allow_reservation_request, o_t_l.created_at, o_t_l.updated_at, o_b_m.option_id, instant_book, identity_verified, good_track_record, pre_book_msg, o_b_m.created_at, o_b_m.updated_at, b_m.option_id, b_m.email, b_m.phone_number, rules, payment_info, profile_photo, b_m.created_at, b_m.updated_at
 FROM options_infos o_i
    JOIN users u on o_i.host_id = u.id
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
@@ -777,6 +777,7 @@ type GetOptionInfoCustomerRow struct {
 	DefaultPayoutCard           string    `json:"default_payout_card"`
 	DefaultAccountID            string    `json:"default_account_id"`
 	IsActive_2                  bool      `json:"is_active_2"`
+	IsDeleted                   bool      `json:"is_deleted"`
 	Photo                       string    `json:"photo"`
 	PasswordChangedAt           time.Time `json:"password_changed_at"`
 	CreatedAt_2                 time.Time `json:"created_at_2"`
@@ -913,6 +914,7 @@ func (q *Queries) GetOptionInfoCustomer(ctx context.Context, arg GetOptionInfoCu
 		&i.DefaultPayoutCard,
 		&i.DefaultAccountID,
 		&i.IsActive_2,
+		&i.IsDeleted,
 		&i.Photo,
 		&i.PasswordChangedAt,
 		&i.CreatedAt_2,
@@ -1113,7 +1115,7 @@ func (q *Queries) GetOptionInfoPhotoByOptionUserID(ctx context.Context, optionUs
 }
 
 const getOptionInfoUserByUserID = `-- name: GetOptionInfoUserByUserID :one
-SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, photo, password_changed_at, u.created_at, u.updated_at
+SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, photo, password_changed_at, u.created_at, u.updated_at
 FROM options_infos o_i
    JOIN users u on o_i.host_id = u.id
 WHERE o_i.option_user_id=$1
@@ -1163,6 +1165,7 @@ type GetOptionInfoUserByUserIDRow struct {
 	DefaultPayoutCard string    `json:"default_payout_card"`
 	DefaultAccountID  string    `json:"default_account_id"`
 	IsActive_2        bool      `json:"is_active_2"`
+	IsDeleted         bool      `json:"is_deleted"`
 	Photo             string    `json:"photo"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt_2       time.Time `json:"created_at_2"`
@@ -1216,6 +1219,7 @@ func (q *Queries) GetOptionInfoUserByUserID(ctx context.Context, optionUserID uu
 		&i.DefaultPayoutCard,
 		&i.DefaultAccountID,
 		&i.IsActive_2,
+		&i.IsDeleted,
 		&i.Photo,
 		&i.PasswordChangedAt,
 		&i.CreatedAt_2,
@@ -1225,7 +1229,7 @@ func (q *Queries) GetOptionInfoUserByUserID(ctx context.Context, optionUserID uu
 }
 
 const getOptionInfoUserIDByUserID = `-- name: GetOptionInfoUserIDByUserID :one
-SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, photo, password_changed_at, u.created_at, u.updated_at, option_id, des, space_des, guest_access_des, interact_with_guests_des, pets_allowed, other_des, neighborhood_des, get_around_des, host_name_option, option_highlight, o_i_d.created_at, o_i_d.updated_at
+SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, photo, password_changed_at, u.created_at, u.updated_at, option_id, des, space_des, guest_access_des, interact_with_guests_des, pets_allowed, other_des, neighborhood_des, get_around_des, host_name_option, option_highlight, o_i_d.created_at, o_i_d.updated_at
 FROM options_infos o_i
    JOIN users u on o_i.host_id = u.id
    JOIN options_info_details o_i_d on o_i_d.option_id = o_i.id
@@ -1276,6 +1280,7 @@ type GetOptionInfoUserIDByUserIDRow struct {
 	DefaultPayoutCard     string    `json:"default_payout_card"`
 	DefaultAccountID      string    `json:"default_account_id"`
 	IsActive_2            bool      `json:"is_active_2"`
+	IsDeleted             bool      `json:"is_deleted"`
 	Photo                 string    `json:"photo"`
 	PasswordChangedAt     time.Time `json:"password_changed_at"`
 	CreatedAt_2           time.Time `json:"created_at_2"`
@@ -1342,6 +1347,7 @@ func (q *Queries) GetOptionInfoUserIDByUserID(ctx context.Context, optionUserID 
 		&i.DefaultPayoutCard,
 		&i.DefaultAccountID,
 		&i.IsActive_2,
+		&i.IsDeleted,
 		&i.Photo,
 		&i.PasswordChangedAt,
 		&i.CreatedAt_2,

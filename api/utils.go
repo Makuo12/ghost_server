@@ -15,7 +15,6 @@ import (
 	"github.com/google/uuid"
 )
 
-
 func HandleGetUser(ctx *gin.Context, server *Server) (user db.User, err error) {
 	payload, exists := ctx.Get(authorizationPayloadKey)
 	if !exists {
@@ -39,6 +38,10 @@ func HandleGetUser(ctx *gin.Context, server *Server) (user db.User, err error) {
 	}
 	if !user.IsActive {
 		err = fmt.Errorf("your request is forbidden as your account is deactivated. Contact our support team to know how to activate your account")
+		return
+	}
+	if user.IsDeleted {
+		err = fmt.Errorf("this account does not exist")
 		return
 	}
 	return

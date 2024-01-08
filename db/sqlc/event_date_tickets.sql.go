@@ -180,7 +180,7 @@ FROM event_date_tickets e_d_t
     JOIN options_infos o_i on o_i.id = e_d.event_info_id
     JOIN options_infos_status o_i_s on o_i_s.option_id = o_i.id
     JOIN users u on o_i.host_id = u.id
-WHERE o_i.option_user_id = $1 AND e_d_t.id = $2 AND e_d.id = $3 AND CAST(CONCAT(e_d_t.start_date, ' ', e_d_t.start_time) AS timestamp) < NOW() AND CAST(CONCAT(e_d_t.end_date, ' ', e_d_t.end_time) AS timestamp) > NOW() AND e_d.status = 'on_sale' AND o_i.is_complete = true AND o_i.is_active = true AND u.is_active = true AND (o_i_s.status = 'list' OR o_i_s.status = 'staged') AND  e_d.is_active = true AND e_d_t.is_active = true
+WHERE o_i.option_user_id = $1 AND e_d_t.id = $2 AND e_d.id = $3 AND CAST(CONCAT(e_d_t.start_date, ' ', e_d_t.start_time) AS timestamp) < NOW() AND CAST(CONCAT(e_d_t.end_date, ' ', e_d_t.end_time) AS timestamp) > NOW() AND e_d.status = 'on_sale' AND o_i.is_complete = true AND o_i.is_active = true AND u.is_active = true AND u.is_deleted = false AND (o_i_s.status = 'list' OR o_i_s.status = 'staged') AND  e_d.is_active = true AND e_d_t.is_active = true
 `
 
 type GetTicketByIDAndOptionIDParams struct {

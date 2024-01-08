@@ -822,6 +822,9 @@ func (server *Server) setupRouter() {
 	authRoutes.PUT("/users/reviews/user/remove-host", server.RemoveHostReview)
 	authRoutes.PUT("/users/reviews/user/remove-all-amenity", server.RemoveAllAmenityReview)
 
+	authRoutes.PUT("/users/account-change/user/change", server.AccountChange)
+	authRoutes.PUT("/users/account-change/user/verify-change", server.VerifyAccountChange)
+
 	// Deep links
 	authRoutes.PUT("/users/options/deep-link/get", server.GetOptionDeepLink)
 	authRoutes.PUT("/users/options/event-dates/deep-link/get", server.GetEventDateDeepLink)

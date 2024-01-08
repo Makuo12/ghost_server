@@ -558,7 +558,7 @@ func (q *Queries) ListOptionCOHostEmail(ctx context.Context, optionID uuid.UUID)
 
 const listOptionCOHostUser = `-- name: ListOptionCOHostUser :many
 SELECT 
-    co.id, option_id, co_user_id, accepted, co.email, co.is_active, reservations, post, scan_code, calender, insights, edit_option_info, edit_event_dates_times, edit_co_hosts, co.created_at, co.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, u.email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, u.is_active, photo, password_changed_at, u.created_at, u.updated_at
+    co.id, option_id, co_user_id, accepted, co.email, co.is_active, reservations, post, scan_code, calender, insights, edit_option_info, edit_event_dates_times, edit_co_hosts, co.created_at, co.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, u.email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, photo, password_changed_at, u.created_at, u.updated_at
 FROM option_co_hosts co
     JOIN users u on u.user_id::varchar = co.co_host_id
 WHERE is_active = true AND option_id = $1
@@ -602,6 +602,7 @@ type ListOptionCOHostUserRow struct {
 	DefaultPayoutCard   string    `json:"default_payout_card"`
 	DefaultAccountID    string    `json:"default_account_id"`
 	IsActive_2          bool      `json:"is_active_2"`
+	IsDeleted           bool      `json:"is_deleted"`
 	Photo               string    `json:"photo"`
 	PasswordChangedAt   time.Time `json:"password_changed_at"`
 	CreatedAt_2         time.Time `json:"created_at_2"`
@@ -655,6 +656,7 @@ func (q *Queries) ListOptionCOHostUser(ctx context.Context, optionID uuid.UUID) 
 			&i.DefaultPayoutCard,
 			&i.DefaultAccountID,
 			&i.IsActive_2,
+			&i.IsDeleted,
 			&i.Photo,
 			&i.PasswordChangedAt,
 			&i.CreatedAt_2,
