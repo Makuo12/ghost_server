@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"strings"
 
+	"firebase.google.com/go/auth"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -98,10 +100,16 @@ func (server *Server) VerifyAccountChange(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
 		}
-		_, err = server.store.UpdateUser(ctx, db.UpdateUserParams{
+		// We would also change the email
+		email := fmt.Sprintf("%v@flizzup.com", uuid.New())
+		userUpdate, err := server.store.UpdateUser(ctx, db.UpdateUserParams{
 			IsDeleted: pgtype.Bool{
 				Valid: true,
 				Bool:  true,
+			},
+			Email: pgtype.Text{
+				String: email,
+				Valid:  true,
 			},
 			ID: user.ID,
 		})
@@ -110,6 +118,17 @@ func (server *Server) VerifyAccountChange(ctx *gin.Context) {
 			err = fmt.Errorf("could not delete this account try again")
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
+		}
+		// We want to update the user email firebase
+		params := (&auth.UserToUpdate{}).
+			Email(userUpdate.Email).
+			EmailVerified(true)
+		u, err := server.ClientFire.UpdateUser(ctx, tools.UuidToString(userUpdate.FirebaseID), params)
+		if err != nil {
+			log.Printf("error updating user in firebase: %v, userID: %v\n", err, user.ID)
+			err = nil
+		} else {
+			log.Printf("Successfully updated user in firebase: %v\n", u)
 		}
 		err = server.store.DeleteSessionByClientID(ctx, ctx.Request.UserAgent())
 		if err != nil {
