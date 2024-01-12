@@ -314,7 +314,7 @@ func (server *Server) ConfirmCode(ctx *gin.Context) {
 		}
 		_, code, username, email, confirm := split[0], split[1], split[2], split[3], split[4]
 		if code != req.Code {
-			err = fmt.Errorf("the code was incorrect, enter the code sent to you via SMS or press send again to receive a new code")
+			err = fmt.Errorf("the code was incorrect, enter the code sent to you via email or press send again to receive a new code")
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
 		}
