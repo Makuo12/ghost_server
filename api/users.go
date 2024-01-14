@@ -181,7 +181,7 @@ func (server *Server) LoginUser(ctx *gin.Context) {
 		return
 	}
 
-	user, err := server.store.GetUserWithEmail(ctx, req.Email)
+	user, err := server.store.GetUserWithEmail(ctx, strings.ToLower(req.Email))
 	if err != nil {
 		if err == db.ErrorRecordNotFound {
 			log.Printf("error at LoginUser in GetUserWithEmail: %v \n", err)
