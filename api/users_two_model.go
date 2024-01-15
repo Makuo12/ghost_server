@@ -68,10 +68,11 @@ type GetUserCurrencyRes struct {
 }
 
 type GetUserIsHostRes struct {
-	IsHost              bool `json:"is_host"`
-	HasIncomplete       bool `json:"has_incomplete"`
-	UnreadMessages      int  `json:"unread_messages"`
-	UnreadNotifications int  `json:"unread_notifications"`
+	IsHost              bool   `json:"is_host"`
+	HasIncomplete       bool   `json:"has_incomplete"`
+	UnreadMessages      int    `json:"unread_messages"`
+	UnreadNotifications int    `json:"unread_notifications"`
+	ProfileImage        string `json:"profile_image"`
 }
 
 type GetUserProfilePhotoRes struct {

@@ -484,3 +484,12 @@ type RemoveLegalRepresentParams struct {
 	OptionID string `json:"option_id" binding:"required"`
 	Name     string `json:"name" binding:"required"`
 }
+
+type GetMainOptionQuestionRes struct {
+	HostAsIndividual  bool   `json:"host_as_individual"`
+	OrganizationName  string `json:"organization_name"`
+	OrganizationEmail string `json:"organization_email"`
+}
+
+
+

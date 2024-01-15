@@ -402,10 +402,11 @@ func (server *Server) GetUserIsHost(ctx *gin.Context) {
 	unreadMsgs := UserUnreadMessages(ctx, server, user, "GetUserIsHost")
 	unreadNotifications := UserUnreadNotifications(ctx, server, user, "GetUserIsHost")
 	res := GetUserIsHostRes{
-		IsHost:        userIsHost,
-		HasIncomplete: hasIncomplete,
-		UnreadMessages: unreadMsgs,
+		IsHost:              userIsHost,
+		HasIncomplete:       hasIncomplete,
+		UnreadMessages:      unreadMsgs,
 		UnreadNotifications: int(unreadNotifications),
+		ProfileImage:        user.Photo,
 	}
 	log.Printf("GetUserIsHost sent successfully (%v) id: %v\n", user.Email, user.ID)
 	ctx.JSON(http.StatusOK, res)

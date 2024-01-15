@@ -911,7 +911,45 @@ func (server *Server) UpdateOptionInfoStatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-//
+func (server *Server) GetOptionQuestion(ctx *gin.Context) {
+	var req GetOptionParams
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Printf("Error at GetOptionQuestionParams in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.OptionID)
+		err = fmt.Errorf("a title is required")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	log.Println(req)
+	requestID, err := tools.StringToUuid(req.OptionID)
+	if err != nil {
+		log.Printf("Error at tools.StringToUuid: %v, optionID: %v \n", err.Error(), req.OptionID)
+		err = fmt.Errorf("error occurred while processing your request")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	user, _, option, isCoHost, userCoHost, err := HandleGetCompleteOptionEditOptionInfo(requestID, ctx, server, true)
+	if err != nil {
+		err = fmt.Errorf("you cannot access this resource")
+		ctx.JSON(http.StatusForbidden, errorResponse(err))
+		return
+	}
+	question, err := server.store.GetOptionQuestion(ctx, option.ID)
+	if err != nil {
+		log.Printf("There an error at GetOptionQuestion at .GetOptionQuestion: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+		err := fmt.Errorf("request was unsuccessful")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	if isCoHost {
+		HandleCoHostUpdateMsg(ctx, server, userCoHost, user, option, "GetOptionQuestion", "host question", "update host question")
+	}
+	res := GetMainOptionQuestionRes{
+		HostAsIndividual:  question.HostAsIndividual,
+		OrganizationName:  question.OrganizationName,
+		OrganizationEmail: question.OrganizationEmail,
+	}
+	ctx.JSON(http.StatusOK, res)
+}
 
 func (server *Server) UpdateOptionQuestion(ctx *gin.Context) {
 	var req UpdateOptionQuestionParams

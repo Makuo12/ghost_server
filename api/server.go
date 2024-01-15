@@ -829,6 +829,10 @@ func (server *Server) setupRouter() {
 	authRoutes.PUT("/users/options/deep-link/get", server.GetOptionDeepLink)
 	authRoutes.PUT("/users/options/event-dates/deep-link/get", server.GetEventDateDeepLink)
 
+	// Option Questions
+	authRoutes.PUT("/users/options/option-question/get", server.GetOptionQuestion)
+	authRoutes.PUT("/users/options/option-question/update", server.UpdateOptionQuestion)
+
 	// Websocket
 	authRoutes.GET("/ws/main-user/:app/:room_type", func(ctx *gin.Context) {
 		roomType := ctx.Param("room_type")
