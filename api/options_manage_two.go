@@ -600,7 +600,7 @@ func (server *Server) ListCheckInStep(ctx *gin.Context) {
 			log.Printf("There an error at ListCheckInStep at ListCheckInStepOrdered: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
 		}
 		res := "none"
-		ctx.JSON(http.StatusNotFound, res)
+		ctx.JSON(http.StatusNoContent, res)
 		return
 	}
 	var res ListCheckInStepRes
@@ -757,7 +757,7 @@ func (server *Server) RemoveCheckInStep(ctx *gin.Context) {
 			log.Printf("There an error at RemoveCheckInStep at ListCheckInStepOrdered: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
 		}
 		res := "none"
-		ctx.JSON(http.StatusNotFound, res)
+		ctx.JSON(http.StatusNoContent, res)
 		return
 	}
 	var res ListCheckInStepRes
