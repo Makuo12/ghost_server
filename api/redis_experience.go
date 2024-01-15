@@ -138,10 +138,10 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 		for _, cat := range algo.EventCategory {
 			catKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_EVENT, cat)
 			eventInfos, err := server.store.ListEventExperience(ctx, db.ListEventExperienceParams{
-				IsComplete:      true,
-				IsActive:        true,
-				IsActive_2:      true,
-				MainOptionType:  "events",
+				IsComplete:     true,
+				IsActive:       true,
+				IsActive_2:     true,
+				MainOptionType: "events",
 			})
 			if err != nil || len(eventInfos) == 0 {
 				if err != nil {
@@ -152,10 +152,13 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 			var eventKeys []string
 			for _, e := range eventInfos {
 				eventKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_EVENT, e.OptionUserID)
-				if e.Status == "unlist" || e.Status == "snooze" || (e.Category != cat && e.CategoryTwo != cat && e.CategoryThree != cat) {
-					err := RedisClient.Del(RedisContext, eventKey).Err()
-					if err != nil {
-						log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.Del, eventKey %v err: %v\n", eventKey, err)
+				cats := []string{e.Category, e.CategoryTwo, e.CategoryThree}
+				if e.Status == "unlist" || e.Status == "snooze" || !tools.IsInList(cats, cat) {
+					if e.Status == "unlist" || e.Status == "snooze" {
+						err := RedisClient.Del(RedisContext, eventKey).Err()
+						if err != nil {
+							log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.Del, eventKey %v err: %v\n", eventKey, err)
+						}
 					}
 					// We want to remove it from the SMEMBERS
 					err = RedisClient.SRem(RedisContext, catKey, eventKey).Err()
@@ -205,7 +208,7 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 					constants.CURRENCY,
 					e.Currency,
 				}
-				
+
 				err := RedisClient.HSet(RedisContext, eventKey, data).Err()
 				if err != nil {
 					log.Printf("Error at HandleOptionExperienceToRedis in HSet(RedisContext, eventKey err: %v\n", err)
@@ -239,10 +242,10 @@ func HandleOptionExperienceToRedis(ctx context.Context, server *Server) func() {
 		for _, cat := range algo.OptionCategory {
 			catKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_OPTION, cat)
 			optionInfos, err := server.store.ListOptionExperience(ctx, db.ListOptionExperienceParams{
-				IsComplete:      true,
-				IsActive:        true,
-				IsActive_2:      true,
-				MainOptionType:  "options",
+				IsComplete:     true,
+				IsActive:       true,
+				IsActive_2:     true,
+				MainOptionType: "options",
 			})
 			if err != nil || len(optionInfos) == 0 {
 				if err != nil {
@@ -255,20 +258,24 @@ func HandleOptionExperienceToRedis(ctx context.Context, server *Server) func() {
 				// If perform some checks
 				optionKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_OPTION, o.OptionUserID)
 				locationKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_OPTION_LOCATION, o.OptionUserID)
-				if o.Status == "unlist" || o.Status == "snooze" || (o.Category != cat && o.CategoryTwo != cat && o.CategoryThree != cat) {
-					err := RedisClient.Del(RedisContext, optionKey).Err()
-					if err != nil {
-						log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.Del, optionKey %v err: %v\n", optionKey, err)
-					}
+				cats := []string{o.Category, o.CategoryTwo, o.CategoryThree}
+				if o.Status == "unlist" || o.Status == "snooze" || !tools.IsInList(cats, cat) {
 					// We want to remove it from the SMEMBERS
+					if o.Status == "unlist" || o.Status == "snooze" {
+						err := RedisClient.Del(RedisContext, optionKey).Err()
+						if err != nil {
+							log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.Del, optionKey %v err: %v\n", optionKey, err)
+						}
+						err = RedisClient.ZRem(RedisContext, constants.ALL_EXPERIENCE_LOCATION, locationKey).Err()
+						if err != nil {
+							log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.ZRem(, optionKey %v err: %v\n", optionKey, err)
+						}
+					}
 					err = RedisClient.SRem(RedisContext, catKey, optionKey).Err()
 					if err != nil {
 						log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.SRem, optionKey %v err: %v\n", optionKey, err)
 					}
-					err = RedisClient.ZRem(RedisContext, constants.ALL_EXPERIENCE_LOCATION, locationKey).Err()
-					if err != nil {
-						log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.ZRem(, optionKey %v err: %v\n", optionKey, err)
-					}
+
 					continue
 				}
 				data := ConvertExperienceOptionDataToSlice(o)

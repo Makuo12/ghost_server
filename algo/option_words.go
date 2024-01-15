@@ -118,4 +118,4 @@ var resortSpaceType = []string{"private_room", "shared_room", "full_place"}
 
 var optionSpaceType = map[string][]string{"bed_and_breakfast": bedAndBreakfastSpaceType, "boat": boatSpaceType, "earth_home": earthHomeSpaceType, "historical_home": historicalHomeSpaceType, "private_room": privateRoomSpaceType, "hotel": hotelSpaceType, "unique": uniqueSpaceType, "shared_room": sharedRoomSpaceType, "resort": resortSpaceType, "house": houseSpaceType, "beach": beachSpaceType, "studio": studioSpaceType}
 
-var OptionCategory = []string{"house", "bed_and_breakfast", "boat", "unique", "resort", "historical_homes", "private_room", "earth_homes", "shared_room", "house", "beach", "studio"}
+var OptionCategory = []string{"house", "bed_and_breakfast", "boat", "unique", "resort", "historical_homes", "private_room", "earth_homes", "shared_room", "beach", "studio"}

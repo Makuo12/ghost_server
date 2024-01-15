@@ -81,3 +81,14 @@ func SnoozeDatesGood(startDate time.Time, endDate time.Time) error {
 }
 
 var FakeDate = "1777-12-07"
+
+
+
+func IsInList(a []string, s string) bool {
+	for _, v := range a {
+		if v == s {
+			return true
+		}
+	}
+	return false
+}
