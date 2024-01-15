@@ -596,7 +596,9 @@ func (server *Server) ListCheckInStep(ctx *gin.Context) {
 	}
 	steps, err := server.store.ListCheckInStepOrdered(ctx, option.ID)
 	if err != nil || len(steps) == 0 {
-		log.Printf("There an error at ListCheckInStep at ListCheckInStepOrdered: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+		if err != nil {
+			log.Printf("There an error at ListCheckInStep at ListCheckInStepOrdered: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+		}
 		res := "none"
 		ctx.JSON(http.StatusNotFound, res)
 		return
@@ -750,8 +752,10 @@ func (server *Server) RemoveCheckInStep(ctx *gin.Context) {
 		return
 	}
 	steps, err := server.store.ListCheckInStepOrdered(ctx, option.ID)
-	if err != nil {
-		log.Printf("There an error at RemoveCheckInStep at ListCheckInStepOrdered: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+	if err != nil || len(steps) == 0 {
+		if err != nil {
+			log.Printf("There an error at RemoveCheckInStep at ListCheckInStepOrdered: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+		}
 		res := "none"
 		ctx.JSON(http.StatusNotFound, res)
 		return
