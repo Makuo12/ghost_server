@@ -170,8 +170,6 @@ func HandleChargeToOptionData(ctx context.Context, server *Server, charge db.Cha
 		IsComplete:      true,
 		IsActive:        true,
 		IsActive_2:      true,
-		OptionStatusOne: "list",
-		OptionStatusTwo: "staged",
 	})
 	if err != nil {
 		log.Printf("Error at FuncName %v HandleChargeToOptionData in GetOptionExperienceByOptionUserID charge.NightlyGuestFee err: %v, user: %v\n", funcName, err, charge.ID)

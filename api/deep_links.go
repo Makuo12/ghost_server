@@ -103,8 +103,6 @@ func (server *Server) GetOptionDeepLinkExperience(ctx *gin.Context) {
 		IsActive:        true,
 		IsComplete:      true,
 		IsActive_2:      true,
-		OptionStatusOne: "list",
-		OptionStatusTwo: "staged",
 	})
 	if err != nil {
 		log.Printf("Error at GetDeepLinkExperience in .GetOptionExperienceByDeepLinkID err: %v, user: %v\n", err, ctx.ClientIP())
@@ -166,8 +164,6 @@ func (server *Server) GetEventDeepLinkExperience(ctx *gin.Context) {
 		IsComplete:      true,
 		IsActive:        true,
 		IsActive_2:      true,
-		OptionStatusOne: "list",
-		OptionStatusTwo: "staged",
 	})
 	if err != nil {
 		log.Printf("Error at GetEventDeepLinkExperience in GetEventExperienceByDeepLinkID err: %v, user: %v\n", err, ctx.ClientIP())
@@ -290,8 +286,6 @@ func (server *Server) GetEventDateDeepLinkExperience(ctx *gin.Context) {
 		IsComplete:      true,
 		IsActive:        true,
 		IsActive_2:      true,
-		OptionStatusOne: "list",
-		OptionStatusTwo: "staged",
 	})
 	if err != nil {
 		log.Printf("Error at GetEventDateDeepLinkExperience in GetEventExperienceByDeepLinkID err: %v, user: %v\n", err, ctx.ClientIP())

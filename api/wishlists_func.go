@@ -64,8 +64,6 @@ func HandleWishlistOptionExperience(ctx *gin.Context, server *Server, user db.Us
 			IsActive:        true,
 			IsComplete:      true,
 			IsActive_2:      true,
-			OptionStatusOne: "list",
-			OptionStatusTwo: "staged",
 		})
 		if err != nil {
 			log.Printf("Error at  HandleWishlistOptionExperience in GetOptionExperienceCount err: %v, user: %v\n", err, user.ID)
@@ -183,8 +181,6 @@ func HandleWishlistEventExperience(ctx *gin.Context, server *Server, user db.Use
 			IsComplete:      true,
 			IsActive:        true,
 			IsActive_2:      true,
-			OptionStatusOne: "list",
-			OptionStatusTwo: "staged",
 		})
 		if err != nil {
 			log.Printf("Error at  HandleWishlistOptionExperience in GetEventExperienceByOptionUserID err: %v, user: %v\n", err, user.ID)

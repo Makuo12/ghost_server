@@ -142,9 +142,6 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 				IsActive:        true,
 				IsActive_2:      true,
 				MainOptionType:  "events",
-				Category:        cat,
-				OptionStatusOne: "list",
-				OptionStatusTwo: "staged",
 			})
 			if err != nil || len(eventInfos) == 0 {
 				if err != nil {
@@ -154,6 +151,19 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 			}
 			var eventKeys []string
 			for _, e := range eventInfos {
+				eventKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_EVENT, e.OptionUserID)
+				if e.Status == "unlist" || e.Status == "snooze" || (e.Category != cat && e.CategoryTwo != cat && e.CategoryThree != cat) {
+					err := RedisClient.Del(RedisContext, eventKey).Err()
+					if err != nil {
+						log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.Del, eventKey %v err: %v\n", eventKey, err)
+					}
+					// We want to remove it from the SMEMBERS
+					err = RedisClient.SRem(RedisContext, catKey, eventKey).Err()
+					if err != nil {
+						log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.SRem, eventKey %v err: %v\n", eventKey, err)
+					}
+					continue
+				}
 				locationRedisList, _, price, ticketAvailable, startDateData, endDateData, hasFreeTicket := SetupExperienceEventData(ctx, server, e, db.ListEventExperienceByLocationRow{}, true, "HandleEventExperienceToRedis")
 				data := []string{
 					constants.OPTION_USER_ID,
@@ -195,7 +205,7 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 					constants.CURRENCY,
 					e.Currency,
 				}
-				eventKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_EVENT, e.OptionUserID)
+				
 				err := RedisClient.HSet(RedisContext, eventKey, data).Err()
 				if err != nil {
 					log.Printf("Error at HandleOptionExperienceToRedis in HSet(RedisContext, eventKey err: %v\n", err)
@@ -233,9 +243,6 @@ func HandleOptionExperienceToRedis(ctx context.Context, server *Server) func() {
 				IsActive:        true,
 				IsActive_2:      true,
 				MainOptionType:  "options",
-				Category:        cat,
-				OptionStatusOne: "list",
-				OptionStatusTwo: "staged",
 			})
 			if err != nil || len(optionInfos) == 0 {
 				if err != nil {
@@ -245,8 +252,25 @@ func HandleOptionExperienceToRedis(ctx context.Context, server *Server) func() {
 			}
 			var optionKeys []string
 			for _, o := range optionInfos {
+				// If perform some checks
 				optionKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_OPTION, o.OptionUserID)
 				locationKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_OPTION_LOCATION, o.OptionUserID)
+				if o.Status == "unlist" || o.Status == "snooze" || (o.Category != cat && o.CategoryTwo != cat && o.CategoryThree != cat) {
+					err := RedisClient.Del(RedisContext, optionKey).Err()
+					if err != nil {
+						log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.Del, optionKey %v err: %v\n", optionKey, err)
+					}
+					// We want to remove it from the SMEMBERS
+					err = RedisClient.SRem(RedisContext, catKey, optionKey).Err()
+					if err != nil {
+						log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.SRem, optionKey %v err: %v\n", optionKey, err)
+					}
+					err = RedisClient.ZRem(RedisContext, constants.ALL_EXPERIENCE_LOCATION, locationKey).Err()
+					if err != nil {
+						log.Printf("Error at HandleOptionExperienceToRedis in unlist in RedisClient.ZRem(, optionKey %v err: %v\n", optionKey, err)
+					}
+					continue
+				}
 				data := ConvertExperienceOptionDataToSlice(o)
 				err := RedisClient.HSet(RedisContext, optionKey, data).Err()
 				if err != nil {
@@ -261,7 +285,6 @@ func HandleOptionExperienceToRedis(ctx context.Context, server *Server) func() {
 					Longitude: tools.ConvertLocationStringToFloat(lng, 9),
 					Name:      locationKey,
 				}
-
 				err = RedisClient.GeoAdd(RedisContext, constants.ALL_EXPERIENCE_LOCATION, location).Err()
 				if err != nil {
 					log.Printf("Error at HandleOptionExperienceToRedis in RedisClient.GeoAdd(ctx, constants.ALL_EXPERIENCE_LOCATION err: %v\n", err)

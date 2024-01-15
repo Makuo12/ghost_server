@@ -61,16 +61,14 @@ FROM options_infos o_i
    JOIN identity i_d on u.id = i_d.user_id
 LEFT JOIN event_date_times e_d_t on e_i.option_id = e_d_t.event_info_id
 LEFT JOIN event_date_locations e_d_l ON e_d_t.id = e_d_l.event_date_time_id
-WHERE o_i.deep_link_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = $5 OR o_i_s.status = $6)
+WHERE o_i.deep_link_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze'
 `
 
 type GetEventExperienceByDeepLinkIDParams struct {
-	DeepLinkID      uuid.UUID `json:"deep_link_id"`
-	IsComplete      bool      `json:"is_complete"`
-	IsActive        bool      `json:"is_active"`
-	IsActive_2      bool      `json:"is_active_2"`
-	OptionStatusOne string    `json:"option_status_one"`
-	OptionStatusTwo string    `json:"option_status_two"`
+	DeepLinkID uuid.UUID `json:"deep_link_id"`
+	IsComplete bool      `json:"is_complete"`
+	IsActive   bool      `json:"is_active"`
+	IsActive_2 bool      `json:"is_active_2"`
 }
 
 type GetEventExperienceByDeepLinkIDRow struct {
@@ -98,8 +96,6 @@ func (q *Queries) GetEventExperienceByDeepLinkID(ctx context.Context, arg GetEve
 		arg.IsComplete,
 		arg.IsActive,
 		arg.IsActive_2,
-		arg.OptionStatusOne,
-		arg.OptionStatusTwo,
 	)
 	var i GetEventExperienceByDeepLinkIDRow
 	err := row.Scan(
@@ -135,16 +131,14 @@ FROM options_infos o_i
    JOIN identity i_d on u.id = i_d.user_id
 LEFT JOIN event_date_times e_d_t on e_i.option_id = e_d_t.event_info_id
 LEFT JOIN event_date_locations e_d_l ON e_d_t.id = e_d_l.event_date_time_id
-WHERE o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = $5 OR o_i_s.status = $6)
+WHERE o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze'
 `
 
 type GetEventExperienceByOptionUserIDParams struct {
-	OptionUserID    uuid.UUID `json:"option_user_id"`
-	IsComplete      bool      `json:"is_complete"`
-	IsActive        bool      `json:"is_active"`
-	IsActive_2      bool      `json:"is_active_2"`
-	OptionStatusOne string    `json:"option_status_one"`
-	OptionStatusTwo string    `json:"option_status_two"`
+	OptionUserID uuid.UUID `json:"option_user_id"`
+	IsComplete   bool      `json:"is_complete"`
+	IsActive     bool      `json:"is_active"`
+	IsActive_2   bool      `json:"is_active_2"`
 }
 
 type GetEventExperienceByOptionUserIDRow struct {
@@ -172,8 +166,6 @@ func (q *Queries) GetEventExperienceByOptionUserID(ctx context.Context, arg GetE
 		arg.IsComplete,
 		arg.IsActive,
 		arg.IsActive_2,
-		arg.OptionStatusOne,
-		arg.OptionStatusTwo,
 	)
 	var i GetEventExperienceByOptionUserIDRow
 	err := row.Scan(
@@ -207,17 +199,15 @@ LEFT JOIN event_infos e_i on o_i.id = e_i.option_id
 LEFT JOIN event_date_times e_d_t on e_i.option_id = e_d_t.event_info_id
 LEFT JOIN event_date_locations e_d_l ON e_d_t.id = e_d_l.event_date_time_id
 LEFT JOIN users u on u.id = o_i.host_id
-WHERE o_i.is_complete = $1 AND o_i.is_active = $2 AND o_i.main_option_type = $3 AND (o_i_s.status = $6 OR o_i_s.status = $7) AND e_d_t.is_active = true AND (o_i.category = $4 OR o_i.category_two = $4 OR o_i.category_three = $4) AND u.is_active = $5
+WHERE o_i.is_complete = $1 AND o_i.is_active = $2 AND o_i.main_option_type = $3 AND e_d_t.is_active = true AND (o_i.category = $4 OR o_i.category_two = $4 OR o_i.category_three = $4) AND u.is_active = $5 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze'
 `
 
 type GetEventExperienceCountParams struct {
-	IsComplete      bool   `json:"is_complete"`
-	IsActive        bool   `json:"is_active"`
-	MainOptionType  string `json:"main_option_type"`
-	Category        string `json:"category"`
-	IsActive_2      bool   `json:"is_active_2"`
-	OptionStatusOne string `json:"option_status_one"`
-	OptionStatusTwo string `json:"option_status_two"`
+	IsComplete     bool   `json:"is_complete"`
+	IsActive       bool   `json:"is_active"`
+	MainOptionType string `json:"main_option_type"`
+	Category       string `json:"category"`
+	IsActive_2     bool   `json:"is_active_2"`
 }
 
 func (q *Queries) GetEventExperienceCount(ctx context.Context, arg GetEventExperienceCountParams) (int64, error) {
@@ -227,8 +217,6 @@ func (q *Queries) GetEventExperienceCount(ctx context.Context, arg GetEventExper
 		arg.MainOptionType,
 		arg.Category,
 		arg.IsActive_2,
-		arg.OptionStatusOne,
-		arg.OptionStatusTwo,
 	)
 	var count int64
 	err := row.Scan(&count)
@@ -260,16 +248,14 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
-WHERE  o_i.deep_link_id = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = $5 OR o_i_s.status = $6)
+WHERE  o_i.deep_link_id = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze'
 `
 
 type GetOptionExperienceByDeepLinkIDParams struct {
-	DeepLinkID      uuid.UUID `json:"deep_link_id"`
-	IsComplete      bool      `json:"is_complete"`
-	IsActive        bool      `json:"is_active"`
-	IsActive_2      bool      `json:"is_active_2"`
-	OptionStatusOne string    `json:"option_status_one"`
-	OptionStatusTwo string    `json:"option_status_two"`
+	DeepLinkID uuid.UUID `json:"deep_link_id"`
+	IsComplete bool      `json:"is_complete"`
+	IsActive   bool      `json:"is_active"`
+	IsActive_2 bool      `json:"is_active_2"`
 }
 
 type GetOptionExperienceByDeepLinkIDRow struct {
@@ -300,8 +286,6 @@ func (q *Queries) GetOptionExperienceByDeepLinkID(ctx context.Context, arg GetOp
 		arg.IsComplete,
 		arg.IsActive,
 		arg.IsActive_2,
-		arg.OptionStatusOne,
-		arg.OptionStatusTwo,
 	)
 	var i GetOptionExperienceByDeepLinkIDRow
 	err := row.Scan(
@@ -340,16 +324,14 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
-WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = $5 OR o_i_s.status = $6)
+WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze'
 `
 
 type GetOptionExperienceByOptionUserIDParams struct {
-	OptionUserID    uuid.UUID `json:"option_user_id"`
-	IsComplete      bool      `json:"is_complete"`
-	IsActive        bool      `json:"is_active"`
-	IsActive_2      bool      `json:"is_active_2"`
-	OptionStatusOne string    `json:"option_status_one"`
-	OptionStatusTwo string    `json:"option_status_two"`
+	OptionUserID uuid.UUID `json:"option_user_id"`
+	IsComplete   bool      `json:"is_complete"`
+	IsActive     bool      `json:"is_active"`
+	IsActive_2   bool      `json:"is_active_2"`
 }
 
 type GetOptionExperienceByOptionUserIDRow struct {
@@ -380,8 +362,6 @@ func (q *Queries) GetOptionExperienceByOptionUserID(ctx context.Context, arg Get
 		arg.IsComplete,
 		arg.IsActive,
 		arg.IsActive_2,
-		arg.OptionStatusOne,
-		arg.OptionStatusTwo,
 	)
 	var i GetOptionExperienceByOptionUserIDRow
 	err := row.Scan(
@@ -418,17 +398,15 @@ FROM options_infos o_i
    JOIN option_questions o_q on o_i.id = o_q.option_id
    JOIN options_prices o_p on o_i.id = o_p.option_id
    JOIN users u on u.id = o_i.host_id
-WHERE o_i.is_complete = $1 AND o_i.is_active = $2 AND o_i.main_option_type = $3 AND (o_i_s.status = $6 OR o_i_s.status = $7) AND (o_i.category = $4 OR o_i.category_two = $4 OR o_i.category_three = $4) AND u.is_active = $5
+WHERE o_i.is_complete = $1 AND o_i.is_active = $2 AND o_i.main_option_type = $3 AND (o_i.category = $4 OR o_i.category_two = $4 OR o_i.category_three = $4) AND u.is_active = $5 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze'
 `
 
 type GetOptionExperienceCountParams struct {
-	IsComplete      bool   `json:"is_complete"`
-	IsActive        bool   `json:"is_active"`
-	MainOptionType  string `json:"main_option_type"`
-	Category        string `json:"category"`
-	IsActive_2      bool   `json:"is_active_2"`
-	OptionStatusOne string `json:"option_status_one"`
-	OptionStatusTwo string `json:"option_status_two"`
+	IsComplete     bool   `json:"is_complete"`
+	IsActive       bool   `json:"is_active"`
+	MainOptionType string `json:"main_option_type"`
+	Category       string `json:"category"`
+	IsActive_2     bool   `json:"is_active_2"`
 }
 
 func (q *Queries) GetOptionExperienceCount(ctx context.Context, arg GetOptionExperienceCountParams) (int64, error) {
@@ -438,8 +416,6 @@ func (q *Queries) GetOptionExperienceCount(ctx context.Context, arg GetOptionExp
 		arg.MainOptionType,
 		arg.Category,
 		arg.IsActive_2,
-		arg.OptionStatusOne,
-		arg.OptionStatusTwo,
 	)
 	var count int64
 	err := row.Scan(&count)
@@ -455,16 +431,14 @@ FROM options_infos o_i
    JOIN options_prices o_p on o_i.id = o_p.option_id
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
-WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = $5 OR o_i_s.status = $6)
+WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze'
 `
 
 type GetOptionExperienceMapParams struct {
-	OptionUserID    uuid.UUID `json:"option_user_id"`
-	IsComplete      bool      `json:"is_complete"`
-	IsActive        bool      `json:"is_active"`
-	IsActive_2      bool      `json:"is_active_2"`
-	OptionStatusOne string    `json:"option_status_one"`
-	OptionStatusTwo string    `json:"option_status_two"`
+	OptionUserID uuid.UUID `json:"option_user_id"`
+	IsComplete   bool      `json:"is_complete"`
+	IsActive     bool      `json:"is_active"`
+	IsActive_2   bool      `json:"is_active_2"`
 }
 
 type GetOptionExperienceMapRow struct {
@@ -485,8 +459,6 @@ func (q *Queries) GetOptionExperienceMap(ctx context.Context, arg GetOptionExper
 		arg.IsComplete,
 		arg.IsActive,
 		arg.IsActive_2,
-		arg.OptionStatusOne,
-		arg.OptionStatusTwo,
 	)
 	var i GetOptionExperienceMapRow
 	err := row.Scan(
@@ -767,7 +739,7 @@ func (q *Queries) GetOptionInfoStartYear(ctx context.Context, arg GetOptionInfoS
 }
 
 const listEventExperience = `-- name: ListEventExperience :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -776,17 +748,14 @@ FROM options_infos o_i
    JOIN event_infos e_i on o_i.id = e_i.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
-WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4 AND (o_i_s.status = $6 OR o_i_s.status = $7) AND (o_i.category = $5 OR o_i.category_two = $5 OR o_i.category_three = $5)
+WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4
 `
 
 type ListEventExperienceParams struct {
-	IsComplete      bool   `json:"is_complete"`
-	IsActive        bool   `json:"is_active"`
-	IsActive_2      bool   `json:"is_active_2"`
-	MainOptionType  string `json:"main_option_type"`
-	Category        string `json:"category"`
-	OptionStatusOne string `json:"option_status_one"`
-	OptionStatusTwo string `json:"option_status_two"`
+	IsComplete     bool   `json:"is_complete"`
+	IsActive       bool   `json:"is_active"`
+	IsActive_2     bool   `json:"is_active_2"`
+	MainOptionType string `json:"main_option_type"`
 }
 
 type ListEventExperienceRow struct {
@@ -806,6 +775,9 @@ type ListEventExperienceRow struct {
 	CreatedAt        time.Time `json:"created_at"`
 	IsVerified_2     bool      `json:"is_verified_2"`
 	Category         string    `json:"category"`
+	Status           string    `json:"status"`
+	CategoryTwo      string    `json:"category_two"`
+	CategoryThree    string    `json:"category_three"`
 }
 
 func (q *Queries) ListEventExperience(ctx context.Context, arg ListEventExperienceParams) ([]ListEventExperienceRow, error) {
@@ -814,9 +786,6 @@ func (q *Queries) ListEventExperience(ctx context.Context, arg ListEventExperien
 		arg.IsActive,
 		arg.IsActive_2,
 		arg.MainOptionType,
-		arg.Category,
-		arg.OptionStatusOne,
-		arg.OptionStatusTwo,
 	)
 	if err != nil {
 		return nil, err
@@ -842,6 +811,9 @@ func (q *Queries) ListEventExperience(ctx context.Context, arg ListEventExperien
 			&i.CreatedAt,
 			&i.IsVerified_2,
 			&i.Category,
+			&i.Status,
+			&i.CategoryTwo,
+			&i.CategoryThree,
 		); err != nil {
 			return nil, err
 		}
@@ -954,7 +926,7 @@ func (q *Queries) ListEventExperienceByLocation(ctx context.Context, arg ListEve
 }
 
 const listOptionExperience = `-- name: ListOptionExperience :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -965,17 +937,14 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
-WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4 AND (o_i_s.status = $6 OR o_i_s.status = $7) AND (o_i.category = $5 OR o_i.category_two = $5 OR o_i.category_three = $5)
+WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4
 `
 
 type ListOptionExperienceParams struct {
-	IsComplete      bool   `json:"is_complete"`
-	IsActive        bool   `json:"is_active"`
-	IsActive_2      bool   `json:"is_active_2"`
-	MainOptionType  string `json:"main_option_type"`
-	Category        string `json:"category"`
-	OptionStatusOne string `json:"option_status_one"`
-	OptionStatusTwo string `json:"option_status_two"`
+	IsComplete     bool   `json:"is_complete"`
+	IsActive       bool   `json:"is_active"`
+	IsActive_2     bool   `json:"is_active_2"`
+	MainOptionType string `json:"main_option_type"`
 }
 
 type ListOptionExperienceRow struct {
@@ -999,6 +968,9 @@ type ListOptionExperienceRow struct {
 	CreatedAt        time.Time    `json:"created_at"`
 	IsVerified_2     bool         `json:"is_verified_2"`
 	Category         string       `json:"category"`
+	Status           string       `json:"status"`
+	CategoryTwo      string       `json:"category_two"`
+	CategoryThree    string       `json:"category_three"`
 }
 
 func (q *Queries) ListOptionExperience(ctx context.Context, arg ListOptionExperienceParams) ([]ListOptionExperienceRow, error) {
@@ -1007,9 +979,6 @@ func (q *Queries) ListOptionExperience(ctx context.Context, arg ListOptionExperi
 		arg.IsActive,
 		arg.IsActive_2,
 		arg.MainOptionType,
-		arg.Category,
-		arg.OptionStatusOne,
-		arg.OptionStatusTwo,
 	)
 	if err != nil {
 		return nil, err
@@ -1039,6 +1008,9 @@ func (q *Queries) ListOptionExperience(ctx context.Context, arg ListOptionExperi
 			&i.CreatedAt,
 			&i.IsVerified_2,
 			&i.Category,
+			&i.Status,
+			&i.CategoryTwo,
+			&i.CategoryThree,
 		); err != nil {
 			return nil, err
 		}

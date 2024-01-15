@@ -250,9 +250,9 @@ func SetupExperienceEventData(ctx context.Context, server *Server, data db.ListE
 		return
 	}
 	// Before we call HandleExEventDates to modify dateTimes to handle recurring event we pass it in HandleExperienceRedisDateTimeLocation to store the locations in redis
-	if forRedis {
-		HandleExperienceRedisDateTimeLocation(dateTimes)
-	}
+	//if forRedis {
+	//	HandleExperienceRedisDateTimeLocation(dateTimes)
+	//}
 	dateTimes = HandleExEventDates(dateTimes, "SERVER")
 	if err != nil || len(dateTimes) == 0 {
 		log.Println("At SetupExperienceEventData empty")

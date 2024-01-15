@@ -22,8 +22,6 @@ func HandleListOptionExperience(ctx *gin.Context, server *Server, req Experience
 		IsActive_2:      true,
 		MainOptionType:  "options",
 		Category:        req.Type,
-		OptionStatusOne: "list",
-		OptionStatusTwo: "staged",
 	})
 	if err != nil {
 		log.Printf("Error at  HandleListOptionExperience in GetOptionExperienceCount err: %v, user: %v\n", err, ctx.ClientIP())

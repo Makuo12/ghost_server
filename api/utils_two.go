@@ -355,7 +355,7 @@ func HandleListOptionSelectComplete(ctx *gin.Context, server *Server, user db.Us
 		if data.HostType == "co_host" {
 			isCoHost = true
 			dOptionID = data.CoHostID
-			
+
 		} else {
 			dOptionID = data.OptionID
 		}
@@ -413,7 +413,7 @@ func HandleListOptionSelectInProgress(ctx *gin.Context, server *Server, user db.
 	optionInfos, err := server.store.ListOptionInfo(ctx, db.ListOptionInfoParams{
 		HostID:          user.ID,
 		CoUserID:        tools.UuidToString(user.UserID),
-		IsComplete:      true,
+		IsComplete:      false,
 		Limit:           10,
 		Offset:          int32(req.OptionOffset),
 		IsActive:        true,
@@ -493,8 +493,11 @@ func HandleListOptionSelectInActive(ctx *gin.Context, server *Server, user db.Us
 	var onLastIndex bool
 	hasData = true
 	count, err := server.store.CountOptionInfo(ctx, db.CountOptionInfoParams{
-		HostID:     user.ID,
-		IsComplete: true,
+		HostID:          user.ID,
+		IsComplete:      true,
+		IsActive:        true,
+		OptionStatusOne: "unlist",
+		OptionStatusTwo: "snooze",
 	})
 	if err != nil {
 		log.Printf("Error at  HandleListOptionSelectInActive in CountOptionInfo err: %v, user: %v\n", err, user.ID)

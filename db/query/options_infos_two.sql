@@ -122,7 +122,7 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
-WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two));
+WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze';
 
 -- name: GetOptionExperienceByDeepLinkID :one
 SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
@@ -136,7 +136,7 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
-WHERE  o_i.deep_link_id = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two));
+WHERE  o_i.deep_link_id = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze';
 
 -- name: GetOptionExperienceMap :one
 SELECT o_i.option_user_id, o_i.currency, o_i_d.host_name_option, o_i_p.cover_image, o_i.is_verified, o_p.price, l.state, l.country, o_i.category
@@ -147,10 +147,10 @@ FROM options_infos o_i
    JOIN options_prices o_p on o_i.id = o_p.option_id
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
-WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two));
+WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze';
 
 -- name: ListOptionExperience :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -161,7 +161,7 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
-WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND (o_i.category = $5 OR o_i.category_two = $5 OR o_i.category_three = $5);
+WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4;
 
 -- name: GetOptionExperienceCount :one
 SELECT COUNT(*)
@@ -173,7 +173,7 @@ FROM options_infos o_i
    JOIN option_questions o_q on o_i.id = o_q.option_id
    JOIN options_prices o_p on o_i.id = o_p.option_id
    JOIN users u on u.id = o_i.host_id
-WHERE o_i.is_complete = $1 AND o_i.is_active = $2 AND o_i.main_option_type = $3 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND (o_i.category = $4 OR o_i.category_two = $4 OR o_i.category_three = $4) AND u.is_active = $5;
+WHERE o_i.is_complete = $1 AND o_i.is_active = $2 AND o_i.main_option_type = $3 AND (o_i.category = $4 OR o_i.category_two = $4 OR o_i.category_three = $4) AND u.is_active = $5 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze';
 
 -- name: GetOptionCount :one
 SELECT COUNT(*)
@@ -199,7 +199,7 @@ OFFSET $9;
 
 
 -- name: ListEventExperience :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -208,7 +208,7 @@ FROM options_infos o_i
    JOIN event_infos e_i on o_i.id = e_i.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
-WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND (o_i.category = $5 OR o_i.category_two = $5 OR o_i.category_three = $5);
+WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4;
 
 -- name: GetEventExperienceByOptionUserID :one
 SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
@@ -222,7 +222,7 @@ FROM options_infos o_i
    JOIN identity i_d on u.id = i_d.user_id
 LEFT JOIN event_date_times e_d_t on e_i.option_id = e_d_t.event_info_id
 LEFT JOIN event_date_locations e_d_l ON e_d_t.id = e_d_l.event_date_time_id
-WHERE o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two));
+WHERE o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze';
 
 -- name: GetEventExperienceByDeepLinkID :one
 SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
@@ -236,7 +236,7 @@ FROM options_infos o_i
    JOIN identity i_d on u.id = i_d.user_id
 LEFT JOIN event_date_times e_d_t on e_i.option_id = e_d_t.event_info_id
 LEFT JOIN event_date_locations e_d_l ON e_d_t.id = e_d_l.event_date_time_id
-WHERE o_i.deep_link_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two));
+WHERE o_i.deep_link_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze';
 
 -- name: GetEventExperienceCount :one
 SELECT COUNT(*)
@@ -248,7 +248,7 @@ LEFT JOIN event_infos e_i on o_i.id = e_i.option_id
 LEFT JOIN event_date_times e_d_t on e_i.option_id = e_d_t.event_info_id
 LEFT JOIN event_date_locations e_d_l ON e_d_t.id = e_d_l.event_date_time_id
 LEFT JOIN users u on u.id = o_i.host_id
-WHERE o_i.is_complete = $1 AND o_i.is_active = $2 AND o_i.main_option_type = $3 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND e_d_t.is_active = true AND (o_i.category = $4 OR o_i.category_two = $4 OR o_i.category_three = $4) AND u.is_active = $5;
+WHERE o_i.is_complete = $1 AND o_i.is_active = $2 AND o_i.main_option_type = $3 AND e_d_t.is_active = true AND (o_i.category = $4 OR o_i.category_two = $4 OR o_i.category_three = $4) AND u.is_active = $5 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze';
 
 -- name: CountOptionInfoInsight :one
 SELECT Count(*)
