@@ -307,7 +307,9 @@ func HandleExSpaceArea(option db.OptionsInfo, server *Server, ctx *gin.Context) 
 			spaceData[spaceAreasDB[i].SpaceType] = spaceData[spaceAreasDB[i].SpaceType] + 1
 			photos := tools.HandleDBList(spaceAreasDB[i].Photos)
 			beds := tools.HandleDBList(spaceAreasDB[i].Beds)
-			numOfBeds += len(beds)
+			if !tools.ServerListIsEmpty(beds) {
+				numOfBeds += len(beds)
+			}
 			name := fmt.Sprintf("%v-%d", spaceAreasDB[i].SpaceType, spaceData[spaceAreasDB[i].SpaceType])
 			data := ExperienceSpaceArea{
 				AreaType:    spaceAreasDB[i].SpaceType,
