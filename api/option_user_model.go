@@ -1,22 +1,27 @@
 package api
 
 type ExperienceOptionData struct {
-	UserOptionID     string   `json:"user_option_id"`
-	Name             string   `json:"name"`
-	IsVerified       bool     `json:"is_verified"`
-	CoverImage       string   `json:"cover_image"`
-	HostAsIndividual bool     `json:"host_as_individual"`
-	BasePrice        string   `json:"base_price"`
-	WeekendPrice     string   `json:"weekend_price"`
-	Photos           []string `json:"photos"`
-	TypeOfShortlet   string   `json:"type_of_shortlet"`
-	State            string   `json:"state"`
-	Country          string   `json:"country"`
-	ProfilePhoto     string   `json:"profile_photo"`
-	HostName         string   `json:"host_name"`
-	HostJoined       string   `json:"host_joined"`
-	HostVerified     bool     `json:"host_verified"`
-	Category         string   `json:"category"`
+	UserOptionID     string `json:"user_option_id"`
+	Name             string `json:"name"`
+	IsVerified       bool   `json:"is_verified"`
+	CoverImage       string `json:"cover_image"`
+	HostAsIndividual bool   `json:"host_as_individual"`
+	BasePrice        string `json:"base_price"`
+	WeekendPrice     string `json:"weekend_price"`
+	// AddedPrice for when we are calculating based on more than one night
+	AddedPrice     string   `json:"added_price"`
+	AddPriceFound  bool   `json:"add_price_found"`
+	StartDate      string   `json:"start_date"`
+	EndDate        string   `json:"end_date"`
+	Photos         []string `json:"photos"`
+	TypeOfShortlet string   `json:"type_of_shortlet"`
+	State          string   `json:"state"`
+	Country        string   `json:"country"`
+	ProfilePhoto   string   `json:"profile_photo"`
+	HostName       string   `json:"host_name"`
+	HostJoined     string   `json:"host_joined"`
+	HostVerified   bool     `json:"host_verified"`
+	Category       string   `json:"category"`
 }
 
 type ListExperienceOptionRes struct {

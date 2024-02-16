@@ -53,6 +53,12 @@ FROM option_date_times
 WHERE option_id = $1
 ORDER BY created_at DESC;
 
+-- name: ListOptionDateTimeMore :many
+SELECT *
+FROM option_date_times
+WHERE option_id = $1 AND date > NOW()
+ORDER BY created_at DESC;
+
 -- name: ListAllOptionDateTimeByOUD :many
 SELECT *
 FROM option_date_times od

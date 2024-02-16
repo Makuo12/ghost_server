@@ -237,7 +237,7 @@ func (q *Queries) GetOptionCount(ctx context.Context, hostID uuid.UUID) (int64, 
 }
 
 const getOptionExperienceByDeepLinkID = `-- name: GetOptionExperienceByDeepLinkID :one
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -248,6 +248,8 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
+   JOIN option_availability_settings oas on o_i.id = oas.option_id
+   JOIN option_trip_lengths otl on o_i.id = otl.option_id
 WHERE  o_i.deep_link_id = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze'
 `
 
@@ -259,25 +261,34 @@ type GetOptionExperienceByDeepLinkIDParams struct {
 }
 
 type GetOptionExperienceByDeepLinkIDRow struct {
-	ID               uuid.UUID `json:"id"`
-	OptionUserID     uuid.UUID `json:"option_user_id"`
-	Currency         string    `json:"currency"`
-	OptionType       string    `json:"option_type"`
-	HostNameOption   string    `json:"host_name_option"`
-	CoverImage       string    `json:"cover_image"`
-	Photo            []string  `json:"photo"`
-	TypeOfShortlet   string    `json:"type_of_shortlet"`
-	HostAsIndividual bool      `json:"host_as_individual"`
-	IsVerified       bool      `json:"is_verified"`
-	Price            int64     `json:"price"`
-	WeekendPrice     int64     `json:"weekend_price"`
-	State            string    `json:"state"`
-	Country          string    `json:"country"`
-	Photo_2          string    `json:"photo_2"`
-	FirstName        string    `json:"first_name"`
-	CreatedAt        time.Time `json:"created_at"`
-	IsVerified_2     bool      `json:"is_verified_2"`
-	Category         string    `json:"category"`
+	ID                          uuid.UUID `json:"id"`
+	OptionUserID                uuid.UUID `json:"option_user_id"`
+	Currency                    string    `json:"currency"`
+	OptionType                  string    `json:"option_type"`
+	HostNameOption              string    `json:"host_name_option"`
+	CoverImage                  string    `json:"cover_image"`
+	Photo                       []string  `json:"photo"`
+	TypeOfShortlet              string    `json:"type_of_shortlet"`
+	HostAsIndividual            bool      `json:"host_as_individual"`
+	IsVerified                  bool      `json:"is_verified"`
+	Price                       int64     `json:"price"`
+	WeekendPrice                int64     `json:"weekend_price"`
+	State                       string    `json:"state"`
+	Country                     string    `json:"country"`
+	Photo_2                     string    `json:"photo_2"`
+	FirstName                   string    `json:"first_name"`
+	CreatedAt                   time.Time `json:"created_at"`
+	IsVerified_2                bool      `json:"is_verified_2"`
+	Category                    string    `json:"category"`
+	AdvanceNotice               string    `json:"advance_notice"`
+	AutoBlockDates              bool      `json:"auto_block_dates"`
+	AdvanceNoticeCondition      string    `json:"advance_notice_condition"`
+	PreparationTime             string    `json:"preparation_time"`
+	AvailabilityWindow          string    `json:"availability_window"`
+	MinStayDay                  int32     `json:"min_stay_day"`
+	MaxStayNight                int32     `json:"max_stay_night"`
+	ManualApproveRequestPassMax bool      `json:"manual_approve_request_pass_max"`
+	AllowReservationRequest     bool      `json:"allow_reservation_request"`
 }
 
 func (q *Queries) GetOptionExperienceByDeepLinkID(ctx context.Context, arg GetOptionExperienceByDeepLinkIDParams) (GetOptionExperienceByDeepLinkIDRow, error) {
@@ -308,12 +319,21 @@ func (q *Queries) GetOptionExperienceByDeepLinkID(ctx context.Context, arg GetOp
 		&i.CreatedAt,
 		&i.IsVerified_2,
 		&i.Category,
+		&i.AdvanceNotice,
+		&i.AutoBlockDates,
+		&i.AdvanceNoticeCondition,
+		&i.PreparationTime,
+		&i.AvailabilityWindow,
+		&i.MinStayDay,
+		&i.MaxStayNight,
+		&i.ManualApproveRequestPassMax,
+		&i.AllowReservationRequest,
 	)
 	return i, err
 }
 
 const getOptionExperienceByOptionUserID = `-- name: GetOptionExperienceByOptionUserID :one
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -324,6 +344,8 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
+   JOIN option_availability_settings oas on o_i.id = oas.option_id
+   JOIN option_trip_lengths otl on o_i.id = otl.option_id
 WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze'
 `
 
@@ -335,25 +357,34 @@ type GetOptionExperienceByOptionUserIDParams struct {
 }
 
 type GetOptionExperienceByOptionUserIDRow struct {
-	ID               uuid.UUID `json:"id"`
-	OptionUserID     uuid.UUID `json:"option_user_id"`
-	Currency         string    `json:"currency"`
-	OptionType       string    `json:"option_type"`
-	HostNameOption   string    `json:"host_name_option"`
-	CoverImage       string    `json:"cover_image"`
-	Photo            []string  `json:"photo"`
-	TypeOfShortlet   string    `json:"type_of_shortlet"`
-	HostAsIndividual bool      `json:"host_as_individual"`
-	IsVerified       bool      `json:"is_verified"`
-	Price            int64     `json:"price"`
-	WeekendPrice     int64     `json:"weekend_price"`
-	State            string    `json:"state"`
-	Country          string    `json:"country"`
-	Photo_2          string    `json:"photo_2"`
-	FirstName        string    `json:"first_name"`
-	CreatedAt        time.Time `json:"created_at"`
-	IsVerified_2     bool      `json:"is_verified_2"`
-	Category         string    `json:"category"`
+	ID                          uuid.UUID `json:"id"`
+	OptionUserID                uuid.UUID `json:"option_user_id"`
+	Currency                    string    `json:"currency"`
+	OptionType                  string    `json:"option_type"`
+	HostNameOption              string    `json:"host_name_option"`
+	CoverImage                  string    `json:"cover_image"`
+	Photo                       []string  `json:"photo"`
+	TypeOfShortlet              string    `json:"type_of_shortlet"`
+	HostAsIndividual            bool      `json:"host_as_individual"`
+	IsVerified                  bool      `json:"is_verified"`
+	Price                       int64     `json:"price"`
+	WeekendPrice                int64     `json:"weekend_price"`
+	State                       string    `json:"state"`
+	Country                     string    `json:"country"`
+	Photo_2                     string    `json:"photo_2"`
+	FirstName                   string    `json:"first_name"`
+	CreatedAt                   time.Time `json:"created_at"`
+	IsVerified_2                bool      `json:"is_verified_2"`
+	Category                    string    `json:"category"`
+	AdvanceNotice               string    `json:"advance_notice"`
+	AutoBlockDates              bool      `json:"auto_block_dates"`
+	AdvanceNoticeCondition      string    `json:"advance_notice_condition"`
+	PreparationTime             string    `json:"preparation_time"`
+	AvailabilityWindow          string    `json:"availability_window"`
+	MinStayDay                  int32     `json:"min_stay_day"`
+	MaxStayNight                int32     `json:"max_stay_night"`
+	ManualApproveRequestPassMax bool      `json:"manual_approve_request_pass_max"`
+	AllowReservationRequest     bool      `json:"allow_reservation_request"`
 }
 
 func (q *Queries) GetOptionExperienceByOptionUserID(ctx context.Context, arg GetOptionExperienceByOptionUserIDParams) (GetOptionExperienceByOptionUserIDRow, error) {
@@ -384,6 +415,15 @@ func (q *Queries) GetOptionExperienceByOptionUserID(ctx context.Context, arg Get
 		&i.CreatedAt,
 		&i.IsVerified_2,
 		&i.Category,
+		&i.AdvanceNotice,
+		&i.AutoBlockDates,
+		&i.AdvanceNoticeCondition,
+		&i.PreparationTime,
+		&i.AvailabilityWindow,
+		&i.MinStayDay,
+		&i.MaxStayNight,
+		&i.ManualApproveRequestPassMax,
+		&i.AllowReservationRequest,
 	)
 	return i, err
 }
@@ -926,7 +966,7 @@ func (q *Queries) ListEventExperienceByLocation(ctx context.Context, arg ListEve
 }
 
 const listOptionExperience = `-- name: ListOptionExperience :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -937,6 +977,8 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
+   JOIN option_availability_settings oas on o_i.id = oas.option_id
+   JOIN option_trip_lengths otl on o_i.id = otl.option_id
 WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4
 `
 
@@ -948,29 +990,38 @@ type ListOptionExperienceParams struct {
 }
 
 type ListOptionExperienceRow struct {
-	ID               uuid.UUID    `json:"id"`
-	OptionUserID     uuid.UUID    `json:"option_user_id"`
-	Currency         string       `json:"currency"`
-	OptionType       string       `json:"option_type"`
-	HostNameOption   string       `json:"host_name_option"`
-	CoverImage       string       `json:"cover_image"`
-	Photo            []string     `json:"photo"`
-	TypeOfShortlet   string       `json:"type_of_shortlet"`
-	HostAsIndividual bool         `json:"host_as_individual"`
-	IsVerified       bool         `json:"is_verified"`
-	Price            int64        `json:"price"`
-	WeekendPrice     int64        `json:"weekend_price"`
-	State            string       `json:"state"`
-	Country          string       `json:"country"`
-	Photo_2          string       `json:"photo_2"`
-	Geolocation      pgtype.Point `json:"geolocation"`
-	FirstName        string       `json:"first_name"`
-	CreatedAt        time.Time    `json:"created_at"`
-	IsVerified_2     bool         `json:"is_verified_2"`
-	Category         string       `json:"category"`
-	Status           string       `json:"status"`
-	CategoryTwo      string       `json:"category_two"`
-	CategoryThree    string       `json:"category_three"`
+	ID                          uuid.UUID    `json:"id"`
+	OptionUserID                uuid.UUID    `json:"option_user_id"`
+	Currency                    string       `json:"currency"`
+	OptionType                  string       `json:"option_type"`
+	HostNameOption              string       `json:"host_name_option"`
+	CoverImage                  string       `json:"cover_image"`
+	Photo                       []string     `json:"photo"`
+	TypeOfShortlet              string       `json:"type_of_shortlet"`
+	HostAsIndividual            bool         `json:"host_as_individual"`
+	IsVerified                  bool         `json:"is_verified"`
+	Price                       int64        `json:"price"`
+	WeekendPrice                int64        `json:"weekend_price"`
+	State                       string       `json:"state"`
+	Country                     string       `json:"country"`
+	Photo_2                     string       `json:"photo_2"`
+	Geolocation                 pgtype.Point `json:"geolocation"`
+	FirstName                   string       `json:"first_name"`
+	CreatedAt                   time.Time    `json:"created_at"`
+	IsVerified_2                bool         `json:"is_verified_2"`
+	Category                    string       `json:"category"`
+	Status                      string       `json:"status"`
+	CategoryTwo                 string       `json:"category_two"`
+	CategoryThree               string       `json:"category_three"`
+	AdvanceNotice               string       `json:"advance_notice"`
+	AutoBlockDates              bool         `json:"auto_block_dates"`
+	AdvanceNoticeCondition      string       `json:"advance_notice_condition"`
+	PreparationTime             string       `json:"preparation_time"`
+	AvailabilityWindow          string       `json:"availability_window"`
+	MinStayDay                  int32        `json:"min_stay_day"`
+	MaxStayNight                int32        `json:"max_stay_night"`
+	ManualApproveRequestPassMax bool         `json:"manual_approve_request_pass_max"`
+	AllowReservationRequest     bool         `json:"allow_reservation_request"`
 }
 
 func (q *Queries) ListOptionExperience(ctx context.Context, arg ListOptionExperienceParams) ([]ListOptionExperienceRow, error) {
@@ -1011,6 +1062,15 @@ func (q *Queries) ListOptionExperience(ctx context.Context, arg ListOptionExperi
 			&i.Status,
 			&i.CategoryTwo,
 			&i.CategoryThree,
+			&i.AdvanceNotice,
+			&i.AutoBlockDates,
+			&i.AdvanceNoticeCondition,
+			&i.PreparationTime,
+			&i.AvailabilityWindow,
+			&i.MinStayDay,
+			&i.MaxStayNight,
+			&i.ManualApproveRequestPassMax,
+			&i.AllowReservationRequest,
 		); err != nil {
 			return nil, err
 		}
@@ -1023,7 +1083,7 @@ func (q *Queries) ListOptionExperience(ctx context.Context, arg ListOptionExperi
 }
 
 const listOptionExperienceByLocation = `-- name: ListOptionExperienceByLocation :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -1034,6 +1094,8 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
+   JOIN option_availability_settings oas on o_i.id = oas.option_id
+   JOIN option_trip_lengths otl on o_i.id = otl.option_id
 WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4 AND (o_i_s.status = $10 OR o_i_s.status = $11) AND (o_i.category = $5 OR o_i.category_two = $5 OR o_i.category_three = $5)
 ORDER BY CASE WHEN lOWER(l.country)= $6 AND LOWER(l.state) = $7 THEN 0 ELSE 1 END, o_i.created_at DESC
 LIMIT $8
@@ -1055,25 +1117,34 @@ type ListOptionExperienceByLocationParams struct {
 }
 
 type ListOptionExperienceByLocationRow struct {
-	ID               uuid.UUID `json:"id"`
-	OptionUserID     uuid.UUID `json:"option_user_id"`
-	Currency         string    `json:"currency"`
-	OptionType       string    `json:"option_type"`
-	HostNameOption   string    `json:"host_name_option"`
-	CoverImage       string    `json:"cover_image"`
-	Photo            []string  `json:"photo"`
-	TypeOfShortlet   string    `json:"type_of_shortlet"`
-	HostAsIndividual bool      `json:"host_as_individual"`
-	IsVerified       bool      `json:"is_verified"`
-	Price            int64     `json:"price"`
-	WeekendPrice     int64     `json:"weekend_price"`
-	State            string    `json:"state"`
-	Country          string    `json:"country"`
-	Photo_2          string    `json:"photo_2"`
-	FirstName        string    `json:"first_name"`
-	CreatedAt        time.Time `json:"created_at"`
-	IsVerified_2     bool      `json:"is_verified_2"`
-	Category         string    `json:"category"`
+	ID                          uuid.UUID `json:"id"`
+	OptionUserID                uuid.UUID `json:"option_user_id"`
+	Currency                    string    `json:"currency"`
+	OptionType                  string    `json:"option_type"`
+	HostNameOption              string    `json:"host_name_option"`
+	CoverImage                  string    `json:"cover_image"`
+	Photo                       []string  `json:"photo"`
+	TypeOfShortlet              string    `json:"type_of_shortlet"`
+	HostAsIndividual            bool      `json:"host_as_individual"`
+	IsVerified                  bool      `json:"is_verified"`
+	Price                       int64     `json:"price"`
+	WeekendPrice                int64     `json:"weekend_price"`
+	State                       string    `json:"state"`
+	Country                     string    `json:"country"`
+	Photo_2                     string    `json:"photo_2"`
+	FirstName                   string    `json:"first_name"`
+	CreatedAt                   time.Time `json:"created_at"`
+	IsVerified_2                bool      `json:"is_verified_2"`
+	Category                    string    `json:"category"`
+	AdvanceNotice               string    `json:"advance_notice"`
+	AutoBlockDates              bool      `json:"auto_block_dates"`
+	AdvanceNoticeCondition      string    `json:"advance_notice_condition"`
+	PreparationTime             string    `json:"preparation_time"`
+	AvailabilityWindow          string    `json:"availability_window"`
+	MinStayDay                  int32     `json:"min_stay_day"`
+	MaxStayNight                int32     `json:"max_stay_night"`
+	ManualApproveRequestPassMax bool      `json:"manual_approve_request_pass_max"`
+	AllowReservationRequest     bool      `json:"allow_reservation_request"`
 }
 
 func (q *Queries) ListOptionExperienceByLocation(ctx context.Context, arg ListOptionExperienceByLocationParams) ([]ListOptionExperienceByLocationRow, error) {
@@ -1117,6 +1188,15 @@ func (q *Queries) ListOptionExperienceByLocation(ctx context.Context, arg ListOp
 			&i.CreatedAt,
 			&i.IsVerified_2,
 			&i.Category,
+			&i.AdvanceNotice,
+			&i.AutoBlockDates,
+			&i.AdvanceNoticeCondition,
+			&i.PreparationTime,
+			&i.AvailabilityWindow,
+			&i.MinStayDay,
+			&i.MaxStayNight,
+			&i.ManualApproveRequestPassMax,
+			&i.AllowReservationRequest,
 		); err != nil {
 			return nil, err
 		}

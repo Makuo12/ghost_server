@@ -1098,6 +1098,43 @@ func (q *Queries) ListChargeOptionReferenceDates(ctx context.Context, arg ListCh
 	return items, nil
 }
 
+const listChargeOptionReferenceDatesMore = `-- name: ListChargeOptionReferenceDatesMore :many
+SELECT start_date, end_date
+FROM charge_option_references
+WHERE option_user_id = $1 AND is_complete=$2 AND cancelled=$3 AND start_date > NOW()
+`
+
+type ListChargeOptionReferenceDatesMoreParams struct {
+	OptionUserID uuid.UUID `json:"option_user_id"`
+	IsComplete   bool      `json:"is_complete"`
+	Cancelled    bool      `json:"cancelled"`
+}
+
+type ListChargeOptionReferenceDatesMoreRow struct {
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
+}
+
+func (q *Queries) ListChargeOptionReferenceDatesMore(ctx context.Context, arg ListChargeOptionReferenceDatesMoreParams) ([]ListChargeOptionReferenceDatesMoreRow, error) {
+	rows, err := q.db.Query(ctx, listChargeOptionReferenceDatesMore, arg.OptionUserID, arg.IsComplete, arg.Cancelled)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListChargeOptionReferenceDatesMoreRow{}
+	for rows.Next() {
+		var i ListChargeOptionReferenceDatesMoreRow
+		if err := rows.Scan(&i.StartDate, &i.EndDate); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listChargeOptionReferenceHost = `-- name: ListChargeOptionReferenceHost :many
 SELECT
     u.user_id,

@@ -32,6 +32,10 @@ const (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		// Allow all origins
+		return true
+	},
 }
 var c *connection
 
@@ -231,9 +235,14 @@ func (ctx *connection) write(mt int, payload []byte) error {
 
 // serveWs handles websocket requests from the peer.
 func ServeWs(w http.ResponseWriter, r *http.Request, roomId string, username uuid.UUID, userID uuid.UUID, app string, server *Server, ctx *gin.Context, user db.User) {
+	//ws, err := upgrader.Upgrade(w, r, nil)
+	//if err != nil {
+	//	log.Println(err.Error())
+	//	return
+	//}
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Println(err.Error())
+		log.Println(err)
 		return
 	}
 	c = &connection{send: make(chan []byte, 256), ws: ws, roomId: roomId, username: username, app: app, server: server, ctx: ctx, userID: userID, user: user}
@@ -242,3 +251,10 @@ func ServeWs(w http.ResponseWriter, r *http.Request, roomId string, username uui
 	go s.writePump()
 	go s.readPump()
 }
+
+//var upgrader = websocket.Upgrader{
+//	CheckOrigin: func(r *http.Request) bool {
+//		// Allow all origins
+//		return true
+//	},
+//}

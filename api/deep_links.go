@@ -99,10 +99,10 @@ func (server *Server) GetOptionDeepLinkExperience(ctx *gin.Context) {
 		return
 	}
 	data, err := server.store.GetOptionExperienceByDeepLinkID(ctx, db.GetOptionExperienceByDeepLinkIDParams{
-		DeepLinkID:      linkID,
-		IsActive:        true,
-		IsComplete:      true,
-		IsActive_2:      true,
+		DeepLinkID: linkID,
+		IsActive:   true,
+		IsComplete: true,
+		IsActive_2: true,
 	})
 	if err != nil {
 		log.Printf("Error at GetDeepLinkExperience in .GetOptionExperienceByDeepLinkID err: %v, user: %v\n", err, ctx.ClientIP())
@@ -121,6 +121,12 @@ func (server *Server) GetOptionDeepLinkExperience(ctx *gin.Context) {
 		log.Printf("Error at weekendPrice GetDeepLinkExperience in ConvertPrice err: %v, user: %v\n", err, ctx.ClientIP())
 		weekendPrice = 0.0
 	}
+	addDateFound, startDateBook, endDateBook, addPrice := HandleOptionRedisExAddPrice(ctx, server, data.ID, data.OptionUserID, data.PreparationTime, data.AvailabilityWindow, data.AdvanceNotice, data.Price, data.WeekendPrice)
+	addedPrice, err := tools.ConvertPrice(tools.IntToMoneyString(addPrice), data.Currency, req.Currency, server.config.DollarToNaira, server.config.DollarToCAD, linkID)
+	if err != nil {
+		log.Printf("Error at addedPrice GetDeepLinkExperience in ConvertPrice err: %v, user: %v\n", err, ctx.ClientIP())
+		addedPrice = 0.0
+	}
 	res := ExperienceOptionData{
 		UserOptionID:     tools.UuidToString(data.OptionUserID),
 		Name:             data.HostNameOption,
@@ -128,17 +134,20 @@ func (server *Server) GetOptionDeepLinkExperience(ctx *gin.Context) {
 		CoverImage:       data.CoverImage,
 		HostAsIndividual: data.HostAsIndividual,
 		BasePrice:        tools.ConvertFloatToString(basePrice),
-
-		WeekendPrice:   tools.ConvertFloatToString(weekendPrice),
-		Photos:         data.Photo,
-		TypeOfShortlet: data.TypeOfShortlet,
-		State:          data.State,
-		Country:        data.Country,
-		ProfilePhoto:   data.Photo_2,
-		HostName:       data.FirstName,
-		HostJoined:     tools.ConvertDateOnlyToString(data.CreatedAt),
-		HostVerified:   data.IsVerified_2,
-		Category:       data.Category,
+		WeekendPrice:     tools.ConvertFloatToString(weekendPrice),
+		Photos:           data.Photo,
+		TypeOfShortlet:   data.TypeOfShortlet,
+		State:            data.State,
+		Country:          data.Country,
+		ProfilePhoto:     data.Photo_2,
+		HostName:         data.FirstName,
+		HostJoined:       tools.ConvertDateOnlyToString(data.CreatedAt),
+		HostVerified:     data.IsVerified_2,
+		Category:         data.Category,
+		AddedPrice:       tools.ConvertFloatToString(addedPrice),
+		AddPriceFound:    addDateFound,
+		StartDate:        tools.ConvertDateOnlyToString(startDateBook),
+		EndDate:          tools.ConvertDateOnlyToString(endDateBook),
 	}
 	ctx.JSON(http.StatusOK, res)
 }
@@ -160,10 +169,10 @@ func (server *Server) GetEventDeepLinkExperience(ctx *gin.Context) {
 		return
 	}
 	data, err := server.store.GetEventExperienceByDeepLinkID(ctx, db.GetEventExperienceByDeepLinkIDParams{
-		DeepLinkID:      linkID,
-		IsComplete:      true,
-		IsActive:        true,
-		IsActive_2:      true,
+		DeepLinkID: linkID,
+		IsComplete: true,
+		IsActive:   true,
+		IsActive_2: true,
 	})
 	if err != nil {
 		log.Printf("Error at GetEventDeepLinkExperience in GetEventExperienceByDeepLinkID err: %v, user: %v\n", err, ctx.ClientIP())
@@ -282,10 +291,10 @@ func (server *Server) GetEventDateDeepLinkExperience(ctx *gin.Context) {
 		return
 	}
 	data, err := server.store.GetEventExperienceByDeepLinkID(ctx, db.GetEventExperienceByDeepLinkIDParams{
-		DeepLinkID:      linkID,
-		IsComplete:      true,
-		IsActive:        true,
-		IsActive_2:      true,
+		DeepLinkID: linkID,
+		IsComplete: true,
+		IsActive:   true,
+		IsActive_2: true,
 	})
 	if err != nil {
 		log.Printf("Error at GetEventDateDeepLinkExperience in GetEventExperienceByDeepLinkID err: %v, user: %v\n", err, ctx.ClientIP())

@@ -70,7 +70,7 @@ func ReserveOptionCalculate(user db.User, server *Server, ctx *gin.Context, star
 		err = tools.HandleConfirmError(err, confirm, "a date you selected is currently booked")
 		return
 	}
-	confirm, err = ReserveAvailableSetting(startDate, endDate, userDateTime, option.ID, option.AdvanceNotice, option.PreparationTime, option.AvailabilityWindow)
+	confirm, err = ReserveAvailableSetting(startDate, endDate, option.ID, option.AdvanceNotice, option.PreparationTime, option.AvailabilityWindow)
 	if err != nil || !confirm {
 		err = tools.HandleConfirmError(err, confirm, "your dates are not confirmed please try selecting dates that are available")
 		return
@@ -115,7 +115,7 @@ func ReserveOptionList(server *Server, ctx context.Context, optionID uuid.UUID) 
 		log.Printf("Error at ReserveOptionList in .ListOptionDiscount: %v optionID: %v\n", err.Error(), optionID)
 		discounts = []db.ListOptionDiscountRow{}
 	}
-	dateTimes, err = server.store.ListAllOptionDateTime(ctx, optionID)
+	dateTimes, err = server.store.ListOptionDateTimeMore(ctx, optionID)
 	if err != nil {
 		// We don't need to send an error because host might have no special days
 		log.Printf("Error at ReserveOptionList in .ListOptionDiscount: %v optionID: %v\n", err.Error(), optionID)
@@ -178,12 +178,7 @@ func HandleReserveAvailable(ctx context.Context, server *Server, optionUserID uu
 	return
 }
 
-func ReserveAvailableSetting(startDate string, endDate string, userDateTime []string, optionID uuid.UUID, advanceNotice string, prepareTime string, availableWindow string) (confirm bool, err error) {
-	//userDateTime, err := tools.GenerateDateListString(startDate, endDate)
-	//if err == nil {
-	//	log.Printf("Error at ReserveOptionList in .ListOptionDiscount: %v optionID: %v\n", err.Error(), optionID)
-	//	return
-	//}
+func ReserveAvailableSetting(startDate string, endDate string, optionID uuid.UUID, advanceNotice string, prepareTime string, availableWindow string) (confirm bool, err error) {
 	// First we start with advance notice
 	var advanceNoticeDate string
 	if advanceNotice == "same day" {

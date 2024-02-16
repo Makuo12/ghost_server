@@ -17,11 +17,11 @@ func HandleListOptionExperience(ctx *gin.Context, server *Server, req Experience
 	var onLastIndex bool
 	hasData = true
 	count, err := server.store.GetOptionExperienceCount(ctx, db.GetOptionExperienceCountParams{
-		IsComplete:      true,
-		IsActive:        true,
-		IsActive_2:      true,
-		MainOptionType:  "options",
-		Category:        req.Type,
+		IsComplete:     true,
+		IsActive:       true,
+		IsActive_2:     true,
+		MainOptionType: "options",
+		Category:       req.Type,
 	})
 	if err != nil {
 		log.Printf("Error at  HandleListOptionExperience in GetOptionExperienceCount err: %v, user: %v\n", err, ctx.ClientIP())
@@ -74,6 +74,12 @@ func HandleListOptionExperience(ctx *gin.Context, server *Server, req Experience
 			log.Printf("Error at weekendPrice HandleWishlistOptionExperience in ConvertPrice err: %v, user: %v\n", err, ctx.ClientIP())
 			weekendPrice = 0.0
 		}
+		addDateFound, startDateBook, endDateBook, addPrice := HandleOptionRedisExAddPrice(ctx, server, data.ID, data.OptionUserID, data.PreparationTime, data.AvailabilityWindow, data.AdvanceNotice, data.Price, data.WeekendPrice)
+		addedPrice, err := tools.ConvertPrice(tools.IntToMoneyString(addPrice), data.Currency, req.Currency, server.config.DollarToNaira, server.config.DollarToCAD, data.ID)
+		if err != nil {
+			log.Printf("Error at addedPrice GetDeepLinkExperience in ConvertPrice err: %v, user: %v\n", err, ctx.ClientIP())
+			addedPrice = 0.0
+		}
 		newData := ExperienceOptionData{
 			UserOptionID:     tools.UuidToString(data.OptionUserID),
 			Name:             data.HostNameOption,
@@ -91,6 +97,10 @@ func HandleListOptionExperience(ctx *gin.Context, server *Server, req Experience
 			HostJoined:       tools.ConvertDateOnlyToString(data.CreatedAt),
 			HostVerified:     data.IsVerified_2,
 			Category:         data.Category,
+			AddedPrice:       tools.ConvertFloatToString(addedPrice),
+			AddPriceFound:    addDateFound,
+			StartDate:        tools.ConvertDateOnlyToString(startDateBook),
+			EndDate:          tools.ConvertDateOnlyToString(endDateBook),
 		}
 		resData = append(resData, newData)
 	}

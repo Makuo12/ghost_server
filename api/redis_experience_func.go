@@ -24,6 +24,10 @@ func ConvertSliceToExperienceOptionData(data map[string]string, dollarToNaira st
 	if err != nil {
 		weekendPrice = 0.0
 	}
+	addedPrice, err := tools.ConvertPrice(getDataValue(data, constants.ADD_PRICE), data[constants.CURRENCY], userCurrency, dollarToNaira, dollarToCAD, id)
+	if err != nil {
+		addedPrice = 0.0
+	}
 	newData := ExperienceOptionData{
 		UserOptionID:     getDataValue(data, constants.OPTION_USER_ID),
 		Name:             getDataValue(data, constants.HOST_OPTION_NAME),
@@ -41,6 +45,10 @@ func ConvertSliceToExperienceOptionData(data map[string]string, dollarToNaira st
 		HostJoined:       getDataValue(data, constants.HOST_JOINED),
 		HostVerified:     tools.ConvertStringToBool(getDataValue(data, constants.HOST_VERIFIED)),
 		Category:         getDataValue(data, constants.CATEGORY),
+		AddedPrice:       tools.ConvertFloatToString(addedPrice),
+		StartDate:        getDataValue(data, constants.START_DATE),
+		EndDate:          getDataValue(data, constants.END_DATE),
+		AddPriceFound:    tools.ConvertStringToBool(getDataValue(data, constants.ADD_DATE_FOUND)),
 		// Add more fields here in the same format
 	}
 	return newData
@@ -90,7 +98,8 @@ func HandleExperienceEventLocation(data string) (res []ExperienceEventLocation) 
 	return
 }
 
-func ConvertExperienceOptionDataToSlice(data db.ListOptionExperienceRow) []string {
+func ConvertExperienceOptionDataToSlice(ctx context.Context, server *Server, data db.ListOptionExperienceRow) []string {
+	addDateFound, startDateBook, endDateBook, addPrice := HandleOptionRedisExAddPrice(ctx, server, data.ID, data.OptionUserID, data.PreparationTime, data.AvailabilityWindow, data.AdvanceNotice, data.Price, data.WeekendPrice)
 	return []string{
 		constants.OPTION_USER_ID,
 		tools.UuidToString(data.OptionUserID),
@@ -126,7 +135,14 @@ func ConvertExperienceOptionDataToSlice(data db.ListOptionExperienceRow) []strin
 		data.Category,
 		constants.CURRENCY,
 		data.Currency,
-
+		constants.START_DATE,
+		tools.ConvertDateOnlyToString(startDateBook),
+		constants.END_DATE,
+		tools.ConvertDateOnlyToString(endDateBook),
+		constants.ADD_DATE_FOUND,
+		tools.ConvertBoolToString(addDateFound),
+		constants.ADD_PRICE,
+		tools.IntToMoneyString(addPrice),
 		// Add more fields here in the same format
 	}
 }
@@ -180,41 +196,40 @@ func CustomSort(data []ExperienceOptionData, targetState, targetCountry string) 
 }
 
 func GetExperienceOptionOffset(data []ExperienceOptionData, offset int, limit int) []ExperienceOptionData {
-    // If offset is greater than or equal to the length of data, return an empty slice.
-    if offset >= len(data) {
-        return []ExperienceOptionData{}
-    }
+	// If offset is greater than or equal to the length of data, return an empty slice.
+	if offset >= len(data) {
+		return []ExperienceOptionData{}
+	}
 
-    // Calculate the end index based on offset and limit.
-    end := offset + limit
+	// Calculate the end index based on offset and limit.
+	end := offset + limit
 
-    // If the end index is greater than the length of data, set it to the length of data.
-    if end > len(data) {
-        end = len(data)
-    }
+	// If the end index is greater than the length of data, set it to the length of data.
+	if end > len(data) {
+		end = len(data)
+	}
 
-    // Return a subset of data starting from the offset and up to the end index.
-    return data[offset:end]
+	// Return a subset of data starting from the offset and up to the end index.
+	return data[offset:end]
 }
 
 func GetExperienceEventOffset(data []ExperienceEventData, offset int, limit int) []ExperienceEventData {
-    // If offset is greater than or equal to the length of data, return an empty slice.
-    if offset >= len(data) {
-        return []ExperienceEventData{}
-    }
+	// If offset is greater than or equal to the length of data, return an empty slice.
+	if offset >= len(data) {
+		return []ExperienceEventData{}
+	}
 
-    // Calculate the end index based on offset and limit.
-    end := offset + limit
+	// Calculate the end index based on offset and limit.
+	end := offset + limit
 
-    // If the end index is greater than the length of data, set it to the length of data.
-    if end > len(data) {
-        end = len(data)
-    }
+	// If the end index is greater than the length of data, set it to the length of data.
+	if end > len(data) {
+		end = len(data)
+	}
 
-    // Return a subset of data starting from the offset and up to the end index.
-    return data[offset:end]
+	// Return a subset of data starting from the offset and up to the end index.
+	return data[offset:end]
 }
-
 
 func SetupExperienceEventData(ctx context.Context, server *Server, data db.ListEventExperienceRow, dataTwo db.ListEventExperienceByLocationRow, forRedis bool, funcName string) (locationRedisList []string, locationList []ExperienceEventLocation, price float64, ticketAvailable bool, startDateData string, endDateData string, hasFreeTicket bool) {
 	none := constants.NONE
@@ -387,4 +402,30 @@ func CustomEventExperienceDataSort(data []ExperienceEventData, state, country st
 	})
 
 	return data
+}
+
+func HandleOptionRedisExAddPrice(ctx context.Context, server *Server, optionID uuid.UUID, optionUserID uuid.UUID, prepareTime string, window string, advanceNotice string, basePrice int64, weekendPrice int64) (addDateFound bool, startDateBook time.Time, endDateBook time.Time, addPrice int64) {
+	dateTimes := GetOptionDateTimes(ctx, server, optionID, "HandleOptionRedisExAddPrice")
+	intervals := tools.ListDateIntervals(5)
+	for _, v := range intervals {
+		confirm := OptionRedisExMain(ctx, server, prepareTime, window, window, optionUserID, v.StartDate, v.EndDate, "HandleOptionRedisExAddPrice", dateTimes, optionID)
+		if confirm {
+			addPrice = HandleOptionPrice(basePrice, weekendPrice, dateTimes, v.StartDate, v.EndDate, "HandleOptionRedisExAddPrice")
+			startDateBook = v.StartDate
+			endDateBook = v.EndDate
+			addDateFound = true
+			break
+		}
+	}
+	return
+}
+
+func OptionRedisExMain(ctx context.Context, server *Server, prepareTime string, window string, advanceNotice string, optionUserID uuid.UUID, startDate time.Time, endDate time.Time, funcName string, dateTimes []db.OptionDateTime, optionID uuid.UUID) bool {
+	// We check the available settings
+	settingGood := HandleOptionSearchSetting(startDate, endDate, advanceNotice, prepareTime, window, optionUserID, funcName, optionID)
+	// We check search charges
+	chargeGood := HandleOptionSearchCharges(ctx, server, optionUserID, funcName, prepareTime, startDate, endDate)
+	// We check dates
+	dateTimeGood := HandleOptionSearchDates(ctx, server, optionUserID, funcName, startDate, endDate, dateTimes)
+	return settingGood && chargeGood && dateTimeGood
 }

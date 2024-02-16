@@ -187,6 +187,12 @@ func HandleChargeToOptionData(ctx context.Context, server *Server, charge db.Cha
 		log.Printf("Error at FuncName: %v weekendPrice HandleChargeToOptionData in ConvertPrice err: %v, user: %v\n", funcName, err, charge.ID)
 		weekendPrice = 0.0
 	}
+	addDateFound, startDateBook, endDateBook, addPrice := HandleOptionRedisExAddPrice(ctx, server, data.ID, data.OptionUserID, data.PreparationTime, data.AvailabilityWindow, data.AdvanceNotice, data.Price, data.WeekendPrice)
+	addedPrice, err := tools.ConvertPrice(tools.IntToMoneyString(addPrice), data.Currency, data.Currency, server.config.DollarToNaira, server.config.DollarToCAD, charge.ID)
+	if err != nil {
+		log.Printf("Error at addedPrice GetDeepLinkExperience in ConvertPrice err: %v, user: %v\n", err, charge.ID)
+		addedPrice = 0.0
+	}
 	res := ExperienceOptionData{
 		UserOptionID:     tools.UuidToString(data.OptionUserID),
 		Name:             data.HostNameOption,
@@ -204,6 +210,10 @@ func HandleChargeToOptionData(ctx context.Context, server *Server, charge db.Cha
 		HostJoined:       tools.ConvertDateOnlyToString(data.CreatedAt),
 		HostVerified:     data.IsVerified_2,
 		Category:         data.Category,
+		AddedPrice:       tools.ConvertFloatToString(addedPrice),
+		AddPriceFound:    addDateFound,
+		StartDate:        tools.ConvertDateOnlyToString(startDateBook),
+		EndDate:          tools.ConvertDateOnlyToString(endDateBook),
 	}
 	return res, nil
 }

@@ -344,3 +344,4 @@ func AreDatesInSameMonthAndYear(dateStr1, dateStr2 string) (bool, error) {
 
 	return parsedDate1.Year() == parsedDate2.Year() && parsedDate1.Month() == parsedDate2.Month(), nil
 }
+

@@ -59,6 +59,11 @@ type Config struct {
 	InviteTemplate                string        `mapstructure:"INVITE_TEMPLATE"`
 	TermsOfService                string        `mapstructure:"TERMS_OF_SERVICE"`
 	PrivacyPolicy                 string        `mapstructure:"PRIVACY_POLICY"`
+	OptionMinPriceNaira           int           `mapstructure:"OPTION_MIN_PRICE_NAIRA"`
+	OptionMaxPriceNaira           int           `mapstructure:"OPTION_MAX_PRICE_NAIRA"`
+	EventMinPriceNaira            int           `mapstructure:"EVENT_MIN_PRICE_NAIRA"`
+	EventMaxPriceNaira            int           `mapstructure:"EVENT_MAX_PRICE_NAIRA"`
+	OptionExDayCount int `mapstructure:"OPTION_EX_DAY_COUNT"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

@@ -134,6 +134,11 @@ SELECT start_date, end_date
 FROM charge_option_references
 WHERE option_user_id = $1 AND is_complete=$2 AND cancelled=$3;
 
+-- name: ListChargeOptionReferenceDatesMore :many
+SELECT start_date, end_date
+FROM charge_option_references
+WHERE option_user_id = $1 AND is_complete=$2 AND cancelled=$3 AND start_date > NOW();
+
 
 
 -- name: GetChargeOptionReferenceByUserID :one

@@ -324,6 +324,42 @@ func (q *Queries) ListOptionDateTime(ctx context.Context, arg ListOptionDateTime
 	return items, nil
 }
 
+const listOptionDateTimeMore = `-- name: ListOptionDateTimeMore :many
+SELECT id, option_id, date, available, price, note, created_at, updated_at
+FROM option_date_times
+WHERE option_id = $1 AND date > NOW()
+ORDER BY created_at DESC
+`
+
+func (q *Queries) ListOptionDateTimeMore(ctx context.Context, optionID uuid.UUID) ([]OptionDateTime, error) {
+	rows, err := q.db.Query(ctx, listOptionDateTimeMore, optionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []OptionDateTime{}
+	for rows.Next() {
+		var i OptionDateTime
+		if err := rows.Scan(
+			&i.ID,
+			&i.OptionID,
+			&i.Date,
+			&i.Available,
+			&i.Price,
+			&i.Note,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const removeAllOptionDateTime = `-- name: RemoveAllOptionDateTime :exec
 DELETE FROM option_date_times
 WHERE option_id = $1

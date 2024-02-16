@@ -17,6 +17,8 @@ func ServerListIsEmpty(a []string) bool {
 	return false
 }
 
+
+
 // Remove none and empty values from a list
 func HandleListReq(a []string) []string {
 	var arr []string
@@ -30,6 +32,10 @@ func HandleListReq(a []string) []string {
 
 func ServerStringEmpty(s string) bool {
 	return len(s) == 0 || s == "none"
+}
+
+func ServerDoubleEmpty(s string) bool {
+	return len(s) == 0 || s == "none" || s == "0.0"
 }
 
 func HandleString(s string) string {

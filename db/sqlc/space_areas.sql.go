@@ -220,6 +220,37 @@ func (q *Queries) ListSpaceAreaPhotos(ctx context.Context, arg ListSpaceAreaPhot
 	return items, nil
 }
 
+const listSpaceAreaRooms = `-- name: ListSpaceAreaRooms :many
+SELECT space_type, beds
+FROM space_areas
+WHERE option_id = $1 AND(space_type = 'bedroom' OR space_type = 'full_bathroom')
+`
+
+type ListSpaceAreaRoomsRow struct {
+	SpaceType string   `json:"space_type"`
+	Beds      []string `json:"beds"`
+}
+
+func (q *Queries) ListSpaceAreaRooms(ctx context.Context, optionID uuid.UUID) ([]ListSpaceAreaRoomsRow, error) {
+	rows, err := q.db.Query(ctx, listSpaceAreaRooms, optionID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListSpaceAreaRoomsRow{}
+	for rows.Next() {
+		var i ListSpaceAreaRoomsRow
+		if err := rows.Scan(&i.SpaceType, &i.Beds); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listSpaceAreaType = `-- name: ListSpaceAreaType :many
 SELECT space_type
 FROM space_areas

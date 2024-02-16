@@ -14,7 +14,7 @@ import (
 func HandleHostSpecialDates(ctx *gin.Context, server *Server, option db.GetOptionInfoByOptionWithPriceUserIDRow, userCurrency string) (dates []ExOptionDateTimeItem) {
 	dollarToNaira := server.config.DollarToNaira
 	dollarToCAD := server.config.DollarToCAD
-	special, err := server.store.ListAllOptionDateTime(ctx, option.ID)
+	special, err := server.store.ListOptionDateTimeMore(ctx, option.ID)
 	if err != nil || len(special) == 0 {
 		if err != nil {
 			log.Printf("Error at HandleHostSpecialDates in ListAllOptionDateTime err: %v, user: %v, optionID: %v\n", err, ctx.ClientIP(), option.ID)

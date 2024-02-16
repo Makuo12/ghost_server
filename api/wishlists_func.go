@@ -60,10 +60,10 @@ func HandleWishlistOptionExperience(ctx *gin.Context, server *Server, user db.Us
 	var resData []ExperienceOptionData
 	for _, id := range optionUserIDs {
 		data, err := server.store.GetOptionExperienceByOptionUserID(ctx, db.GetOptionExperienceByOptionUserIDParams{
-			OptionUserID:    id,
-			IsActive:        true,
-			IsComplete:      true,
-			IsActive_2:      true,
+			OptionUserID: id,
+			IsActive:     true,
+			IsComplete:   true,
+			IsActive_2:   true,
 		})
 		if err != nil {
 			log.Printf("Error at  HandleWishlistOptionExperience in GetOptionExperienceCount err: %v, user: %v\n", err, user.ID)
@@ -80,6 +80,12 @@ func HandleWishlistOptionExperience(ctx *gin.Context, server *Server, user db.Us
 			log.Printf("Error at weekendPrice HandleWishlistOptionExperience in ConvertPrice err: %v, user: %v\n", err, user.ID)
 			weekendPrice = 0.0
 		}
+		addDateFound, startDateBook, endDateBook, addPrice := HandleOptionRedisExAddPrice(ctx, server, data.ID, data.OptionUserID, data.PreparationTime, data.AvailabilityWindow, data.AdvanceNotice, data.Price, data.WeekendPrice)
+		addedPrice, err := tools.ConvertPrice(tools.IntToMoneyString(addPrice), data.Currency, req.Currency, server.config.DollarToNaira, server.config.DollarToCAD, data.ID)
+		if err != nil {
+			log.Printf("Error at addedPrice GetDeepLinkExperience in ConvertPrice err: %v, user: %v\n", err, ctx.ClientIP())
+			addedPrice = 0.0
+		}
 		newData := ExperienceOptionData{
 			UserOptionID:     tools.UuidToString(data.OptionUserID),
 			Name:             data.HostNameOption,
@@ -87,17 +93,20 @@ func HandleWishlistOptionExperience(ctx *gin.Context, server *Server, user db.Us
 			CoverImage:       data.CoverImage,
 			HostAsIndividual: data.HostAsIndividual,
 			BasePrice:        tools.ConvertFloatToString(basePrice),
-
-			WeekendPrice:   tools.ConvertFloatToString(weekendPrice),
-			Photos:         data.Photo,
-			TypeOfShortlet: data.TypeOfShortlet,
-			State:          data.State,
-			Country:        data.Country,
-			ProfilePhoto:   data.Photo_2,
-			HostName:       data.FirstName,
-			HostJoined:     tools.ConvertDateOnlyToString(data.CreatedAt),
-			HostVerified:   data.IsVerified_2,
-			Category:       data.Category,
+			WeekendPrice:     tools.ConvertFloatToString(weekendPrice),
+			Photos:           data.Photo,
+			TypeOfShortlet:   data.TypeOfShortlet,
+			State:            data.State,
+			Country:          data.Country,
+			ProfilePhoto:     data.Photo_2,
+			HostName:         data.FirstName,
+			HostJoined:       tools.ConvertDateOnlyToString(data.CreatedAt),
+			HostVerified:     data.IsVerified_2,
+			Category:         data.Category,
+			AddedPrice:       tools.ConvertFloatToString(addedPrice),
+			AddPriceFound:    addDateFound,
+			StartDate:        tools.ConvertDateOnlyToString(startDateBook),
+			EndDate:          tools.ConvertDateOnlyToString(endDateBook),
 		}
 		resData = append(resData, newData)
 
@@ -177,10 +186,10 @@ func HandleWishlistEventExperience(ctx *gin.Context, server *Server, user db.Use
 	for _, id := range optionUserIDs {
 		log.Println("wishlistID optionUserID", id)
 		data, err := server.store.GetEventExperienceByOptionUserID(ctx, db.GetEventExperienceByOptionUserIDParams{
-			OptionUserID:    id,
-			IsComplete:      true,
-			IsActive:        true,
-			IsActive_2:      true,
+			OptionUserID: id,
+			IsComplete:   true,
+			IsActive:     true,
+			IsActive_2:   true,
 		})
 		if err != nil {
 			log.Printf("Error at  HandleWishlistOptionExperience in GetEventExperienceByOptionUserID err: %v, user: %v\n", err, user.ID)

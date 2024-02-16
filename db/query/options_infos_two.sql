@@ -94,7 +94,7 @@ WHERE ((oi.id = sqlc.arg(option_id) AND oi.host_id = sqlc.arg(main_host_id)) OR 
 
 
 -- name: ListOptionExperienceByLocation :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -105,13 +105,15 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
+   JOIN option_availability_settings oas on o_i.id = oas.option_id
+   JOIN option_trip_lengths otl on o_i.id = otl.option_id
 WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND (o_i.category = $5 OR o_i.category_two = $5 OR o_i.category_three = $5)
 ORDER BY CASE WHEN lOWER(l.country)= $6 AND LOWER(l.state) = $7 THEN 0 ELSE 1 END, o_i.created_at DESC
 LIMIT $8
 OFFSET $9;
 
 -- name: GetOptionExperienceByOptionUserID :one
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -122,10 +124,12 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
+   JOIN option_availability_settings oas on o_i.id = oas.option_id
+   JOIN option_trip_lengths otl on o_i.id = otl.option_id
 WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze';
 
 -- name: GetOptionExperienceByDeepLinkID :one
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -136,6 +140,8 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
+   JOIN option_availability_settings oas on o_i.id = oas.option_id
+   JOIN option_trip_lengths otl on o_i.id = otl.option_id
 WHERE  o_i.deep_link_id = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze';
 
 -- name: GetOptionExperienceMap :one
@@ -150,7 +156,7 @@ FROM options_infos o_i
 WHERE  o_i.option_user_id  = $1 AND o_i.is_complete = $2 AND u.is_active = $3 AND o_i.is_active = $4 AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze';
 
 -- name: ListOptionExperience :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -161,6 +167,8 @@ FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
+   JOIN option_availability_settings oas on o_i.id = oas.option_id
+   JOIN option_trip_lengths otl on o_i.id = otl.option_id
 WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4;
 
 -- name: GetOptionExperienceCount :one

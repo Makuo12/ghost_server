@@ -70,6 +70,11 @@ SELECT space_type
 FROM space_areas
 WHERE option_id = $1; 
 
+-- name: ListSpaceAreaRooms :many
+SELECT space_type, beds
+FROM space_areas
+WHERE option_id = $1 AND(space_type = 'bedroom' OR space_type = 'full_bathroom'); 
+
 
 -- name: ListSpaceAreaPhotos :many
 SELECT photos

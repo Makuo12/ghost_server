@@ -278,7 +278,7 @@ func HandleOptionExperienceToRedis(ctx context.Context, server *Server) func() {
 
 					continue
 				}
-				data := ConvertExperienceOptionDataToSlice(o)
+				data := ConvertExperienceOptionDataToSlice(ctx, server, o)
 				err := RedisClient.HSet(RedisContext, optionKey, data).Err()
 				if err != nil {
 					log.Printf("Error at HandleOptionExperienceToRedis in HSet(RedisContext, optionKey err: %v\n", err)
@@ -313,5 +313,4 @@ func HandleOptionExperienceToRedis(ctx context.Context, server *Server) func() {
 			log.Printf("Error at HandleOptionExperienceToRedis in RedisClient.SAdd(RedisContext, constants.ALL_EXPERIENCE_CATEGORIES err: %v\n", err)
 		}
 	}
-
 }
