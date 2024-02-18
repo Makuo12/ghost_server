@@ -336,7 +336,7 @@ func GetOptionFilterMaxMinPrice(ctx context.Context, server *Server, req ExFilte
 		}
 	} else {
 		minPriceInt := optionPrices[0].Price
-		maxPriceInt := optionPrices[len(optionPrices)].Price
+		maxPriceInt := optionPrices[len(optionPrices)-1].Price
 		if minPriceInt == maxPriceInt {
 			// We want to ensure it is not equal
 			maxPriceInt = int64(server.config.OptionMaxPriceNaira)

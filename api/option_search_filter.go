@@ -264,7 +264,7 @@ func GetEventFilterMaxMinPrice(ctx context.Context, server *Server, req ExFilter
 		}
 	} else {
 		minPriceInt := eventPrices[0].Price
-		maxPriceInt := eventPrices[len(eventPrices)].Price
+		maxPriceInt := eventPrices[len(eventPrices)-1].Price
 		if minPriceInt == maxPriceInt {
 			// We want to ensure it is not equal
 			maxPriceInt = int64(server.config.EventMaxPriceNaira)
