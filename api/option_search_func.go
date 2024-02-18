@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func HandleOptionSearchFlexible(ctx context.Context, server *Server, optionUserID uuid.UUID, prepareTime string, window string, advanceNotice string, req ExSearchOptionRequest, funcName string, dateTimes []db.OptionDateTime, optionID uuid.UUID) (startDateBook time.Time, endDateBook time.Time, confirmBook bool) {
+func HandleOptionSearchFlexible(ctx context.Context, server *Server, optionUserID uuid.UUID, prepareTime string, window string, advanceNotice string, req ExSearchRequest, funcName string, dateTimes []db.OptionDateTime, optionID uuid.UUID) (startDateBook time.Time, endDateBook time.Time, confirmBook bool) {
 	switch req.StayType {
 	case "weekend":
 		weekends := tools.ListWeekends()
@@ -60,7 +60,7 @@ func HandleOptionSearchFlexible(ctx context.Context, server *Server, optionUserI
 	return
 }
 
-func HandleOptionSearchChooseDate(ctx context.Context, server *Server, optionUserID uuid.UUID, prepareTime string, window string, advanceNotice string, req ExSearchOptionRequest, funcName string, startDate time.Time, endDate time.Time, dateTimes []db.OptionDateTime, optionID uuid.UUID) (startDateBook time.Time, endDateBook time.Time, confirmBook bool) {
+func HandleOptionSearchChooseDate(ctx context.Context, server *Server, optionUserID uuid.UUID, prepareTime string, window string, advanceNotice string, req ExSearchRequest, funcName string, startDate time.Time, endDate time.Time, dateTimes []db.OptionDateTime, optionID uuid.UUID) (startDateBook time.Time, endDateBook time.Time, confirmBook bool) {
 
 	confirm := OptionSearchMain(ctx, server, req, prepareTime, window, advanceNotice, optionUserID, startDate, endDate, funcName, dateTimes, optionID)
 	if confirm {
@@ -100,7 +100,7 @@ func HandleOptionSearchChooseDate(ctx context.Context, server *Server, optionUse
 	return
 }
 
-func OptionSearchChooseDate(ctx context.Context, server *Server, req ExSearchOptionRequest, funcName string) (startDate time.Time, endDate time.Time, err error) {
+func OptionSearchChooseDate(ctx context.Context, server *Server, req ExSearchRequest, funcName string) (startDate time.Time, endDate time.Time, err error) {
 	startDate, err = tools.ConvertDateOnlyStringToDate(req.StartDate)
 	if err != nil {
 		log.Printf("Error start at FuncName %v, OptionSearchChooseDate ConvertDateOnlyStringToDate err: %v \n", funcName, err.Error())
@@ -117,7 +117,7 @@ func OptionSearchChooseDate(ctx context.Context, server *Server, req ExSearchOpt
 	return
 }
 
-func OptionSearchMain(ctx context.Context, server *Server, req ExSearchOptionRequest, prepareTime string, window string, advanceNotice string, optionUserID uuid.UUID, startDate time.Time, endDate time.Time, funcName string, dateTimes []db.OptionDateTime, optionID uuid.UUID) bool {
+func OptionSearchMain(ctx context.Context, server *Server, req ExSearchRequest, prepareTime string, window string, advanceNotice string, optionUserID uuid.UUID, startDate time.Time, endDate time.Time, funcName string, dateTimes []db.OptionDateTime, optionID uuid.UUID) bool {
 	// We check if the weekend is in the month
 	var monthGood bool
 	if req.PeriodType == "flexible" {
@@ -134,7 +134,7 @@ func OptionSearchMain(ctx context.Context, server *Server, req ExSearchOptionReq
 	return monthGood && settingGood && chargeGood && dateTimeGood
 }
 
-func OptionSearchMonthGood(req ExSearchOptionRequest, startDate time.Time, endDate time.Time) (exist bool) {
+func OptionSearchMonthGood(req ExSearchRequest, startDate time.Time, endDate time.Time) (exist bool) {
 	if len(req.Months) == 0 {
 		exist = true
 		return
@@ -217,7 +217,7 @@ func HandleOptionSearchDates(ctx context.Context, server *Server, optionUserID u
 	return
 }
 
-func HandleOptionSearchPrice(ctx context.Context, server *Server, req ExSearchOptionRequest, optionID uuid.UUID, optionUserID uuid.UUID, optionCurrency string, optionPrice int64, optionWeekendPrice int64, dateTimes []db.OptionDateTime, startDateBook time.Time, endDateBook time.Time, funcName string) (addPrice string, priceFloat float64, basePrice float64, weekendPrice float64, err error) {
+func HandleOptionSearchPrice(ctx context.Context, server *Server, req ExSearchRequest, optionID uuid.UUID, optionUserID uuid.UUID, optionCurrency string, optionPrice int64, optionWeekendPrice int64, dateTimes []db.OptionDateTime, startDateBook time.Time, endDateBook time.Time, funcName string) (addPrice string, priceFloat float64, basePrice float64, weekendPrice float64, err error) {
 	basePrice, err = tools.ConvertPrice(tools.IntToMoneyString(optionPrice), optionCurrency, req.Currency, server.config.DollarToNaira, server.config.DollarToCAD, optionUserID)
 	if err != nil {
 		log.Printf("Error at FuncName %v, HandleOptionSearchPrice  tools.ConvertPrice err: %v \n", funcName, err.Error())

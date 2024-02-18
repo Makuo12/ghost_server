@@ -4,12 +4,52 @@ import (
 	"context"
 	db "flex_server/db/sqlc"
 	"flex_server/tools"
+	"flex_server/utils"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
+
+func (server *Server) GetEventFilterRange(ctx *gin.Context) {
+	var req ExFilterRangeReq
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Printf("Error at  GetOptionFilterRange in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.Type)
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	var maxPrice float64
+	var minPrice float64
+	var averagePrice float64
+	var addMaxPrice float64
+	var addMinPrice float64
+	var averageAddPrice float64
+	minPrice, maxPrice, err := GetEventFilterMaxMinPrice(ctx, server, req, ctx.ClientIP())
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	// We calculate the average
+	averagePrice = (maxPrice + minPrice) / 2
+
+	// We handle it when it is 5 days
+	addMaxPrice = maxPrice * float64(server.config.OptionExDayCount)
+	addMinPrice = minPrice * float64(server.config.OptionExDayCount)
+	averageAddPrice = (addMaxPrice + addMinPrice) / 2
+	res := ExFilterRangeRes{
+		MaxPrice:        tools.ConvertFloatToString(maxPrice),
+		MinPrice:        tools.ConvertFloatToString(minPrice),
+		AveragePrice:    tools.ConvertFloatToString(averagePrice),
+		AddMaxPrice:     tools.ConvertFloatToString(addMaxPrice),
+		AddMinPrice:     tools.ConvertFloatToString(addMinPrice),
+		AddDayCount:     server.config.OptionExDayCount,
+		AverageAddPrice: tools.ConvertFloatToString(averageAddPrice),
+	}
+	ctx.JSON(http.StatusOK, res)
+
+}
 
 func (server *Server) GetOptionFilterRange(ctx *gin.Context) {
 	var req ExFilterRangeReq
@@ -115,10 +155,10 @@ func HandleOptionFilter(ctx context.Context, server *Server, optionID uuid.UUID,
 	if len(req.CategoryTypes) == 0 {
 		categoryConfirm = true
 	} else {
-		var exist = true
+		var exist = false
 		for _, ca := range req.CategoryTypes {
-			if !tools.IsInList(optionCategory, ca) {
-				exist = false
+			if tools.IsInList(optionCategory, ca) {
+				exist = true
 			}
 		}
 		if exist {
@@ -202,4 +242,46 @@ func OptionFilterRooms(ctx context.Context, server *Server, req ExFilterOptionRe
 	}
 	log.Println(bedConfirm)
 	return bedroomConfirm && bathroomConfirm && bedConfirm
+}
+
+func GetEventFilterMaxMinPrice(ctx context.Context, server *Server, req ExFilterRangeReq, clientIP string) (minPrice float64, maxPrice float64, err error) {
+	eventPrices, err := server.store.ListTicketForRange(ctx)
+	if err != nil || len(eventPrices) == 0 {
+		if err != nil {
+			log.Printf("Error at GetEventFilterRange in ListTicketForRange err: %v, user: %v\n", err, clientIP)
+		}
+		minPrice, err = tools.ConvertPrice(tools.IntToMoneyString(int64(server.config.EventMinPriceNaira)), utils.NGN, req.Currency, server.config.DollarToNaira, server.config.DollarToCAD, uuid.New())
+		if err != nil {
+			log.Printf("Error 0 at min FuncName %v, HandleEventSearchPrice  tools.ConvertPrice err: %v \n", "GetEventFilterRange", err.Error())
+			err = fmt.Errorf("range not found")
+			return
+		}
+		maxPrice, err = tools.ConvertPrice(tools.IntToMoneyString(int64(server.config.EventMaxPriceNaira)), utils.NGN, req.Currency, server.config.DollarToNaira, server.config.DollarToCAD, uuid.New())
+		if err != nil {
+			log.Printf("Error 0 max at FuncName %v, HandleEventSearchPrice  tools.ConvertPrice err: %v \n", "GetEventFilterRange", err.Error())
+			err = fmt.Errorf("range not found")
+			return
+		}
+	} else {
+		minPriceInt := eventPrices[0].Price
+		maxPriceInt := eventPrices[len(eventPrices)].Price
+		if minPriceInt == maxPriceInt {
+			// We want to ensure it is not equal
+			maxPriceInt = int64(server.config.EventMaxPriceNaira)
+		}
+		minPrice, err = tools.ConvertPrice(tools.IntToMoneyString(int64(minPriceInt)), utils.NGN, req.Currency, server.config.DollarToNaira, server.config.DollarToCAD, uuid.New())
+		if err != nil {
+			log.Printf("Error at min FuncName %v, HandleEventSearchPrice  tools.ConvertPrice err: %v \n", "GetEventFilterRange", err.Error())
+			err = fmt.Errorf("range not found")
+			return
+		}
+		maxPrice, err = tools.ConvertPrice(tools.IntToMoneyString(maxPriceInt), utils.NGN, req.Currency, server.config.DollarToNaira, server.config.DollarToCAD, uuid.New())
+		if err != nil {
+			log.Printf("Error at max FuncName %v, HandleEventSearchPrice  tools.ConvertPrice err: %v \n", "GetEventFilterRange", err.Error())
+			err = fmt.Errorf("range not found")
+			return
+		}
+
+	}
+	return
 }

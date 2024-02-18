@@ -10,7 +10,7 @@ type ExperienceOptionData struct {
 	WeekendPrice     string `json:"weekend_price"`
 	// AddedPrice for when we are calculating based on more than one night
 	AddedPrice     string   `json:"added_price"`
-	AddPriceFound  bool   `json:"add_price_found"`
+	AddPriceFound  bool     `json:"add_price_found"`
 	StartDate      string   `json:"start_date"`
 	EndDate        string   `json:"end_date"`
 	Photos         []string `json:"photos"`

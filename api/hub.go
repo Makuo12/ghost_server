@@ -233,6 +233,28 @@ func (h *hub) Run() {
 						}
 					}
 				}
+				if c.roomId == "ex_search_event" {
+					if c.username == m.Username {
+						select {
+						case c.send <- m.Data:
+						default:
+							func() {
+								defer func() {
+									if r := recover(); r != nil {
+										// Handle the panic, if any
+										log.Println("Panic occurred during send operation:", r)
+									}
+								}()
+
+								close(c.send)
+								delete(connections, c)
+								if len(connections) == 0 {
+									delete(h.rooms, m.Room)
+								}
+							}()
+						}
+					}
+				}
 				if c.roomId == "message_listen" {
 					if c.userID == m.UserID {
 						select {

@@ -45,7 +45,21 @@ type ExFilterOptionRequest struct {
 	CanSelfCheck      bool     `json:"can_self_check"`
 }
 
-type ExSearchOptionRequest struct {
+type ExFilterEventRequest struct {
+	MaxPrice    string `json:"max_price"`
+	MinPrice    string `json:"min_price"`
+	AddMaxPrice string `json:"add_max_price"`
+	AddMinPrice string `json:"add_min_price"`
+	// OnAddPrice would tell us what price it is on
+	OnAddPrice      bool     `json:"on_add_price"`
+	Currency        string   `json:"currency"`
+	TicketAvailable bool     `json:"ticket_available"`
+	CategoryType    []string `json:"category_type"`
+	TicketType      []string `json:"ticket_type"`
+	SubCategory     []string `json:"sub_category"`
+}
+
+type ExSearchRequest struct {
 	PeriodType     string        `json:"period_type"`
 	PeriodDaySpace int           `json:"period_day_space"`
 	StayType       string        `json:"stay_type"`
@@ -70,7 +84,17 @@ type ExControlOptionRequest struct {
 	Filter        ExFilterOptionRequest `json:"filter"`
 	IsFilterEmpty bool                  `json:"is_filter_empty"`
 	IsSearchEmpty bool                  `json:"is_search_empty"`
-	Search        ExSearchOptionRequest `json:"search"`
+	Search        ExSearchRequest       `json:"search"`
+}
+
+type ExControlEventRequest struct {
+	Offset int `json:"offset"`
+	// Type is category type
+	Type          string               `json:"type"`
+	Filter        ExFilterEventRequest `json:"filter"`
+	IsFilterEmpty bool                 `json:"is_filter_empty"`
+	IsSearchEmpty bool                 `json:"is_search_empty"`
+	Search        ExSearchRequest      `json:"search"`
 }
 
 type ExMonthItem struct {
@@ -78,7 +102,7 @@ type ExMonthItem struct {
 	Month int `json:"month"`
 }
 
-func ExSearchReqHasLocation(data ExSearchOptionRequest) bool {
+func ExSearchReqHasLocation(data ExSearchRequest) bool {
 	var exist bool
 	list := []string{data.City, data.State, data.Country, data.PostCode, data.Street}
 	for _, s := range list {

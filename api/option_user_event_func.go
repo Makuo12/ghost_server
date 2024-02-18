@@ -118,6 +118,27 @@ func HandleGetTicketStartPrice(tickets []db.EventDateTicket) (price float64) {
 	return
 }
 
+func HandleTicketInRange(startPrice string, endPrice string, tickets []db.EventDateTicket, optionCurrency string, ticketType []string, userCurrency string, dollarToNaira string, dollarToCAD string, optionID uuid.UUID, funcName string) (confirm bool) {
+	startPriceFloat := tools.ConvertStringToFloat(startPrice)
+	endPriceFloat := tools.ConvertStringToFloat(endPrice)
+	for _, t := range tickets {
+		if len(ticketType) != 0 {
+			if !tools.IsInList(ticketType, t.TicketType) {
+				continue
+			}
+		}
+		price, err := tools.ConvertPrice(tools.IntToMoneyString(t.Price), optionCurrency, userCurrency, dollarToNaira, dollarToCAD, optionID)
+		if err != nil {
+			log.Printf("Error at FuncName %v HandleTicketInRange in tools.ConvertPrice err: %v, user: %v\n", funcName, err, tools.UuidToString(optionID))
+			continue
+		}
+		if startPriceFloat <= price && price <= endPriceFloat {
+			confirm = true
+		}
+	}
+	return
+}
+
 func HandleGetFreeTicket(tickets []db.EventDateTicket) (hasFreeTicket bool) {
 
 	for _, t := range tickets {

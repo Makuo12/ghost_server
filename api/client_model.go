@@ -4,6 +4,15 @@ type SearchText struct {
 	Text string `json:"text"`
 }
 
+type EventSearchText struct {
+	Currency string `json:"currency"`
+	Text     string `json:"text"`
+}
+
+type EventSearchTextRes struct {
+	List []ExperienceEventData `json:"list"`
+}
+
 type MapExperienceLocationParams struct {
 	Lat string `json:"lat"`
 	Lng string `json:"lng"`
@@ -92,10 +101,7 @@ type GetMessageRes struct {
 }
 
 type UnreadMessageRes struct {
-	List              []string          `json:"list"`
-	SelectedContactID string            `json:"selected_contact_id"`
-	UserID            string            `json:"user_id"`
+	List              []string `json:"list"`
+	SelectedContactID string   `json:"selected_contact_id"`
+	UserID            string   `json:"user_id"`
 }
-
-
-

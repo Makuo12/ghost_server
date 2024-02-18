@@ -379,6 +379,67 @@ func (q *Queries) ListEventDateTicketUser(ctx context.Context, eventDateTimeID u
 	return items, nil
 }
 
+const listTicketForRange = `-- name: ListTicketForRange :many
+SELECT e_d_t.id AS ticket_id, e_d_t.level, e_d_t.price, e_d_t.ticket_type, e_d_t.name AS ticket_name, e_d.id AS event_date_id, o_i.currency, e_d_d.start_time, e_d_d.end_time, e_d_d.time_zone, e_d_t.type AS pay_type, o_i.option_user_id AS option_user_id, e_d_t.absorb_fees
+FROM event_date_tickets e_d_t
+    JOIN event_date_times e_d on e_d.id = e_d_t.event_date_time_id
+    JOIN event_date_details e_d_d on e_d_d.event_date_time_id = e_d_t.event_date_time_id
+    JOIN options_infos o_i on o_i.id = e_d.event_info_id
+    JOIN options_infos_status o_i_s on o_i_s.option_id = o_i.id
+    JOIN users u on o_i.host_id = u.id
+WHERE CAST(CONCAT(e_d_t.start_date, ' ', e_d_t.start_time) AS timestamp) < NOW() AND CAST(CONCAT(e_d_t.end_date, ' ', e_d_t.end_time) AS timestamp) > NOW() AND e_d.status = 'on_sale' AND o_i.is_complete = true AND o_i.is_active = true AND u.is_active = true AND u.is_deleted = false AND (o_i_s.status = 'list' OR o_i_s.status = 'staged') AND  e_d.is_active = true AND e_d_t.is_active = true
+`
+
+type ListTicketForRangeRow struct {
+	TicketID     uuid.UUID `json:"ticket_id"`
+	Level        string    `json:"level"`
+	Price        int64     `json:"price"`
+	TicketType   string    `json:"ticket_type"`
+	TicketName   string    `json:"ticket_name"`
+	EventDateID  uuid.UUID `json:"event_date_id"`
+	Currency     string    `json:"currency"`
+	StartTime    string    `json:"start_time"`
+	EndTime      string    `json:"end_time"`
+	TimeZone     string    `json:"time_zone"`
+	PayType      string    `json:"pay_type"`
+	OptionUserID uuid.UUID `json:"option_user_id"`
+	AbsorbFees   bool      `json:"absorb_fees"`
+}
+
+func (q *Queries) ListTicketForRange(ctx context.Context) ([]ListTicketForRangeRow, error) {
+	rows, err := q.db.Query(ctx, listTicketForRange)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListTicketForRangeRow{}
+	for rows.Next() {
+		var i ListTicketForRangeRow
+		if err := rows.Scan(
+			&i.TicketID,
+			&i.Level,
+			&i.Price,
+			&i.TicketType,
+			&i.TicketName,
+			&i.EventDateID,
+			&i.Currency,
+			&i.StartTime,
+			&i.EndTime,
+			&i.TimeZone,
+			&i.PayType,
+			&i.OptionUserID,
+			&i.AbsorbFees,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const removeAllEventDateTicket = `-- name: RemoveAllEventDateTicket :exec
 DELETE FROM event_date_tickets
 WHERE event_date_time_id = $1 AND is_active = true

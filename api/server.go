@@ -363,13 +363,18 @@ func (server *Server) setupRouter() {
 	router.PUT("/users/user/experience/option/am-detail/get", server.GetExperienceAmDetail)
 	router.PUT("/users/user/experience/detail/option/date-time/list", server.ListExOptionDateTime)
 
+	// Experience Search
+	router.PUT("/users/user/experience/options/search-filter", server.ListOptionExSearch)
+	router.PUT("/users/user/experience/events/search-filter", server.ListEventExSearch)
+	// Filter Range
+	router.PUT("/users/user/experience/options/filter-range", server.GetOptionFilterRange)
+	router.PUT("/users/user/experience/events/filter-range", server.GetEventFilterRange)
+
 	// Deep Link
 	router.PUT("/users/user/experience/deep-link/option/get", server.GetOptionDeepLinkExperience)
 	router.PUT("/users/user/experience/deep-link/event/get", server.GetEventDeepLinkExperience)
 	router.PUT("/users/user/experience/deep-link/event/event-dates/get", server.GetEventDateDeepLinkExperience)
 
-	//router.GET("/users/options/get/any", server.GetOptionDataAll)
-	//router.GET("/users/shortlet/get/any", server.GetShortletsWithType)
 	// Update without being logged in
 	// lock means password
 	router.PUT("/users/not_logged/forgot/lock", server.ForgotPasswordNotLogged)
@@ -392,7 +397,7 @@ func (server *Server) setupRouter() {
 			err := fmt.Errorf("this path does not exist")
 			ctx.AbortWithStatusJSON(http.StatusNotFound, errorResponse(err))
 		}
-		if roomType != "map_location" && roomType != "user_search_event_name" {
+		if roomType != "map_location" && roomType != "ex_search_event" {
 			err := fmt.Errorf("this path does not exist")
 			ctx.AbortWithStatusJSON(http.StatusNotFound, errorResponse(err))
 		}

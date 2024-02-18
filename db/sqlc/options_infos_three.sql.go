@@ -10,7 +10,374 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+const listEvent = `-- name: ListEvent :many
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i.category_two, o_i.category_three
+FROM options_infos o_i
+    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+    JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+    JOIN option_questions o_q on o_i.id = o_q.option_id
+    JOIN event_infos e_i on o_i.id = e_i.option_id
+    JOIN users u on o_i.host_id = u.id
+    JOIN identity i_d on u.id = i_d.user_id
+WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND o_i.is_active = true AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze' AND o_i.main_option_type = "events"
+`
+
+type ListEventRow struct {
+	ID               uuid.UUID `json:"id"`
+	OptionUserID     uuid.UUID `json:"option_user_id"`
+	Currency         string    `json:"currency"`
+	OptionType       string    `json:"option_type"`
+	HostNameOption   string    `json:"host_name_option"`
+	CoverImage       string    `json:"cover_image"`
+	Photo            []string  `json:"photo"`
+	IsVerified       bool      `json:"is_verified"`
+	EventType        string    `json:"event_type"`
+	SubCategoryType  string    `json:"sub_category_type"`
+	HostAsIndividual bool      `json:"host_as_individual"`
+	Photo_2          string    `json:"photo_2"`
+	FirstName        string    `json:"first_name"`
+	CreatedAt        time.Time `json:"created_at"`
+	IsVerified_2     bool      `json:"is_verified_2"`
+	Category         string    `json:"category"`
+	CategoryTwo      string    `json:"category_two"`
+	CategoryThree    string    `json:"category_three"`
+}
+
+func (q *Queries) ListEvent(ctx context.Context) ([]ListEventRow, error) {
+	rows, err := q.db.Query(ctx, listEvent)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListEventRow{}
+	for rows.Next() {
+		var i ListEventRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OptionUserID,
+			&i.Currency,
+			&i.OptionType,
+			&i.HostNameOption,
+			&i.CoverImage,
+			&i.Photo,
+			&i.IsVerified,
+			&i.EventType,
+			&i.SubCategoryType,
+			&i.HostAsIndividual,
+			&i.Photo_2,
+			&i.FirstName,
+			&i.CreatedAt,
+			&i.IsVerified_2,
+			&i.Category,
+			&i.CategoryTwo,
+			&i.CategoryThree,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listEventDateTimeEx = `-- name: ListEventDateTimeEx :many
+SELECT id, event_info_id, start_date, name, publish_check_in_steps, check_in_method, event_dates, deep_link_id, type, is_active, need_bands, need_tickets, absorb_band_charge, status, note, end_date, ed.created_at, ed.updated_at, edd.event_date_time_id, start_time, end_time, time_zone, edd.created_at, edd.updated_at, e_d_l.event_date_time_id, street, city, state, country, postcode, geolocation, e_d_l.created_at, e_d_l.updated_at
+FROM event_date_times ed
+    JOIN event_date_details edd on edd.event_date_time_id = ed.id
+    JOIN event_date_locations e_d_l on e_d_l.event_date_time_id = ed.id
+WHERE ed.event_info_id = $1 AND ed.status = $2 AND ed.is_active = true
+`
+
+type ListEventDateTimeExParams struct {
+	EventInfoID uuid.UUID `json:"event_info_id"`
+	Status      string    `json:"status"`
+}
+
+type ListEventDateTimeExRow struct {
+	ID                  uuid.UUID    `json:"id"`
+	EventInfoID         uuid.UUID    `json:"event_info_id"`
+	StartDate           time.Time    `json:"start_date"`
+	Name                string       `json:"name"`
+	PublishCheckInSteps bool         `json:"publish_check_in_steps"`
+	CheckInMethod       string       `json:"check_in_method"`
+	EventDates          []string     `json:"event_dates"`
+	DeepLinkID          uuid.UUID    `json:"deep_link_id"`
+	Type                string       `json:"type"`
+	IsActive            bool         `json:"is_active"`
+	NeedBands           bool         `json:"need_bands"`
+	NeedTickets         bool         `json:"need_tickets"`
+	AbsorbBandCharge    bool         `json:"absorb_band_charge"`
+	Status              string       `json:"status"`
+	Note                string       `json:"note"`
+	EndDate             time.Time    `json:"end_date"`
+	CreatedAt           time.Time    `json:"created_at"`
+	UpdatedAt           time.Time    `json:"updated_at"`
+	EventDateTimeID     uuid.UUID    `json:"event_date_time_id"`
+	StartTime           string       `json:"start_time"`
+	EndTime             string       `json:"end_time"`
+	TimeZone            string       `json:"time_zone"`
+	CreatedAt_2         time.Time    `json:"created_at_2"`
+	UpdatedAt_2         time.Time    `json:"updated_at_2"`
+	EventDateTimeID_2   uuid.UUID    `json:"event_date_time_id_2"`
+	Street              string       `json:"street"`
+	City                string       `json:"city"`
+	State               string       `json:"state"`
+	Country             string       `json:"country"`
+	Postcode            string       `json:"postcode"`
+	Geolocation         pgtype.Point `json:"geolocation"`
+	CreatedAt_3         time.Time    `json:"created_at_3"`
+	UpdatedAt_3         time.Time    `json:"updated_at_3"`
+}
+
+func (q *Queries) ListEventDateTimeEx(ctx context.Context, arg ListEventDateTimeExParams) ([]ListEventDateTimeExRow, error) {
+	rows, err := q.db.Query(ctx, listEventDateTimeEx, arg.EventInfoID, arg.Status)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListEventDateTimeExRow{}
+	for rows.Next() {
+		var i ListEventDateTimeExRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.EventInfoID,
+			&i.StartDate,
+			&i.Name,
+			&i.PublishCheckInSteps,
+			&i.CheckInMethod,
+			&i.EventDates,
+			&i.DeepLinkID,
+			&i.Type,
+			&i.IsActive,
+			&i.NeedBands,
+			&i.NeedTickets,
+			&i.AbsorbBandCharge,
+			&i.Status,
+			&i.Note,
+			&i.EndDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.EventDateTimeID,
+			&i.StartTime,
+			&i.EndTime,
+			&i.TimeZone,
+			&i.CreatedAt_2,
+			&i.UpdatedAt_2,
+			&i.EventDateTimeID_2,
+			&i.Street,
+			&i.City,
+			&i.State,
+			&i.Country,
+			&i.Postcode,
+			&i.Geolocation,
+			&i.CreatedAt_3,
+			&i.UpdatedAt_3,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listEventDateTimeExLocation = `-- name: ListEventDateTimeExLocation :many
+SELECT id, event_info_id, start_date, name, publish_check_in_steps, check_in_method, event_dates, deep_link_id, type, is_active, need_bands, need_tickets, absorb_band_charge, status, note, end_date, ed.created_at, ed.updated_at, edd.event_date_time_id, start_time, end_time, time_zone, edd.created_at, edd.updated_at, e_d_l.event_date_time_id, street, city, state, country, postcode, geolocation, e_d_l.created_at, e_d_l.updated_at
+FROM event_date_times ed
+    JOIN event_date_details edd on edd.event_date_time_id = ed.id
+    JOIN event_date_locations e_d_l on e_d_l.event_date_time_id = ed.id
+WHERE ed.event_info_id = $1 AND ed.status = "on_sale" AND ed.is_active = true AND (e_d_l.state = $2 OR e_d_l.city = $3 OR e_d_l.country = $4 OR e_d_l.street ILIKE $5 OR CAST(earth_distance(
+        ll_to_earth(e_d_l.geolocation[1], e_d_l.geolocation[0]),
+        ll_to_earth($6, $7)
+    ) AS FLOAT) < CAST($8 AS FLOAT))
+`
+
+type ListEventDateTimeExLocationParams struct {
+	EventInfoID uuid.UUID `json:"event_info_id"`
+	State       string    `json:"state"`
+	City        string    `json:"city"`
+	Country     string    `json:"country"`
+	Street      string    `json:"street"`
+	LlToEarth   float64   `json:"ll_to_earth"`
+	LlToEarth_2 float64   `json:"ll_to_earth_2"`
+	Column8     float64   `json:"column_8"`
+}
+
+type ListEventDateTimeExLocationRow struct {
+	ID                  uuid.UUID    `json:"id"`
+	EventInfoID         uuid.UUID    `json:"event_info_id"`
+	StartDate           time.Time    `json:"start_date"`
+	Name                string       `json:"name"`
+	PublishCheckInSteps bool         `json:"publish_check_in_steps"`
+	CheckInMethod       string       `json:"check_in_method"`
+	EventDates          []string     `json:"event_dates"`
+	DeepLinkID          uuid.UUID    `json:"deep_link_id"`
+	Type                string       `json:"type"`
+	IsActive            bool         `json:"is_active"`
+	NeedBands           bool         `json:"need_bands"`
+	NeedTickets         bool         `json:"need_tickets"`
+	AbsorbBandCharge    bool         `json:"absorb_band_charge"`
+	Status              string       `json:"status"`
+	Note                string       `json:"note"`
+	EndDate             time.Time    `json:"end_date"`
+	CreatedAt           time.Time    `json:"created_at"`
+	UpdatedAt           time.Time    `json:"updated_at"`
+	EventDateTimeID     uuid.UUID    `json:"event_date_time_id"`
+	StartTime           string       `json:"start_time"`
+	EndTime             string       `json:"end_time"`
+	TimeZone            string       `json:"time_zone"`
+	CreatedAt_2         time.Time    `json:"created_at_2"`
+	UpdatedAt_2         time.Time    `json:"updated_at_2"`
+	EventDateTimeID_2   uuid.UUID    `json:"event_date_time_id_2"`
+	Street              string       `json:"street"`
+	City                string       `json:"city"`
+	State               string       `json:"state"`
+	Country             string       `json:"country"`
+	Postcode            string       `json:"postcode"`
+	Geolocation         pgtype.Point `json:"geolocation"`
+	CreatedAt_3         time.Time    `json:"created_at_3"`
+	UpdatedAt_3         time.Time    `json:"updated_at_3"`
+}
+
+func (q *Queries) ListEventDateTimeExLocation(ctx context.Context, arg ListEventDateTimeExLocationParams) ([]ListEventDateTimeExLocationRow, error) {
+	rows, err := q.db.Query(ctx, listEventDateTimeExLocation,
+		arg.EventInfoID,
+		arg.State,
+		arg.City,
+		arg.Country,
+		arg.Street,
+		arg.LlToEarth,
+		arg.LlToEarth_2,
+		arg.Column8,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListEventDateTimeExLocationRow{}
+	for rows.Next() {
+		var i ListEventDateTimeExLocationRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.EventInfoID,
+			&i.StartDate,
+			&i.Name,
+			&i.PublishCheckInSteps,
+			&i.CheckInMethod,
+			&i.EventDates,
+			&i.DeepLinkID,
+			&i.Type,
+			&i.IsActive,
+			&i.NeedBands,
+			&i.NeedTickets,
+			&i.AbsorbBandCharge,
+			&i.Status,
+			&i.Note,
+			&i.EndDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.EventDateTimeID,
+			&i.StartTime,
+			&i.EndTime,
+			&i.TimeZone,
+			&i.CreatedAt_2,
+			&i.UpdatedAt_2,
+			&i.EventDateTimeID_2,
+			&i.Street,
+			&i.City,
+			&i.State,
+			&i.Country,
+			&i.Postcode,
+			&i.Geolocation,
+			&i.CreatedAt_3,
+			&i.UpdatedAt_3,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listEventSearch = `-- name: ListEventSearch :many
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+FROM options_infos o_i
+    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
+    JOIN options_infos_status o_i_s on o_i.id = o_i_s.option_id
+    JOIN option_questions o_q on o_i.id = o_q.option_id
+    JOIN event_infos e_i on o_i.id = e_i.option_id
+    JOIN users u on o_i.host_id = u.id
+    JOIN identity i_d on u.id = i_d.user_id
+WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND o_i.is_active = true AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze' AND o_i.main_option_type = "events" AND LOWER(o_i_d.host_name_option) LIKE $1
+`
+
+type ListEventSearchRow struct {
+	ID               uuid.UUID `json:"id"`
+	OptionUserID     uuid.UUID `json:"option_user_id"`
+	Currency         string    `json:"currency"`
+	OptionType       string    `json:"option_type"`
+	HostNameOption   string    `json:"host_name_option"`
+	CoverImage       string    `json:"cover_image"`
+	Photo            []string  `json:"photo"`
+	IsVerified       bool      `json:"is_verified"`
+	EventType        string    `json:"event_type"`
+	SubCategoryType  string    `json:"sub_category_type"`
+	HostAsIndividual bool      `json:"host_as_individual"`
+	Photo_2          string    `json:"photo_2"`
+	FirstName        string    `json:"first_name"`
+	CreatedAt        time.Time `json:"created_at"`
+	IsVerified_2     bool      `json:"is_verified_2"`
+	Category         string    `json:"category"`
+}
+
+func (q *Queries) ListEventSearch(ctx context.Context, hostNameOption string) ([]ListEventSearchRow, error) {
+	rows, err := q.db.Query(ctx, listEventSearch, hostNameOption)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListEventSearchRow{}
+	for rows.Next() {
+		var i ListEventSearchRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.OptionUserID,
+			&i.Currency,
+			&i.OptionType,
+			&i.HostNameOption,
+			&i.CoverImage,
+			&i.Photo,
+			&i.IsVerified,
+			&i.EventType,
+			&i.SubCategoryType,
+			&i.HostAsIndividual,
+			&i.Photo_2,
+			&i.FirstName,
+			&i.CreatedAt,
+			&i.IsVerified_2,
+			&i.Category,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const listOptionInfoPrice = `-- name: ListOptionInfoPrice :many
 SELECT price, weekend_price
@@ -18,7 +385,7 @@ FROM options_infos oi
     JOIN options_infos_status ois on oi.id = ois.option_id
     JOIN options_prices op on oi.id = op.option_id
     JOIN users u on oi.host_id = u.id
-WHERE oi.is_complete = true AND oi.is_active = true AND u.is_active = true AND ois.status != 'unlist' AND ois.status != 'snooze'
+WHERE oi.is_complete = true AND oi.is_active = true AND u.is_active = true AND u.is_deleted = false AND ois.status != 'unlist' AND ois.status != 'snooze'
 ORDER BY op.price
 `
 
@@ -62,7 +429,7 @@ FROM options_infos oi
     JOIN identity id on u.id = id.user_id
     JOIN option_availability_settings oas on oi.id = oas.option_id
     JOIN option_trip_lengths otl on oi.id = otl.option_id
-WHERE oi.is_complete = true AND oi.is_active = true AND u.is_active = true AND ois.status != 'unlist' AND ois.status != 'snooze'
+WHERE oi.is_complete = true AND oi.is_active = true AND u.is_active = true AND u.is_deleted = false AND ois.status != 'unlist' AND ois.status != 'snooze'
 `
 
 type ListOptionInfoSearchRow struct {
@@ -175,7 +542,7 @@ FROM options_infos oi
     JOIN identity id on u.id = id.user_id
     JOIN option_availability_settings oas on oi.id = oas.option_id
     JOIN option_trip_lengths otl on oi.id = otl.option_id
-WHERE oi.is_complete = true AND oi.is_active = true AND u.is_active = true AND ois.status != 'unlist' AND ois.status != 'snooze' AND (l.state = $1 OR l.city = $2 OR l.country = $3 OR l.street ILIKE $4 OR CAST(earth_distance(
+WHERE oi.is_complete = true AND oi.is_active = true AND u.is_active = true AND u.is_deleted = false AND ois.status != 'unlist' AND ois.status != 'snooze' AND (l.state = $1 OR l.city = $2 OR l.country = $3 OR l.street ILIKE $4 OR CAST(earth_distance(
         ll_to_earth(l.geolocation[1], l.geolocation[0]),
         ll_to_earth($5, $6)
     ) AS FLOAT) < CAST($7 AS FLOAT))

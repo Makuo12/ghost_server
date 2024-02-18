@@ -180,6 +180,12 @@ func (ctx *connection) write(mt int, payload []byte) error {
 				if err == nil && hasData {
 					return ctx.ws.WriteMessage(mt, data)
 				}
+			case "ex_search_event":
+				data, hasData, err := EventExSearchText(ctx, payload)
+				//log.Println("got data", data)
+				if err == nil && hasData {
+					return ctx.ws.WriteMessage(mt, data)
+				}
 			case "search_edt_option":
 				data, hasData, err := HandleEDTSearchTextRes(ctx, payload)
 				//log.Println("got data", data)

@@ -6,7 +6,7 @@ import (
 )
 
 // ROOM TYPE IS FOR WEBSOCKET
-var roomTypes = []string{"search_option", "reserve", "search_cal_option", "user_search_event_name", "message_listen", "message_unread", "notification_listen", "get_message"}
+var roomTypes = []string{"search_option", "reserve", "search_cal_option", "ex_search_event", "message_listen", "message_unread", "notification_listen", "get_message"}
 
 // Check if it contains room type for websocket
 func ContainRoomType(s string) bool {

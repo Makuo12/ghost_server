@@ -50,6 +50,8 @@ WHERE event_date_time_id = $1;
 DELETE FROM event_date_locations
 WHERE event_date_time_id = $1;
 
+
+
 ---- name: RemoveAllEventDateLocation :exec
 --DELETE FROM event_date_locations
 --WHERE event_date_time_id = $1;
