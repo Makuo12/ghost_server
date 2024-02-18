@@ -139,7 +139,7 @@ func HandleOptionExSearchLocation(ctx context.Context, server *Server, req ExCon
 		}
 		return
 	}
-	var guestData map[string]int
+	var guestData = make(map[string]int)
 	for _, g := range req.Search.GuestTypes {
 		guestData[g] += 1
 	}
@@ -232,7 +232,7 @@ func HandleOptionExSearch(ctx context.Context, server *Server, req ExControlOpti
 		}
 		return
 	}
-	var guestData map[string]int
+	var guestData = make(map[string]int)
 	for _, g := range req.Search.GuestTypes {
 		guestData[g] += 1
 	}

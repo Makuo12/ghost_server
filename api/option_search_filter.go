@@ -203,7 +203,7 @@ func OptionFilterRooms(ctx context.Context, server *Server, req ExFilterOptionRe
 			}
 			return true
 		} else {
-			var spaceData map[string]int
+			var spaceData = make(map[string]int)
 			for _, sa := range spaceAreas {
 				spaceData[sa.SpaceType] += 1
 				spaceData["bed"] += len(sa.Beds)
