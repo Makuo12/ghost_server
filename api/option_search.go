@@ -27,6 +27,7 @@ func (server *Server) ListOptionExSearch(ctx *gin.Context) {
 			Category: req.Type,
 		}
 		ctx.JSON(http.StatusNoContent, res)
+		return
 	}
 
 	res := ListExperienceOptionRes{
@@ -67,6 +68,8 @@ func (server *Server) ListEventExSearch(ctx *gin.Context) {
 			Category: req.Type,
 		}
 		ctx.JSON(http.StatusNoContent, res)
+		return
+
 	}
 	res := ListExperienceEventRes{
 		List:         eventIndexData,
