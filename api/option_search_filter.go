@@ -93,7 +93,8 @@ func HandleOptionFilter(ctx context.Context, server *Server, optionID uuid.UUID,
 	basePriceFloat, err := tools.ConvertPrice(tools.IntToMoneyString(basePrice), optionCurrency, req.Currency, server.config.DollarToNaira, server.config.DollarToCAD, optionUserID)
 	if err != nil {
 		log.Printf("Error at FuncName %v, HandleOptionFilter tools.ConvertPrice err: %v \n", funcName, err.Error())
-		basePriceFloat = 0.00
+		confirm = false
+		return
 	}
 	// First we deal with the price range
 	var confirmPrice bool

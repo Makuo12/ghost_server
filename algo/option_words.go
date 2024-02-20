@@ -14,9 +14,9 @@ var privateRooms = []string{"Personal", "Well-furnished", "Lodge", "Condo", "Pri
 
 var hotel = []string{"Five-star", "Impeccable", "Prestigious", "Glamorous", "Panoramic", "Resort-like"}
 
-var unique = []string{"Iconic", "One-of-a-kind", "Unusual", "Futuristic", "Remarkable", "Rare", "Avant-garde", "Unrivaled", "Creative", "Unmatched", "Revolutionary", "Original", "Distinctive", "Uniquely designed", "Visionary", "Incomparable", "Eccentric", "Uncommon", "Distinct", "Outstanding", "Bold", "Unconventional", "Groundbreaking", "Extraordinary", "Unparalleled", "Unorthodox", "Unprecedented"}
+var unique = []string{"Iconic", "One-of-a-kind", "Unusual", "Futuristic", "Remarkable", "Rare", "Avant-garde", "Unrivaled", "Creative", "Unmatched", "Revolutionary", "Original", "Distinctive", "Uniquely designed", "Visionary", "Incomparable", "Eccentric", "Uncommon", "Distinct", "Outstanding", "Bold", "Unconventional", "Groundbreaking", "Extraordinary", "Unparalleled", "Unorthodox", "Unprecedented",  "Innovative", "Creative", "Collaborative", "Dynamic", "Inspiring", "State-of-the-art", "Cutting-edge", "Tech-savvy", "Futuristic", "Trendsetting", "Adaptable", "Versatile", "Resourceful", "Productive", "Organized", "Efficient", "Contemporary", "Stylish", "Aesthetic", "Ambitious", "Expressive", "Multifunctional", "Vibrant", "Energetic", "Spacious", "Ergonomic", "Comfortable", "Sleek", "Trendy", "Thoughtful", "Progressive", "Engaging", "Pioneering", "Imaginative", "Tech-driven", "Revolutionary", "Elegant", "Minimalist", "Artistic", "Invigorating", "High-tech", "Automated", "Smart", "Interactive", "Seamless", "Streamlined", "Unconventional", "Inspiring", "Empowering", "Modern", "Visionary", "User-friendly", "Groundbreaking", "Adaptable", "Digital", "Trendsetting", "Unprecedented", "Revolutionary", "Exceptional", "Inventive", "Progressive", "Customizable", "Evocative", "Elevated", "Fluid", "Contemporary", "Astute", "Cutting-edge", "Inclusive", "Strategic", "Futuristic", "Distinctive", "Evolving", "Augmented", "Crafted", "Refined", "Unmatched", "Adaptive", "Dynamic", "Resilient", "Exquisite", "Sustainable", "Distinctive", "Unparalleled", "Intuitive", "Captivating", "Enlightening", "Insightful", "Connected", "Multidimensional", "Hyper-modern", "Sculpted", "Streamlined", "Artful", "Visionary", "Elevated", "Strategic", "Ingenious", "Visionary"}
 
-var sharedRooms = []string{"Collaborative", "Roommate", "Boarding-house", "Cooperative", "Co-op", "Shared-living", "Bunkhouse", "House-share", "Shared-accommodation", "Communal", "Apartment-share", "Collective", "Multi-occupancy", "Hostel", "Joint", "Dormitory", "Shared", "Co-residence", "Co-housing", "Shared-residence", "Flatshare", "Shared-unit", "Group", "Co-living", "Co-tenancy", "Room-sharing", "Co-habitation", "Rooming-house", "Shared-dwelling", "Cohabitant", "Group-living", "Shared-space", "Shared-facility"}
+var apartments = []string{"Collaborative", "Roommate", "Boarding-house", "Cooperative", "Co-op", "Shared-living", "Bunkhouse", "House-share", "Shared-accommodation", "Communal", "Apartment-share", "Collective", "Multi-occupancy", "Hostel", "Joint", "Dormitory", "Shared", "Co-residence", "Co-housing", "Shared-residence", "Flatshare", "Shared-unit", "Group", "Co-living", "Co-tenancy", "Room-sharing", "Co-habitation", "Rooming-house", "Shared-dwelling", "Cohabitant", "Group-living", "Shared-space", "Shared-facility"}
 
 var resort = []string{"Extravagant", "Haven", "Indulgent", "Leisure", "Well-being", "Stunning", "Vacation", "Unwind", "Recreational", "Wellness", "Getaway", "Sanctuary", "First-class", "Escape", "Pampering", "Oasis", "Spectacular", "All-inclusive", "Retreat", "Lavish", "Resort-style"}
 
@@ -24,7 +24,7 @@ var house = []string{"Abode", "Dwelling", "Flat", "Airy", "Urban", "Duplex", "Lo
 
 var studio = []string{"Innovative", "Creative", "Collaborative", "Dynamic", "Inspiring", "State-of-the-art", "Cutting-edge", "Tech-savvy", "Futuristic", "Trendsetting", "Adaptable", "Versatile", "Resourceful", "Productive", "Organized", "Efficient", "Contemporary", "Stylish", "Aesthetic", "Ambitious", "Expressive", "Multifunctional", "Vibrant", "Energetic", "Spacious", "Ergonomic", "Comfortable", "Sleek", "Trendy", "Thoughtful", "Progressive", "Engaging", "Pioneering", "Imaginative", "Tech-driven", "Revolutionary", "Elegant", "Minimalist", "Artistic", "Invigorating", "High-tech", "Automated", "Smart", "Interactive", "Seamless", "Streamlined", "Unconventional", "Inspiring", "Empowering", "Modern", "Visionary", "User-friendly", "Groundbreaking", "Adaptable", "Digital", "Trendsetting", "Unprecedented", "Revolutionary", "Exceptional", "Inventive", "Progressive", "Customizable", "Evocative", "Elevated", "Fluid", "Contemporary", "Astute", "Cutting-edge", "Inclusive", "Strategic", "Futuristic", "Distinctive", "Evolving", "Augmented", "Crafted", "Refined", "Unmatched", "Adaptive", "Dynamic", "Resilient", "Exquisite", "Sustainable", "Distinctive", "Unparalleled", "Intuitive", "Captivating", "Enlightening", "Insightful", "Connected", "Multidimensional", "Hyper-modern", "Sculpted", "Streamlined", "Artful", "Visionary", "Elevated", "Strategic", "Ingenious", "Visionary"}
 
-var optionDes = map[string][]string{"bed_and_breakfast": bedAndBreakfast, "boat": boats, "earth_home": earthHomes, "historical_home": historicalHomes, "private_room": privateRooms, "hotel": hotel, "unique": unique, "shared_room": sharedRooms, "resort": resort, "house": house, "beach": beach, "studio": studio}
+var optionDes = map[string][]string{"bed_and_breakfast": bedAndBreakfast, "boat": boats, "earth_home": earthHomes, "historical_home": historicalHomes, "private_room": privateRooms, "hotel": hotel, "unique": unique, "apartment": apartments, "resort": resort, "house": house, "beach": beach, "studio": studio}
 
 // Amenities
 
@@ -37,13 +37,13 @@ var historicalHomeAm = []string{"sauna", "arcade_games", "piano", "cinema", "the
 
 var studioAm = []string{"sauna", "arcade_games", "piano", "cinema", "theme_room", "art", "music", "books_and_reading_materials"}
 
-var privateRoomAm = []string{"theme_room"}
+var privateRoomAm = []string{"theme_room", "baking_sheet", "barbecue_utensil", "garden", "bikes", "books_and_reading_materials"}
 var hotelAm = []string{"sauna", "basketball_court", "tennis_court", "football_court"}
 var uniqueAm = []string{"hammock", "lake_access", "sauna", "arcade_games", "bowling_alley", "batting_cage", "climbing_wall", "piano", "cinema"}
-var sharedRoomAm = []string{"theme_room"}
+var apartmentAm = []string{"theme_room"}
 var resortAm = []string{"beach_essential", "bikes", "hammock", "kayak", "beach_access", "resort_access", "sauna", "arcade_games", "bowling_alley", "batting_cage", "cinema", "theme_room", "pool", "tennis_court", "basketball_court", "football_court"}
 
-var optionAmenity = map[string][]string{"bed_and_breakfast": bedAndBreakfastAm, "boat": boatAm, "earth_home": earthHomeAm, "historical_home": historicalHomeAm, "private_room": privateRoomAm, "hotel": hotelAm, "unique": uniqueAm, "shared_room": sharedRoomAm, "resort": resortAm, "house": houseAm, "beach": beachAm, "studio": studioAm}
+var optionAmenity = map[string][]string{"bed_and_breakfast": bedAndBreakfastAm, "boat": boatAm, "earth_home": earthHomeAm, "historical_home": historicalHomeAm, "private_room": privateRoomAm, "hotel": hotelAm, "unique": uniqueAm, "apartment": apartmentAm, "resort": resortAm, "house": houseAm, "beach": beachAm, "studio": studioAm}
 
 // SpacesAreas
 
@@ -59,10 +59,10 @@ var studioSpace = []string{"office", "bedroom"}
 var beachSpace = []string{"bathroom", "bathroom", "pool"}
 var privateRoomSpace = []string{"bedroom", "bathroom"}
 var uniqueSpace = []string{"bedroom"}
-var sharedRoomSpace = []string{"bedroom"}
+var apartmentSpace = []string{"bedroom"}
 var earthHomeSpace = []string{"bedroom", "bathroom", "kitchen"}
 
-var optionSpaceArea = map[string][]string{"bed_and_breakfast": bedAndBreakfastSpace, "boat": boatSpace, "earth_home": earthHomeSpace, "historical_home": historicalHomeSpace, "private_room": privateRoomSpace, "hotel": hotelSpace, "unique": uniqueSpace, "shared_room": sharedRoomSpace, "resort": resortSpace, "house": houseSpace, "beach": beachSpace, "studio": studioSpace}
+var optionSpaceArea = map[string][]string{"bed_and_breakfast": bedAndBreakfastSpace, "boat": boatSpace, "earth_home": earthHomeSpace, "historical_home": historicalHomeSpace, "private_room": privateRoomSpace, "hotel": hotelSpace, "unique": uniqueSpace, "apartment": apartmentSpace, "resort": resortSpace, "house": houseSpace, "beach": beachSpace, "studio": studioSpace}
 
 // Highlights
 var bedAndBreakfastHigh = []string{"family_first", "peaceful"}
@@ -77,10 +77,10 @@ var historicalHomeHigh = []string{"artistic", "historical", "eye_catching", "bol
 var privateRoomHigh = []string{"peaceful", "spacious", "popular_location"}
 var hotelHigh = []string{"tech_like", "eye_catching", "bold", "artistic", "popular_location", "historical", "family_first"}
 var uniqueHigh = []string{"bold", "artistic", "adventurous", "eye_catching", "tech_like"}
-var sharedRoomHigh = []string{"peaceful", "popular_location"}
+var apartmentHigh = []string{"peaceful", "popular_location"}
 var resortHigh = []string{"spacious", "tech_like", "eye_catching", "bold", "artistic", "popular_location", "historical", "family_first"}
 
-var optionHighlight = map[string][]string{"bed_and_breakfast": bedAndBreakfastHigh, "boat": boatHigh, "earth_home": earthHomeHigh, "historical_home": historicalHomeHigh, "private_room": privateRoomHigh, "hotel": hotelHigh, "unique": uniqueHigh, "shared_room": sharedRoomHigh, "resort": resortHigh, "house": houseHigh, "beach": beachHigh, "studio": studioHigh}
+var optionHighlight = map[string][]string{"bed_and_breakfast": bedAndBreakfastHigh, "boat": boatHigh, "earth_home": earthHomeHigh, "historical_home": historicalHomeHigh, "private_room": privateRoomHigh, "hotel": hotelHigh, "unique": uniqueHigh, "apartment": apartmentHigh, "resort": resortHigh, "house": houseHigh, "beach": beachHigh, "studio": studioHigh}
 
 // Shortlet type
 var bedAndBreakfastType = []string{"bed_and_breakfast", "guest_house", "nature_lodge", "minsu", "casa"}
@@ -93,29 +93,29 @@ var boatType = []string{"yacht"}
 var beachType = []string{"nature_lodge", "cottage", "beach_house", "house_boat"}
 var historicalHomeType = []string{"tower", "castle", "windmill", "lighthouse", "dome"}
 var privateRoomType = []string{"flat_apartment", "guest_house", "loft", "equipped_apartment", "home", "bungalow"}
-var hotelType = []string{"equipped_apartment", "hotel_room"}
+var hotelType = []string{"hotel_room"}
 var uniqueType = []string{"barn", "tiny_home", "plane", "tower", "bus", "container", "cave", "tree_house", "windmill", "motorhome"}
-var sharedRoomType = []string{"flat_apartment", "guest_house", "loft", "equipped_apartment", "home", "bungalow"}
+var apartmentType = []string{"flat_apartment", "equipped_apartment", "home", "guest_house", "loft", "equipped_apartment", "home", "bungalow"}
 var resortType = []string{"home", "minsu", "hotel_room", "resort", "beach_house", "guest_house", "castle", "bed_and_breakfast"}
 
-var optionType = map[string][]string{"bed_and_breakfast": bedAndBreakfastType, "boat": boatType, "earth_home": earthHomeType, "historical_home": historicalHomeType, "private_room": privateRoomType, "hotel": hotelType, "unique": uniqueType, "shared_room": sharedRoomType, "resort": resortType, "house": houseType, "beach": beachType, "studio": studioType}
+var optionType = map[string][]string{"bed_and_breakfast": bedAndBreakfastType, "boat": boatType, "earth_home": earthHomeType, "historical_home": historicalHomeType, "private_room": privateRoomType, "hotel": hotelType, "unique": uniqueType, "apartment": apartmentType, "resort": resortType, "house": houseType, "beach": beachType, "studio": studioType}
 
 // SpaceType
-var bedAndBreakfastSpaceType = []string{"private_room", "shared_room", "full_place"}
-var earthHomeSpaceType = []string{"private_room", "shared_room", "full_place"}
+var bedAndBreakfastSpaceType = []string{"private_room", "apartment", "full_place"}
+var earthHomeSpaceType = []string{"private_room", "apartment", "full_place"}
 var houseSpaceType = []string{"full_place"}
-var boatSpaceType = []string{"private_room", "shared_room", "full_place"}
+var boatSpaceType = []string{"private_room", "apartment", "full_place"}
 
-var studioSpaceType = []string{"private_room", "shared_room", "full_place"}
+var studioSpaceType = []string{"private_room", "apartment", "full_place"}
 
-var beachSpaceType = []string{"private_room", "shared_room", "full_place"}
-var historicalHomeSpaceType = []string{"private_room", "shared_room", "full_place"}
+var beachSpaceType = []string{"private_room", "apartment", "full_place"}
+var historicalHomeSpaceType = []string{"private_room", "apartment", "full_place"}
 var privateRoomSpaceType = []string{"private_room"}
-var hotelSpaceType = []string{"private_room", "shared_room", "full_place"}
-var uniqueSpaceType = []string{"private_room", "shared_room", "full_place"}
-var sharedRoomSpaceType = []string{"shared_room"}
-var resortSpaceType = []string{"private_room", "shared_room", "full_place"}
+var hotelSpaceType = []string{"private_room", "apartment", "full_place"}
+var uniqueSpaceType = []string{"private_room", "apartment", "full_place"}
+var apartmentSpaceType = []string{"apartment"}
+var resortSpaceType = []string{"private_room", "apartment", "full_place"}
 
-var optionSpaceType = map[string][]string{"bed_and_breakfast": bedAndBreakfastSpaceType, "boat": boatSpaceType, "earth_home": earthHomeSpaceType, "historical_home": historicalHomeSpaceType, "private_room": privateRoomSpaceType, "hotel": hotelSpaceType, "unique": uniqueSpaceType, "shared_room": sharedRoomSpaceType, "resort": resortSpaceType, "house": houseSpaceType, "beach": beachSpaceType, "studio": studioSpaceType}
+var optionSpaceType = map[string][]string{"bed_and_breakfast": bedAndBreakfastSpaceType, "boat": boatSpaceType, "earth_home": earthHomeSpaceType, "historical_home": historicalHomeSpaceType, "private_room": privateRoomSpaceType, "hotel": hotelSpaceType, "unique": uniqueSpaceType, "apartment": apartmentSpaceType, "resort": resortSpaceType, "house": houseSpaceType, "beach": beachSpaceType, "studio": studioSpaceType}
 
-var OptionCategory = []string{"house", "bed_and_breakfast", "boat", "unique", "resort", "historical_homes", "private_room", "earth_homes", "shared_room", "beach", "studio", "hotel"}
+var OptionCategory = []string{"house", "bed_and_breakfast", "boat", "unique", "resort", "historical_homes", "private_room", "earth_homes", "apartment", "beach", "studio", "hotel"}
