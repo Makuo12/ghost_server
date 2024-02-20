@@ -126,11 +126,15 @@ func OptionSearchMain(ctx context.Context, server *Server, req ExSearchRequest, 
 		monthGood = true
 	}
 	// We check the available settings
+	log.Println("at available")
 	settingGood := HandleOptionSearchSetting(startDate, endDate, advanceNotice, prepareTime, window, optionUserID, funcName, optionID)
 	// We check search charges
+	log.Println("at charges")
 	chargeGood := HandleOptionSearchCharges(ctx, server, optionUserID, funcName, prepareTime, startDate, endDate)
 	// We check dates
+	log.Println("at dates")
 	dateTimeGood := HandleOptionSearchDates(ctx, server, optionUserID, funcName, startDate, endDate, dateTimes)
+	log.Println("was it good: ", monthGood && settingGood && chargeGood && dateTimeGood)
 	return monthGood && settingGood && chargeGood && dateTimeGood
 }
 
@@ -249,23 +253,23 @@ func HandleOptionSearchPrice(ctx context.Context, server *Server, req ExSearchRe
 				priceFloat += datePriceFloat
 				continue
 			}
-		} else {
-			// If price is not in special dateTimes or an error happen we just calculate using standard price format
-			// We check if the date is a weekend and there is a weekend price
-			isWeekend, err := tools.IsWeekend(d)
-			if err == nil {
-				if isWeekend && optionWeekendPrice > 0 {
-					priceFloat += weekendPrice
-					continue
-				}
-			} else {
-				log.Printf("Error at FuncName %v, HandleOptionSearchPrice tools.IsWeekend err: %v \n", funcName, err.Error())
-				err = nil
-			}
-			// We isWeekend goes wrong or it is not a weekend
-			priceFloat += basePrice
 		}
+		// If price is not in special dateTimes or an error happen we just calculate using standard price format
+		// We check if the date is a weekend and there is a weekend price
+		isWeekend, err := tools.IsWeekend(d)
+		if err == nil {
+			if isWeekend && optionWeekendPrice > 0 {
+				priceFloat += weekendPrice
+				continue
+			}
+		} else {
+			log.Printf("Error at FuncName %v, HandleOptionSearchPrice tools.IsWeekend err: %v \n", funcName, err.Error())
+			err = nil
+		}
+		// We isWeekend goes wrong or it is not a weekend
+		priceFloat += basePrice
 	}
+	log.Println("price for a night: ", priceFloat)
 	addPrice = tools.ConvertFloatToString(priceFloat)
 	return
 }

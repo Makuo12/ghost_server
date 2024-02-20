@@ -17,8 +17,10 @@ func (server *Server) ListOptionExSearch(ctx *gin.Context) {
 	//var options
 	var options []ExperienceOptionData
 	if ExSearchReqHasLocation(req.Search) {
+		log.Println("used location")
 		options = HandleOptionExSearchLocation(ctx, server, req, "ListOptionExSearch")
 	} else {
+		log.Println("not used location")
 		options = HandleOptionExSearch(ctx, server, req, "ListOptionExSearch")
 	}
 	optionIndexData := GetExperienceOptionOffset(options, req.Offset, 10)

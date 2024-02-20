@@ -131,7 +131,7 @@ func HandleOptionExSearchLocation(ctx context.Context, server *Server, req ExCon
 		Street:      req.Search.Street,
 		LlToEarth:   lat,
 		LlToEarth_2: lng,
-		Column7:     10000.0,
+		Column7:     100.0,
 	})
 	if err != nil || len(options) == 0 {
 		if err != nil {
@@ -144,6 +144,7 @@ func HandleOptionExSearchLocation(ctx context.Context, server *Server, req ExCon
 		guestData[g] += 1
 	}
 	totalGuests := guestData["children"] + guestData["adult"]
+	log.Println("total guests: ", totalGuests)
 	for _, o := range options {
 		var addPrice string
 		//var priceFloat float64
@@ -156,8 +157,10 @@ func HandleOptionExSearchLocation(ctx context.Context, server *Server, req ExCon
 			var confirmBook bool
 			dateTimes := GetOptionDateTimes(ctx, server, o.ID, funcName)
 			if int(o.GuestWelcomed) < totalGuests || (!o.PetsAllowed && guestData["pet"] > 0) {
+				log.Println("failed guests and pets", o.GuestWelcomed)
 				continue
 			}
+			
 			switch req.Search.PeriodType {
 			case "flexible":
 				startDateBook, endDateBook, confirmBook = HandleOptionSearchFlexible(ctx, server, o.OptionUserID, o.PreparationTime, o.AvailabilityWindow, o.AdvanceNotice, req.Search, funcName, dateTimes, o.ID)
