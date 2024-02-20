@@ -125,13 +125,11 @@ func HandleOptionExSearchLocation(ctx context.Context, server *Server, req ExCon
 	lat := tools.ConvertLocationStringToFloat(req.Search.Lat, 9)
 	lng := tools.ConvertLocationStringToFloat(req.Search.Lng, 9)
 	options, err := server.store.ListOptionInfoSearchLocation(ctx, db.ListOptionInfoSearchLocationParams{
-		State:       req.Search.State,
-		Country:     req.Search.Country,
 		City:        req.Search.City,
 		Street:      req.Search.Street,
 		LlToEarth:   lat,
 		LlToEarth_2: lng,
-		Column7:     100.0,
+		Column5:     100.0,
 	})
 	if err != nil || len(options) == 0 {
 		if err != nil {
@@ -160,7 +158,7 @@ func HandleOptionExSearchLocation(ctx context.Context, server *Server, req ExCon
 				log.Println("failed guests and pets", o.GuestWelcomed)
 				continue
 			}
-			
+
 			switch req.Search.PeriodType {
 			case "flexible":
 				startDateBook, endDateBook, confirmBook = HandleOptionSearchFlexible(ctx, server, o.OptionUserID, o.PreparationTime, o.AvailabilityWindow, o.AdvanceNotice, req.Search, funcName, dateTimes, o.ID)
