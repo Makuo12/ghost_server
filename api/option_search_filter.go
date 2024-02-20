@@ -100,13 +100,21 @@ func HandleOptionFilter(ctx context.Context, server *Server, optionID uuid.UUID,
 	if req.OnAddPrice {
 		addMaxPrice := tools.ConvertStringToFloat(req.AddMaxPrice)
 		addMinPrice := tools.ConvertStringToFloat(req.AddMinPrice)
-		if addMinPrice <= basePriceFloat && basePriceFloat <= addMaxPrice {
+		if addMaxPrice == 0 && addMinPrice == 0 {
+			confirmPrice = true
+		} else if addMinPrice <= basePriceFloat && addMaxPrice == 0 {
+			confirmPrice = true
+		}  else if addMinPrice <= basePriceFloat && basePriceFloat <= addMaxPrice {
 			confirmPrice = true
 		}
 	} else {
 		maxPrice := tools.ConvertStringToFloat(req.MaxPrice)
 		minPrice := tools.ConvertStringToFloat(req.MinPrice)
-		if minPrice <= basePriceFloat && basePriceFloat <= maxPrice {
+		if minPrice == 0 && maxPrice == 0 {
+			confirmPrice = true
+		} else if minPrice <= basePriceFloat && maxPrice == 0 {
+			confirmPrice = true
+		}  else if minPrice <= basePriceFloat && basePriceFloat <= maxPrice {
 			confirmPrice = true
 		}
 	}

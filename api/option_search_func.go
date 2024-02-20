@@ -5,7 +5,6 @@ import (
 	"flex_server/constants"
 	db "flex_server/db/sqlc"
 	"flex_server/tools"
-	"fmt"
 	"log"
 	"time"
 
@@ -104,16 +103,15 @@ func OptionSearchChooseDate(ctx context.Context, server *Server, req ExSearchReq
 	startDate, err = tools.ConvertDateOnlyStringToDate(req.StartDate)
 	if err != nil {
 		log.Printf("Error start at FuncName %v, OptionSearchChooseDate ConvertDateOnlyStringToDate err: %v \n", funcName, err.Error())
-		err = fmt.Errorf("your start date was not selected")
-		return
+		err = nil
+		startDate = time.Now()
 	}
 	endDate, err = tools.ConvertDateOnlyStringToDate(req.EndDate)
 	if err != nil {
 		log.Printf("Error end at FuncName %v, OptionSearchChooseDate ConvertDateOnlyStringToDate err: %v \n", funcName, err.Error())
-		err = fmt.Errorf("your end date was not selected")
-		return
+		err = nil
+		endDate = time.Now().AddDate(0, 0, 5)
 	}
-
 	return
 }
 
