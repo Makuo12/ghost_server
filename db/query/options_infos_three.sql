@@ -59,7 +59,7 @@ FROM options_infos o_i
     JOIN event_infos e_i on o_i.id = e_i.option_id
     JOIN users u on o_i.host_id = u.id
     JOIN identity i_d on u.id = i_d.user_id
-WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND o_i.is_active = true AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze' AND o_i.main_option_type = "events" AND LOWER(o_i_d.host_name_option) LIKE $1;
+WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND o_i.is_active = true AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze' AND o_i.main_option_type = 'events' AND LOWER(o_i_d.host_name_option) LIKE $1;
 
 -- name: ListEvent :many
 SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i.category_two, o_i.category_three
@@ -71,7 +71,7 @@ FROM options_infos o_i
     JOIN event_infos e_i on o_i.id = e_i.option_id
     JOIN users u on o_i.host_id = u.id
     JOIN identity i_d on u.id = i_d.user_id
-WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND o_i.is_active = true AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze' AND o_i.main_option_type = "events";
+WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND o_i.is_active = true AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze' AND o_i.main_option_type = 'events';
 
 -- name: ListEventDateTimeEx :many
 SELECT *

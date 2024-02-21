@@ -23,7 +23,7 @@ FROM options_infos o_i
     JOIN event_infos e_i on o_i.id = e_i.option_id
     JOIN users u on o_i.host_id = u.id
     JOIN identity i_d on u.id = i_d.user_id
-WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND o_i.is_active = true AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze' AND o_i.main_option_type = "events"
+WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND o_i.is_active = true AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze' AND o_i.main_option_type = 'events'
 `
 
 type ListEventRow struct {
@@ -320,7 +320,7 @@ FROM options_infos o_i
     JOIN event_infos e_i on o_i.id = e_i.option_id
     JOIN users u on o_i.host_id = u.id
     JOIN identity i_d on u.id = i_d.user_id
-WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND o_i.is_active = true AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze' AND o_i.main_option_type = "events" AND LOWER(o_i_d.host_name_option) LIKE $1
+WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND o_i.is_active = true AND o_i_s.status != 'unlist' AND o_i_s.status != 'snooze' AND o_i.main_option_type = 'events' AND LOWER(o_i_d.host_name_option) LIKE $1
 `
 
 type ListEventSearchRow struct {
