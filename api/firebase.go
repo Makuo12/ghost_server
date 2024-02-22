@@ -86,7 +86,7 @@ func UpdateFireStoragePublicUrl(ctx context.Context, server *Server, coverImage 
 	}
 	_, err = server.store.UpdateOptionInfoPhotoCoverUrl(ctx, db.UpdateOptionInfoPhotoCoverUrlParams{
 		OptionID:         optionID,
-		PublicCoverImage: publicURL.MediaLink,
+		PublicCoverImage: publicURL.Name,
 	})
 	if err != nil {
 		log.Fatalf("UpdateOptionInfoPhotoCoverUrl: %v", err)
@@ -109,7 +109,7 @@ func UpdateFireStoragePublicUrl(ctx context.Context, server *Server, coverImage 
 			log.Fatalf("Failed to get file attributes: %v", err)
 			continue
 		}
-		publicURLs = append(publicURLs, publicURL.MediaLink)
+		publicURLs = append(publicURLs, publicURL.Name)
 	}
 	if len(publicURLs) != 0 {
 		_, err = server.store.UpdateOptionInfoPhotoOnlyUrl(ctx, db.UpdateOptionInfoPhotoOnlyUrlParams{
