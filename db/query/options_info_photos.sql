@@ -7,10 +7,15 @@ INSERT INTO options_info_photos (
 VALUES ($1, $2, $3)
 RETURNING *;
 
+
 -- name: GetOptionInfoPhoto :one
 SELECT * 
 FROM options_info_photos
 WHERE option_id = $1;
+
+-- name: ListAllPhoto :many
+SELECT *
+FROM options_info_photos;
 
 -- name: UpdateOptionInfoPhoto :one
 UPDATE options_info_photos
@@ -51,3 +56,19 @@ WHERE option_id = $1;
 -- name: RemoveOptionInfoPhoto :exec
 DELETE FROM options_info_photos
 WHERE option_id = $1;
+
+-- name: UpdateOptionInfoPhotoCoverUrl :one
+UPDATE options_info_photos
+SET 
+    public_cover_image = $1,
+    updated_at = NOW()
+WHERE option_id = $2 
+RETURNING cover_image, photo;
+
+-- name: UpdateOptionInfoPhotoOnlyUrl :one 
+UPDATE options_info_photos
+SET
+    public_photo = $1,
+    updated_at = NOW()
+WHERE option_id = $2
+RETURNING cover_image, photo;

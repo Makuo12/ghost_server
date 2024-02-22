@@ -360,6 +360,9 @@ CREATE TABLE "option_discounts" (
 CREATE TABLE "options_info_photos" (
   "option_id" uuid PRIMARY KEY NOT NULL,
   "cover_image" varchar NOT NULL,
+  "has_meta_data" boolean NOT NULL DEFAULT false,
+  "public_cover_image" varchar NOT NULL DEFAULT 'none',
+  "public_photo" varchar[] NOT NULL,
   "photo" varchar[] NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())

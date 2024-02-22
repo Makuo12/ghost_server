@@ -743,11 +743,14 @@ type OptionsInfoDetail struct {
 }
 
 type OptionsInfoPhoto struct {
-	OptionID   uuid.UUID `json:"option_id"`
-	CoverImage string    `json:"cover_image"`
-	Photo      []string  `json:"photo"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	OptionID         uuid.UUID `json:"option_id"`
+	CoverImage       string    `json:"cover_image"`
+	HasMetaData      bool      `json:"has_meta_data"`
+	PublicCoverImage string    `json:"public_cover_image"`
+	PublicPhoto      []string  `json:"public_photo"`
+	Photo            []string  `json:"photo"`
+	CreatedAt        time.Time `json:"created_at"`
+	UpdatedAt        time.Time `json:"updated_at"`
 }
 
 type OptionsInfosCategory struct {
