@@ -314,10 +314,10 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 		log.Printf(" Error at cron at job.AddFunc for HandleEventExperienceToRedis  %v", err.Error())
 	}
 
-	_, err = job.AddFunc("@every 2m", HandleImageMetaData(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for HandleImageMetaData  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", HandleImageMetaData(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for HandleImageMetaData  %v", err.Error())
+	//}
 
 	// Start the cron scheduler
 	job.Start()
