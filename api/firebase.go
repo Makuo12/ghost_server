@@ -15,7 +15,7 @@ import (
 
 func HandleImageMetaData(ctx context.Context, server *Server) func() {
 	return func() {
-		photos, err := server.store.ListAllPhoto(ctx)
+		photos, err := server.store.ListAllUserPhotos(ctx)
 		if err != nil || len(photos) == 0 {
 			if err != nil {
 				log.Println("HandleImageMetaData err: ", err)
@@ -23,17 +23,24 @@ func HandleImageMetaData(ctx context.Context, server *Server) func() {
 			return
 		}
 		for _, p := range photos {
-			// First we handle the cover_photo
-
-			if tools.ServerStringEmpty(p.CoverImage) {
+			// First we handle the photo
+			if tools.ServerStringEmpty(p.Photo) {
 				err = fmt.Errorf("no object found here try again")
 				continue
 			}
-			UpdateFireStorageMeta(ctx, server, p.CoverImage)
-			for _, v := range p.Photo {
-				UpdateFireStorageMeta(ctx, server, v)
+			UpdateFireStorageMeta(ctx, server, p.Photo)
+
+			if tools.ServerStringEmpty(p.FacialPhoto) {
+				err = fmt.Errorf("no object found here try again")
+				continue
 			}
-			UpdateFireStoragePublicUrl(ctx, server, p.CoverImage, p.Photo, p.OptionID)
+			UpdateFireStorageMeta(ctx, server, p.FacialPhoto)
+
+			if tools.ServerStringEmpty(p.IDPhoto) {
+				err = fmt.Errorf("no object found here try again")
+				continue
+			}
+			UpdateFireStorageMeta(ctx, server, p.IDPhoto)
 		}
 	}
 

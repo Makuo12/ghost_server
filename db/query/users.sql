@@ -100,6 +100,11 @@ WHERE is_active = 1
 ORDER BY created_at
 LIMIT $1 OFFSET $2;
 
+-- name: ListAllUserPhotos :many
+SELECT u.photo, id.id_photo, id.facial_photo
+FROM users u
+JOIN identity id on u.id = id.user_id;
+
 
 -- name: DeleteUser :exec
 DELETE FROM users

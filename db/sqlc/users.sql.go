@@ -407,6 +407,38 @@ func (q *Queries) GetUserWithUsername(ctx context.Context, username string) (Use
 	return i, err
 }
 
+const listAllUserPhotos = `-- name: ListAllUserPhotos :many
+SELECT u.photo, id.id_photo, id.facial_photo
+FROM users u
+JOIN identity id on u.id = id.user_id
+`
+
+type ListAllUserPhotosRow struct {
+	Photo       string `json:"photo"`
+	IDPhoto     string `json:"id_photo"`
+	FacialPhoto string `json:"facial_photo"`
+}
+
+func (q *Queries) ListAllUserPhotos(ctx context.Context) ([]ListAllUserPhotosRow, error) {
+	rows, err := q.db.Query(ctx, listAllUserPhotos)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAllUserPhotosRow{}
+	for rows.Next() {
+		var i ListAllUserPhotosRow
+		if err := rows.Scan(&i.Photo, &i.IDPhoto, &i.FacialPhoto); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listUsers = `-- name: ListUsers :many
 SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, password_changed_at, created_at, updated_at
 FROM users

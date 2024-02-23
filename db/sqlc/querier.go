@@ -393,6 +393,7 @@ type Querier interface {
 	ListAllOptionMainPayoutInsights(ctx context.Context, arg ListAllOptionMainPayoutInsightsParams) ([]ListAllOptionMainPayoutInsightsRow, error)
 	ListAllOptionRule(ctx context.Context, optionID uuid.UUID) ([]OptionRule, error)
 	ListAllPhoto(ctx context.Context) ([]OptionsInfoPhoto, error)
+	ListAllUserPhotos(ctx context.Context) ([]ListAllUserPhotosRow, error)
 	ListAmenities(ctx context.Context, arg ListAmenitiesParams) ([]Amenity, error)
 	ListAmenitiesOne(ctx context.Context, optionID uuid.UUID) ([]ListAmenitiesOneRow, error)
 	ListAmenitiesTag(ctx context.Context, arg ListAmenitiesTagParams) ([]string, error)
