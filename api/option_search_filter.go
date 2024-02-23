@@ -40,11 +40,6 @@ func (server *Server) GetFilterRange(ctx *gin.Context) {
 	optionAddMinPrice = optionMinPrice * float64(server.config.OptionExDayCount)
 	optionAverageAddPrice = (optionAddMaxPrice + optionAddMinPrice) / 2
 	// Events
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("Error at  GetOptionFilterRange Event in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.Type)
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
 	var eventMaxPrice float64
 	var eventMinPrice float64
 	var eventAveragePrice float64
