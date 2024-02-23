@@ -18,13 +18,20 @@ type ExFilterRangeReq struct {
 }
 
 type ExFilterRangeRes struct {
-	MaxPrice        string `json:"max_price"`
-	MinPrice        string `json:"min_price"`
-	AveragePrice    string `json:"average_price"`
-	AddMaxPrice     string `json:"add_max_price"`
-	AddMinPrice     string `json:"add_min_price"`
-	AddDayCount     int    `json:"add_day_count"`
-	AverageAddPrice string `json:"average_add_price"`
+	OptionMaxPrice        string `json:"option_max_price"`
+	OptionMinPrice        string `json:"option_min_price"`
+	OptionAveragePrice    string `json:"option_average_price"`
+	OptionAddMaxPrice     string `json:"option_add_max_price"`
+	OptionAddMinPrice     string `json:"option_add_min_price"`
+	OptionAddDayCount     int    `json:"option_add_day_count"`
+	OptionAverageAddPrice string `json:"option_average_add_price"`
+	EventMaxPrice         string `json:"event_max_price"`
+	EventMinPrice         string `json:"event_min_price"`
+	EventAveragePrice     string `json:"event_average_price"`
+	EventAddMaxPrice      string `json:"event_add_max_price"`
+	EventAddMinPrice      string `json:"event_add_min_price"`
+	EventAddDayCount      int    `json:"event_add_day_count"`
+	EventAverageAddPrice  string `json:"event_average_add_price"`
 }
 
 type ExFilterOptionRequest struct {

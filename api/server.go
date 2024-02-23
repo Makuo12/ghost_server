@@ -371,9 +371,9 @@ func (server *Server) setupRouter() {
 	// Experience Search
 	router.PUT("/users/user/experience/options/search-filter", server.ListOptionExSearch)
 	router.PUT("/users/user/experience/events/search-filter", server.ListEventExSearch)
+	
 	// Filter Range
-	router.PUT("/users/user/experience/options/filter-range", server.GetOptionFilterRange)
-	router.PUT("/users/user/experience/events/filter-range", server.GetEventFilterRange)
+	router.PUT("/users/user/experience/filter-range", server.GetFilterRange)
 
 	// Deep Link
 	router.PUT("/users/user/experience/deep-link/option/get", server.GetOptionDeepLinkExperience)

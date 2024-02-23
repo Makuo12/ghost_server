@@ -13,77 +13,71 @@ import (
 	"github.com/google/uuid"
 )
 
-func (server *Server) GetEventFilterRange(ctx *gin.Context) {
+func (server *Server) GetFilterRange(ctx *gin.Context) {
 	var req ExFilterRangeReq
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("Error at  GetOptionFilterRange in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.Type)
+		log.Printf("Error at  GetFilterRange Option in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.Type)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	var maxPrice float64
-	var minPrice float64
-	var averagePrice float64
-	var addMaxPrice float64
-	var addMinPrice float64
-	var averageAddPrice float64
-	minPrice, maxPrice, err := GetEventFilterMaxMinPrice(ctx, server, req, ctx.ClientIP())
+	// Options
+	var optionMaxPrice float64
+	var optionMinPrice float64
+	var optionAveragePrice float64
+	var optionAddMaxPrice float64
+	var optionAddMinPrice float64
+	var optionAverageAddPrice float64
+	optionMinPrice, optionMaxPrice, err := GetOptionFilterMaxMinPrice(ctx, server, req, ctx.ClientIP())
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 	// We calculate the average
-	averagePrice = (maxPrice + minPrice) / 2
+	optionAveragePrice = (optionMaxPrice + optionMinPrice) / 2
 
 	// We handle it when it is 5 days
-	addMaxPrice = maxPrice * float64(server.config.OptionExDayCount)
-	addMinPrice = minPrice * float64(server.config.OptionExDayCount)
-	averageAddPrice = (addMaxPrice + addMinPrice) / 2
-	res := ExFilterRangeRes{
-		MaxPrice:        tools.ConvertFloatToString(maxPrice),
-		MinPrice:        tools.ConvertFloatToString(minPrice),
-		AveragePrice:    tools.ConvertFloatToString(averagePrice),
-		AddMaxPrice:     tools.ConvertFloatToString(addMaxPrice),
-		AddMinPrice:     tools.ConvertFloatToString(addMinPrice),
-		AddDayCount:     server.config.OptionExDayCount,
-		AverageAddPrice: tools.ConvertFloatToString(averageAddPrice),
-	}
-	ctx.JSON(http.StatusOK, res)
-
-}
-
-func (server *Server) GetOptionFilterRange(ctx *gin.Context) {
-	var req ExFilterRangeReq
+	optionAddMaxPrice = optionMaxPrice * float64(server.config.OptionExDayCount)
+	optionAddMinPrice = optionMinPrice * float64(server.config.OptionExDayCount)
+	optionAverageAddPrice = (optionAddMaxPrice + optionAddMinPrice) / 2
+	// Events
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("Error at  GetOptionFilterRange in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.Type)
+		log.Printf("Error at  GetOptionFilterRange Event in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.Type)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	var maxPrice float64
-	var minPrice float64
-	var averagePrice float64
-	var addMaxPrice float64
-	var addMinPrice float64
-	var averageAddPrice float64
-	minPrice, maxPrice, err := GetOptionFilterMaxMinPrice(ctx, server, req, ctx.ClientIP())
+	var eventMaxPrice float64
+	var eventMinPrice float64
+	var eventAveragePrice float64
+	var eventAddMaxPrice float64
+	var eventAddMinPrice float64
+	var eventAverageAddPrice float64
+	eventMinPrice, eventMaxPrice, err = GetEventFilterMaxMinPrice(ctx, server, req, ctx.ClientIP())
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 	// We calculate the average
-	averagePrice = (maxPrice + minPrice) / 2
+	eventAveragePrice = (eventMaxPrice + eventMinPrice) / 2
 
 	// We handle it when it is 5 days
-	addMaxPrice = maxPrice * float64(server.config.OptionExDayCount)
-	addMinPrice = minPrice * float64(server.config.OptionExDayCount)
-	averageAddPrice = (addMaxPrice + addMinPrice) / 2
+	eventAddMaxPrice = eventMaxPrice * float64(server.config.OptionExDayCount)
+	eventAddMinPrice = eventMinPrice * float64(server.config.OptionExDayCount)
+	eventAverageAddPrice = (eventAddMaxPrice + eventAddMinPrice) / 2
 	res := ExFilterRangeRes{
-		MaxPrice:        tools.ConvertFloatToString(maxPrice),
-		MinPrice:        tools.ConvertFloatToString(minPrice),
-		AveragePrice:    tools.ConvertFloatToString(averagePrice),
-		AddMaxPrice:     tools.ConvertFloatToString(addMaxPrice),
-		AddMinPrice:     tools.ConvertFloatToString(addMinPrice),
-		AddDayCount:     server.config.OptionExDayCount,
-		AverageAddPrice: tools.ConvertFloatToString(averageAddPrice),
+		OptionMaxPrice:        tools.ConvertFloatToString(optionMaxPrice),
+		OptionMinPrice:        tools.ConvertFloatToString(optionMinPrice),
+		OptionAveragePrice:    tools.ConvertFloatToString(optionAveragePrice),
+		OptionAddMaxPrice:     tools.ConvertFloatToString(optionAddMaxPrice),
+		OptionAddMinPrice:     tools.ConvertFloatToString(optionAddMinPrice),
+		OptionAddDayCount:     server.config.OptionExDayCount,
+		OptionAverageAddPrice: tools.ConvertFloatToString(optionAverageAddPrice),
+		EventMaxPrice:         tools.ConvertFloatToString(eventMaxPrice),
+		EventMinPrice:         tools.ConvertFloatToString(eventMinPrice),
+		EventAveragePrice:     tools.ConvertFloatToString(eventAveragePrice),
+		EventAddMaxPrice:      tools.ConvertFloatToString(eventAddMaxPrice),
+		EventAddMinPrice:      tools.ConvertFloatToString(eventAddMinPrice),
+		EventAddDayCount:      server.config.OptionExDayCount,
+		EventAverageAddPrice:  tools.ConvertFloatToString(eventAverageAddPrice),
 	}
 	ctx.JSON(http.StatusOK, res)
 
@@ -106,7 +100,7 @@ func HandleOptionFilter(ctx context.Context, server *Server, optionID uuid.UUID,
 			confirmPrice = true
 		} else if addMinPrice <= basePriceFloat && addMaxPrice == 0 {
 			confirmPrice = true
-		}  else if addMinPrice <= basePriceFloat && basePriceFloat <= addMaxPrice {
+		} else if addMinPrice <= basePriceFloat && basePriceFloat <= addMaxPrice {
 			confirmPrice = true
 		}
 	} else {
@@ -118,7 +112,7 @@ func HandleOptionFilter(ctx context.Context, server *Server, optionID uuid.UUID,
 		} else if minPrice <= basePriceFloat && maxPrice == 0 {
 			log.Printf("2 passed price maxPrice: %v, minPrice: %v, basePrice:%v \n", maxPrice, minPrice, basePriceFloat)
 			confirmPrice = true
-		}  else if minPrice <= basePriceFloat && basePriceFloat <= maxPrice {
+		} else if minPrice <= basePriceFloat && basePriceFloat <= maxPrice {
 			log.Printf("3 passed price maxPrice: %v, minPrice: %v, basePrice:%v \n", maxPrice, minPrice, basePriceFloat)
 			confirmPrice = true
 		}
