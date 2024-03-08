@@ -403,7 +403,7 @@ type UserExReview struct {
 	One           int                `json:"one"`
 	Total         int                `json:"total"`
 	Average       string             `json:"average"`
-	Count         string             `json:"count"`
+	Count         int                `json:"count"`
 	General       string             `json:"general"`
 	Environment   string             `json:"environment"`
 	Communication string             `json:"communication"`
