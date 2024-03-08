@@ -385,63 +385,7 @@ func HandleExSingle(option db.OptionsInfo, server *Server, ctx *gin.Context) (am
 	return
 }
 
-func HandleExOptionReview(option db.OptionsInfo, server *Server, ctx *gin.Context, hostID uuid.UUID) (review ExperienceReviewData) {
-	reviewData, err := server.store.ListChargeReview(ctx, option.OptionUserID)
-	environment := 0.0
-	accuracy := 0.0
-	communication := 0.0
-	location := 0.0
-	checkIn := 0.0
-	general := 0.0
 
-	if err != nil || len(reviewData) == 0 {
-		log.Printf("review data bad %v\n", reviewData)
-		if err != nil {
-			log.Printf("Error atHandleExOptionReview in ListOptionInfoReview err: %v, user: %v, optionID: %v\n", err, ctx.ClientIP(), option.ID)
-		}
-		rate := (environment + accuracy + communication + location + checkIn + general) / 6
-		review = ExperienceReviewData{
-			Environment:   tools.ConvertFloatToString(environment),
-			Accuracy:      tools.ConvertFloatToString(accuracy),
-			Communication: tools.ConvertFloatToString(communication),
-			Location:      tools.ConvertFloatToString(location),
-			CheckIn:       tools.ConvertFloatToString(checkIn),
-			General:       tools.ConvertFloatToString(general),
-			Rate:          tools.ConvertFloatToString(rate),
-			ReviewCount:   0,
-			IsEmpty:       true,
-		}
-	} else {
-		log.Printf("review data good %v\n", reviewData)
-		for _, rev := range reviewData {
-			environment += float64(rev.Environment)
-			accuracy += float64(rev.Accuracy)
-			communication += float64(rev.Communication)
-			location += float64(rev.Location)
-			checkIn += float64(rev.CheckIn)
-			general += float64(rev.General)
-		}
-		environment = environment / float64(len(reviewData))
-		accuracy = accuracy / float64(len(reviewData))
-		communication = communication / float64(len(reviewData))
-		location = location / float64(len(reviewData))
-		checkIn = checkIn / float64(len(reviewData))
-		general = general / float64(len(reviewData))
-		rate := (environment + accuracy + communication + location + checkIn + general) / 6
-		review = ExperienceReviewData{
-			Environment:   tools.ConvertFloatToString(environment),
-			Accuracy:      tools.ConvertFloatToString(accuracy),
-			Communication: tools.ConvertFloatToString(communication),
-			Location:      tools.ConvertFloatToString(location),
-			CheckIn:       tools.ConvertFloatToString(checkIn),
-			General:       tools.ConvertFloatToString(general),
-			Rate:          tools.ConvertFloatToString(rate),
-			ReviewCount:   len(reviewData),
-			IsEmpty:       false,
-		}
-	}
-	return
-}
 
 func HandleExTripRules(option db.OptionsInfo, server *Server, ctx *gin.Context) (houseRules []ExperienceHouseRules, tripLength ExOptionTripLength) {
 	rules, err := server.store.ListAllOptionRule(ctx, option.ID)

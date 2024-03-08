@@ -203,6 +203,8 @@ func HandleDetailEventExperience(ctx *gin.Context, server *Server, req Experienc
 
 	dates := HandleExEventDateTime(option, server, ctx)
 
+	reviews := HandleExEventReview(option, server, ctx, userID)
+
 	res = ExperienceEventDetailRes{
 		HostLanguages:    hostLanguages,
 		CoHost:           cohost,
@@ -211,6 +213,7 @@ func HandleDetailEventExperience(ctx *gin.Context, server *Server, req Experienc
 		BookMethod:       book,
 		EventDateTimes:   dates,
 		Question:         question,
+		Review:           reviews,
 		TotalReviewCount: totalReviewCount,
 		HostBio:          hostBio,
 		Captions:         caption,

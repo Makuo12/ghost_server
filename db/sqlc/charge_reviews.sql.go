@@ -13,6 +13,21 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const countChargeOptionReviewIndex = `-- name: CountChargeOptionReviewIndex :one
+SELECT Count(*)
+FROM charge_reviews cr
+JOIN charge_option_references co ON cr.charge_id = co.id
+JOIN users u ON cr.user_id = u.user_id
+WHERE co.option_user_id = $1 AND cr.is_published = true
+`
+
+func (q *Queries) CountChargeOptionReviewIndex(ctx context.Context, optionUserID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countChargeOptionReviewIndex, optionUserID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createChargeReview = `-- name: CreateChargeReview :one
 INSERT INTO charge_reviews (
     charge_id,
@@ -220,122 +235,117 @@ func (q *Queries) GetOptionChargeReview(ctx context.Context, arg GetOptionCharge
 	return i, err
 }
 
-const listChargeReview = `-- name: ListChargeReview :many
-SELECT charge_id, type, general, environment, accuracy, check_in, communication, is_published, location, current_state, previous_state, status, private_note, public_note, stay_clean, stay_comfort, host_review, amenities, cr.created_at, cr.updated_at, id, user_id, option_user_id, discount, main_price, service_fee, total_fee, date_price, guests, date_booked, currency, start_date, end_date, guest_fee, pet_fee, clean_fee, nightly_pet_fee, nightly_guest_fee, can_instant_book, require_request, request_type, reference, payment_reference, request_approved, is_complete, cancelled, co.created_at, co.updated_at
+const listChargeOptionReview = `-- name: ListChargeOptionReview :many
+SELECT cr.general, cr.environment, cr.accuracy, cr.check_in, cr.communication, cr.location, cr.public_note, u.first_name, u.photo, u.created_at AS user_joined, co.start_date AS date_booked, co.guests
 FROM charge_reviews cr
 JOIN charge_option_references co ON cr.charge_id = co.id
+JOIN users u ON cr.user_id = u.user_id
 WHERE co.option_user_id = $1 AND cr.is_published = true
+ORDER BY co.start_date DESC
 `
 
-type ListChargeReviewRow struct {
-	ChargeID         uuid.UUID `json:"charge_id"`
-	Type             string    `json:"type"`
-	General          int32     `json:"general"`
-	Environment      int32     `json:"environment"`
-	Accuracy         int32     `json:"accuracy"`
-	CheckIn          int32     `json:"check_in"`
-	Communication    int32     `json:"communication"`
-	IsPublished      bool      `json:"is_published"`
-	Location         int32     `json:"location"`
-	CurrentState     string    `json:"current_state"`
-	PreviousState    string    `json:"previous_state"`
-	Status           string    `json:"status"`
-	PrivateNote      string    `json:"private_note"`
-	PublicNote       string    `json:"public_note"`
-	StayClean        string    `json:"stay_clean"`
-	StayComfort      string    `json:"stay_comfort"`
-	HostReview       string    `json:"host_review"`
-	Amenities        []string  `json:"amenities"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
-	ID               uuid.UUID `json:"id"`
-	UserID           uuid.UUID `json:"user_id"`
-	OptionUserID     uuid.UUID `json:"option_user_id"`
-	Discount         string    `json:"discount"`
-	MainPrice        int64     `json:"main_price"`
-	ServiceFee       int64     `json:"service_fee"`
-	TotalFee         int64     `json:"total_fee"`
-	DatePrice        []string  `json:"date_price"`
-	Guests           []string  `json:"guests"`
-	DateBooked       time.Time `json:"date_booked"`
-	Currency         string    `json:"currency"`
-	StartDate        time.Time `json:"start_date"`
-	EndDate          time.Time `json:"end_date"`
-	GuestFee         int64     `json:"guest_fee"`
-	PetFee           int64     `json:"pet_fee"`
-	CleanFee         int64     `json:"clean_fee"`
-	NightlyPetFee    int64     `json:"nightly_pet_fee"`
-	NightlyGuestFee  int64     `json:"nightly_guest_fee"`
-	CanInstantBook   bool      `json:"can_instant_book"`
-	RequireRequest   bool      `json:"require_request"`
-	RequestType      string    `json:"request_type"`
-	Reference        string    `json:"reference"`
-	PaymentReference string    `json:"payment_reference"`
-	RequestApproved  bool      `json:"request_approved"`
-	IsComplete       bool      `json:"is_complete"`
-	Cancelled        bool      `json:"cancelled"`
-	CreatedAt_2      time.Time `json:"created_at_2"`
-	UpdatedAt_2      time.Time `json:"updated_at_2"`
+type ListChargeOptionReviewRow struct {
+	General       int32     `json:"general"`
+	Environment   int32     `json:"environment"`
+	Accuracy      int32     `json:"accuracy"`
+	CheckIn       int32     `json:"check_in"`
+	Communication int32     `json:"communication"`
+	Location      int32     `json:"location"`
+	PublicNote    string    `json:"public_note"`
+	FirstName     string    `json:"first_name"`
+	Photo         string    `json:"photo"`
+	UserJoined    time.Time `json:"user_joined"`
+	DateBooked    time.Time `json:"date_booked"`
+	Guests        []string  `json:"guests"`
 }
 
-func (q *Queries) ListChargeReview(ctx context.Context, optionUserID uuid.UUID) ([]ListChargeReviewRow, error) {
-	rows, err := q.db.Query(ctx, listChargeReview, optionUserID)
+func (q *Queries) ListChargeOptionReview(ctx context.Context, optionUserID uuid.UUID) ([]ListChargeOptionReviewRow, error) {
+	rows, err := q.db.Query(ctx, listChargeOptionReview, optionUserID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []ListChargeReviewRow{}
+	items := []ListChargeOptionReviewRow{}
 	for rows.Next() {
-		var i ListChargeReviewRow
+		var i ListChargeOptionReviewRow
 		if err := rows.Scan(
-			&i.ChargeID,
-			&i.Type,
 			&i.General,
 			&i.Environment,
 			&i.Accuracy,
 			&i.CheckIn,
 			&i.Communication,
-			&i.IsPublished,
 			&i.Location,
-			&i.CurrentState,
-			&i.PreviousState,
-			&i.Status,
-			&i.PrivateNote,
 			&i.PublicNote,
-			&i.StayClean,
-			&i.StayComfort,
-			&i.HostReview,
-			&i.Amenities,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.ID,
-			&i.UserID,
-			&i.OptionUserID,
-			&i.Discount,
-			&i.MainPrice,
-			&i.ServiceFee,
-			&i.TotalFee,
-			&i.DatePrice,
-			&i.Guests,
+			&i.FirstName,
+			&i.Photo,
+			&i.UserJoined,
 			&i.DateBooked,
-			&i.Currency,
-			&i.StartDate,
-			&i.EndDate,
-			&i.GuestFee,
-			&i.PetFee,
-			&i.CleanFee,
-			&i.NightlyPetFee,
-			&i.NightlyGuestFee,
-			&i.CanInstantBook,
-			&i.RequireRequest,
-			&i.RequestType,
-			&i.Reference,
-			&i.PaymentReference,
-			&i.RequestApproved,
-			&i.IsComplete,
-			&i.Cancelled,
-			&i.CreatedAt_2,
-			&i.UpdatedAt_2,
+			&i.Guests,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listChargeOptionReviewIndex = `-- name: ListChargeOptionReviewIndex :many
+SELECT cr.general, cr.environment, cr.accuracy, cr.check_in, cr.communication, cr.location, cr.public_note, u.first_name, u.photo, u.created_at AS user_joined, co.start_date AS date_booked, co.guests
+FROM charge_reviews cr
+JOIN charge_option_references co ON cr.charge_id = co.id
+JOIN users u ON cr.user_id = u.user_id
+WHERE co.option_user_id = $1 AND cr.is_published = true
+ORDER BY co.start_date DESC
+LIMIT $2
+OFFSET $3
+`
+
+type ListChargeOptionReviewIndexParams struct {
+	OptionUserID uuid.UUID `json:"option_user_id"`
+	Limit        int32     `json:"limit"`
+	Offset       int32     `json:"offset"`
+}
+
+type ListChargeOptionReviewIndexRow struct {
+	General       int32     `json:"general"`
+	Environment   int32     `json:"environment"`
+	Accuracy      int32     `json:"accuracy"`
+	CheckIn       int32     `json:"check_in"`
+	Communication int32     `json:"communication"`
+	Location      int32     `json:"location"`
+	PublicNote    string    `json:"public_note"`
+	FirstName     string    `json:"first_name"`
+	Photo         string    `json:"photo"`
+	UserJoined    time.Time `json:"user_joined"`
+	DateBooked    time.Time `json:"date_booked"`
+	Guests        []string  `json:"guests"`
+}
+
+func (q *Queries) ListChargeOptionReviewIndex(ctx context.Context, arg ListChargeOptionReviewIndexParams) ([]ListChargeOptionReviewIndexRow, error) {
+	rows, err := q.db.Query(ctx, listChargeOptionReviewIndex, arg.OptionUserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListChargeOptionReviewIndexRow{}
+	for rows.Next() {
+		var i ListChargeOptionReviewIndexRow
+		if err := rows.Scan(
+			&i.General,
+			&i.Environment,
+			&i.Accuracy,
+			&i.CheckIn,
+			&i.Communication,
+			&i.Location,
+			&i.PublicNote,
+			&i.FirstName,
+			&i.Photo,
+			&i.UserJoined,
+			&i.DateBooked,
+			&i.Guests,
 		); err != nil {
 			return nil, err
 		}

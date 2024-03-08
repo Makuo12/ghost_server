@@ -543,7 +543,6 @@ func HandleOptionReserveRequest(server *Server, ctx context.Context, payMethodRe
 	}
 	header := fmt.Sprintf("Reservation request for %v, from %v.\nDates from %v to %v", receiver.HostNameOption, user.FirstName, startDate, endDate)
 	createdAt := time.Now().UTC()
-	// When a user makes a request for something we actually store it directly to redis
 	msgD, err := server.store.CreateMessage(ctx, db.CreateMessageParams{
 		MsgID:      uuid.New(),
 		SenderID:   user.UserID,

@@ -118,18 +118,6 @@ type ExperienceDetailLocation struct {
 	IsEmpty bool `json:"is_empty"`
 }
 
-type ExperienceReviewData struct {
-	Environment   string `json:"environment"`
-	Accuracy      string `json:"accuracy"`
-	Communication string `json:"communication"`
-	Location      string `json:"location"`
-	CheckIn       string `json:"check_in"`
-	General       string `json:"general"`
-	Rate          string `json:"rate"`
-	ReviewCount   int    `json:"review_count"`
-	IsEmpty       bool   `json:"is_empty"`
-}
-
 type ExperienceDetailDes struct {
 	Des                  string `json:"des"`
 	GetAroundDes         string `json:"get_around_des"`
@@ -250,7 +238,7 @@ type ExperienceOptionDetailRes struct {
 	NumOfBeds            int                          `json:"num_of_beds"`
 	PetsAllowed          bool                         `json:"pets_allowed"`
 	CoHost               []ExperienceDetailCoHost     `json:"co_host"`
-	Review               ExperienceReviewData         `json:"review"`
+	Review               UserExReview                 `json:"review"`
 	Des                  ExperienceDetailDes          `json:"des"`
 	TripLength           ExOptionTripLength           `json:"trip_length"`
 	CancelPolicy         ExCancelPolicy               `json:"cancel_policy"`
@@ -264,26 +252,6 @@ type ExperienceOptionDetailRes struct {
 	BookMethod           ExOptionBookMethod           `json:"book_method"`
 	TotalReviewCount     int                          `json:"total_review_count"`
 	HostBio              string                       `json:"host_bio"`
-}
-
-type ExOptionReview struct {
-	UserID        string `json:"user_id"`
-	Name          string `json:"name"`
-	Date          string `json:"date"`
-	ProfilePhoto  string `json:"profile_photo"`
-	Message       string `json:"message"`
-	Clean         string `json:"clean"`
-	Accuracy      string `json:"accuracy"`
-	Communication string `json:"communication"`
-	Location      string `json:"location"`
-	CheckIn       string `json:"check_in"`
-	Value         string `json:"value"`
-}
-
-type ListExOptionReviewList struct {
-	List         []ExOptionReview `json:"list"`
-	OptionOffset int              `json:"option_offset"`
-	OnLastIndex  bool             `json:"on_last_index"`
 }
 
 type ExOptionAmDetail struct {
@@ -362,6 +330,7 @@ type ExperienceEventDetailRes struct {
 	Des              ExperienceDetailDes      `json:"des"`
 	CancelPolicy     ExCancelPolicy           `json:"cancel_policy"`
 	Captions         []ExOptionPhotoCaptions  `json:"captions"`
+	Review           UserExReview             `json:"review"`
 	BookMethod       ExOptionBookMethod       `json:"book_method"`
 	EventDateTimes   []ExEventDateTimes       `json:"event_date_times"`
 	Question         ExOptionQuestions        `json:"question"`
@@ -406,4 +375,53 @@ type ListExperienceEventTicketsRes struct {
 	List            []ExEventTicketData `json:"list"`
 	EventDateTimeID string              `json:"event_date_time_id"`
 	IsEmpty         bool                `json:"is_empty"`
+}
+
+type UserExReviewItem struct {
+	ID               string `json:"id"`
+	General          string `json:"general"`
+	Environment      string `json:"environment"`
+	Accuracy         string `json:"accuracy"`
+	CheckIn          string `json:"check_in"`
+	Communication    string `json:"communication"`
+	Location         string `json:"location"`
+	PublicNote       string `json:"public_note"`
+	HostPublicNote   string `json:"host_public_note"`
+	Average          string `json:"average"`
+	YearJoined       string `json:"year_joined"`
+	DateBooked       string `json:"date_booked"`
+	DateHostResponse string `json:"date_host_response"`
+	ProfilePhoto     string `json:"profile_photo"`
+	FirstName        string `json:"first_name"`
+}
+
+type UserExReview struct {
+	Five          int                `json:"five"`
+	Four          int                `json:"four"`
+	Three         int                `json:"three"`
+	Two           int                `json:"two"`
+	One           int                `json:"one"`
+	Total         int                `json:"total"`
+	Average       string             `json:"average"`
+	Count         string             `json:"count"`
+	General       string             `json:"general"`
+	Environment   string             `json:"environment"`
+	Communication string             `json:"communication"`
+	Accuracy      string             `json:"accuracy"`
+	CheckIn       string             `json:"check_in"`
+	Location      string             `json:"location"`
+	List          []UserExReviewItem `json:"list"`
+	IsEmpty       bool               `json:"is_empty"`
+}
+
+type ListExReviewDetailRes struct {
+	List        []UserExReviewItem `json:"list"`
+	Offset      int                `json:"offset"`
+	OnLastIndex bool               `json:"on_last_index"`
+}
+
+type ListExReviewDetailReq struct {
+	OptionUserID string `json:"option_user_id"`
+	Offset       int    `json:"offset"`
+	MainOption   string `json:"main_option"`
 }

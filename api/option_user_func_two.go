@@ -1,9 +1,11 @@
 package api
 
 import (
+	"context"
 	db "flex_server/db/sqlc"
 	"flex_server/tools"
 	"log"
+	"net/http"
 	"sort"
 	"time"
 
@@ -192,4 +194,259 @@ func HandleExAvailable(ctx *gin.Context, server *Server, optionUserID uuid.UUID,
 		}
 	}
 	return
+}
+
+func HandleExOptionReview(option db.OptionsInfo, server *Server, ctx *gin.Context, hostID uuid.UUID) (review UserExReview) {
+	var environment float64
+	var accuracy float64
+	var communication float64
+	var location float64
+	var checkIn float64
+	var general float64
+	var resData []UserExReviewItem
+	var isEmpty bool
+	var fiveCount int
+	var fourCount int
+	var threeCount int
+	var twoCount int
+	var oneCount int
+	reviewData, err := server.store.ListChargeOptionReview(ctx, option.OptionUserID)
+	if err != nil || len(reviewData) == 0 {
+		if err != nil {
+			log.Printf("Error atHandleExOptionReview in ListOptionInfoReview err: %v, user: %v, optionID: %v\n", err, ctx.ClientIP(), option.ID)
+		}
+		isEmpty = true
+		data := UserExReviewItem{
+			ID:               tools.UuidToString(uuid.New()),
+			General:          tools.ConvertFloatToString(0.0),
+			Environment:      tools.ConvertFloatToString(0.0),
+			Accuracy:         tools.ConvertFloatToString(0.0),
+			CheckIn:          tools.ConvertFloatToString(0.0),
+			Communication:    tools.ConvertFloatToString(0.0),
+			Location:         tools.ConvertFloatToString(0.0),
+			PublicNote:       "none",
+			HostPublicNote:   "none",
+			Average:          tools.ConvertFloatToString(0.0),
+			YearJoined:       "none",
+			DateBooked:       "none",
+			DateHostResponse: "none",
+			ProfilePhoto:     "none",
+			FirstName:        "none",
+		}
+		resData = append(resData, data)
+
+	} else {
+		log.Printf("review data good %v\n", reviewData)
+		for _, rev := range reviewData {
+			environment += float64(rev.Environment)
+			accuracy += float64(rev.Accuracy)
+			communication += float64(rev.Communication)
+			location += float64(rev.Location)
+			checkIn += float64(rev.CheckIn)
+			general += float64(rev.General)
+			average := (float64(rev.Environment) + float64(rev.Accuracy) + float64(rev.Communication) + float64(rev.Location) + float64(rev.CheckIn) + float64(rev.General)) / 6
+			switch int(average) {
+			case 5:
+				fiveCount += 1
+			case 4:
+				fourCount += 1
+			case 3:
+				threeCount += 1
+			case 2:
+				twoCount += 1
+			case 1:
+				oneCount += 1
+			}
+			data := UserExReviewItem{
+				ID:               tools.UuidToString(uuid.New()),
+				General:          tools.ConvertInt32ToString(rev.General),
+				Environment:      tools.ConvertInt32ToString(rev.Environment),
+				Accuracy:         tools.ConvertInt32ToString(rev.Accuracy),
+				CheckIn:          tools.ConvertInt32ToString(rev.CheckIn),
+				Communication:    tools.ConvertInt32ToString(rev.Communication),
+				Location:         tools.ConvertInt32ToString(rev.Location),
+				PublicNote:       rev.PublicNote,
+				HostPublicNote:   "none",
+				Average:          tools.ConvertFloatToString(average),
+				YearJoined:       tools.ConvertDateOnlyToString(rev.UserJoined),
+				DateBooked:       tools.ConvertDateOnlyToString(rev.DateBooked),
+				DateHostResponse: "none",
+				ProfilePhoto:     rev.Photo,
+				FirstName:        rev.FirstName,
+			}
+			resData = append(resData, data)
+		}
+		// We divide it to get an average
+		environment = environment / float64(len(reviewData))
+		accuracy = accuracy / float64(len(reviewData))
+		communication = communication / float64(len(reviewData))
+		location = location / float64(len(reviewData))
+		checkIn = checkIn / float64(len(reviewData))
+		general = general / float64(len(reviewData))
+	}
+	average := (environment + accuracy + communication + location + checkIn + general) / 6
+	review = UserExReview{
+		Total:         len(reviewData),
+		Five:          fiveCount,
+		Four:          fourCount,
+		Three:         threeCount,
+		Two:           twoCount,
+		One:           oneCount,
+		Environment:   tools.ConvertFloatToString(environment),
+		Accuracy:      tools.ConvertFloatToString(accuracy),
+		Communication: tools.ConvertFloatToString(communication),
+		Location:      tools.ConvertFloatToString(location),
+		CheckIn:       tools.ConvertFloatToString(checkIn),
+		General:       tools.ConvertFloatToString(general),
+		Average:       tools.ConvertFloatToString(average),
+		List:          resData,
+		IsEmpty:       isEmpty,
+	}
+	return
+}
+
+func HandleExEventReview(option db.OptionsInfo, server *Server, ctx *gin.Context, hostID uuid.UUID) (review UserExReview) {
+	var environment float64
+	var accuracy float64
+	var communication float64
+	var location float64
+	var checkIn float64
+	var general float64
+	var resData []UserExReviewItem
+	var isEmpty bool = true
+	var fiveCount int
+	var fourCount int
+	var threeCount int
+	var twoCount int
+	var oneCount int
+	var total int
+	data := UserExReviewItem{
+		ID:               tools.UuidToString(uuid.New()),
+		General:          tools.ConvertFloatToString(0.0),
+		Environment:      tools.ConvertFloatToString(0.0),
+		Accuracy:         tools.ConvertFloatToString(0.0),
+		CheckIn:          tools.ConvertFloatToString(0.0),
+		Communication:    tools.ConvertFloatToString(0.0),
+		Location:         tools.ConvertFloatToString(0.0),
+		PublicNote:       "none",
+		HostPublicNote:   "none",
+		Average:          tools.ConvertFloatToString(0.0),
+		YearJoined:       "none",
+		DateBooked:       "none",
+		DateHostResponse: "none",
+		ProfilePhoto:     "none",
+		FirstName:        "none",
+	}
+	resData = append(resData, data)
+	average := (environment + accuracy + communication + location + checkIn + general) / 6
+	review = UserExReview{
+		Total:         total,
+		Five:          fiveCount,
+		Four:          fourCount,
+		Three:         threeCount,
+		Two:           twoCount,
+		One:           oneCount,
+		Environment:   tools.ConvertFloatToString(environment),
+		Accuracy:      tools.ConvertFloatToString(accuracy),
+		Communication: tools.ConvertFloatToString(communication),
+		Location:      tools.ConvertFloatToString(location),
+		CheckIn:       tools.ConvertFloatToString(checkIn),
+		General:       tools.ConvertFloatToString(general),
+		Average:       tools.ConvertFloatToString(average),
+		List:          resData,
+		IsEmpty:       isEmpty,
+	}
+	return
+}
+
+func HandleListOptionExReview(ctx context.Context, server *Server, req ListExReviewDetailReq) (res ListExReviewDetailRes, hasData bool, err error) {
+	optionUserID, err := tools.StringToUuid(req.OptionUserID)
+	if err != nil {
+		log.Printf("Error at  HandleListOptionExReview in tools.StringToUuid err: %v, user: %v\n", err, req.OptionUserID)
+		hasData = false
+		return
+	}
+	count, err := server.store.CountChargeOptionReviewIndex(ctx, optionUserID)
+	if err != nil {
+		log.Printf("Error at  HandleListOptionExReview in CountChargeOptionReviewIndex err: %v, user: %v\n", err, optionUserID)
+		hasData = false
+		return
+	}
+	if count <= int64(req.Offset) || count == 0 {
+		hasData = false
+		return
+	}
+	reviews, err := server.store.ListChargeOptionReviewIndex(ctx, db.ListChargeOptionReviewIndexParams{
+		OptionUserID: optionUserID,
+		Limit:        10,
+		Offset:       int32(req.Offset),
+	})
+	if err != nil {
+		log.Printf("Error atHandleListOptionExReview in ListChargeOptionReviewIndex err: %v, user: %v\n", err, optionUserID)
+		hasData = false
+		err = nil
+		return
+	}
+	var resData []UserExReviewItem
+
+	for _, rev := range reviews {
+		average := (float64(rev.Environment) + float64(rev.Accuracy) + float64(rev.Communication) + float64(rev.Location) + float64(rev.CheckIn) + float64(rev.General)) / 6
+		data := UserExReviewItem{
+			ID:               tools.UuidToString(uuid.New()),
+			General:          tools.ConvertInt32ToString(rev.General),
+			Environment:      tools.ConvertInt32ToString(rev.Environment),
+			Accuracy:         tools.ConvertInt32ToString(rev.Accuracy),
+			CheckIn:          tools.ConvertInt32ToString(rev.CheckIn),
+			Communication:    tools.ConvertInt32ToString(rev.Communication),
+			Location:         tools.ConvertInt32ToString(rev.Location),
+			PublicNote:       rev.PublicNote,
+			HostPublicNote:   "none",
+			Average:          tools.ConvertFloatToString(average),
+			YearJoined:       tools.ConvertDateOnlyToString(rev.UserJoined),
+			DateBooked:       tools.ConvertDateOnlyToString(rev.DateBooked),
+			DateHostResponse: "none",
+			ProfilePhoto:     rev.Photo,
+			FirstName:        rev.FirstName,
+		}
+		resData = append(resData, data)
+	}
+	onLastIndex := false
+	hasData = true
+	if count <= int64(req.Offset+len(reviews)) {
+		onLastIndex = true
+	}
+	res = ListExReviewDetailRes{
+		List:        resData,
+		Offset:      req.Offset + len(reviews),
+		OnLastIndex: onLastIndex,
+	}
+	return
+}
+
+func (server *Server) ListExReviewDetail(ctx *gin.Context) {
+	var req ListExReviewDetailReq
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Printf("Error at ListReserveUserItem in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.Offset)
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	var res ListExReviewDetailRes
+	switch req.MainOption {
+	case "options":
+		resOption, hasData, err := HandleListOptionExReview(ctx, server, req)
+		if err != nil || !hasData {
+			data := "none"
+			ctx.JSON(http.StatusNoContent, data)
+			return
+		} else {
+			res = resOption
+		}
+	case "events":
+		data := "none"
+		ctx.JSON(http.StatusNoContent, data)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, res)
+
 }
