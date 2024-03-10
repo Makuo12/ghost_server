@@ -34,12 +34,12 @@ func ValidateUsername(value string) error {
 }
 
 func ValidateName(value string) bool {
-	if err := ValidateString(value, 3, 100); err != nil {
-		return false
-	}
-	if !isValidName(value) {
-		return false
-	}
+	//if err := ValidateString(value, 3, 100); err != nil {
+	//	return false
+	//}
+	//if !isValidName(value) {
+	//	return false
+	//}
 	return true
 }
 
