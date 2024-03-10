@@ -8,9 +8,10 @@ type CreateUserRequest struct {
 	Password    string `json:"password" binding:"required,password"`
 	Email       string `json:"email" binding:"required,email"`
 	Username    string `json:"username" binding:"required"`
-	FirstName   string `json:"first_name" binding:"required,person_name"`
+	// remember to add it later to first name and last name binding:"required,person_name"
+	FirstName   string `json:"first_name"`
 	Currency    string `json:"currency" binding:"required,currency"`
-	LastName    string `json:"last_name" binding:"required,person_name"`
+	LastName    string `json:"last_name"`
 	DateOfBirth string `json:"date_of_birth" binding:"required,date_only"`
 }
 
