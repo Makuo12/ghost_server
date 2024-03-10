@@ -5,7 +5,6 @@ import (
 	"net/mail"
 	"regexp"
 	"strings"
-	"unicode"
 )
 
 var (
@@ -56,27 +55,28 @@ func hasSQLInjection(input string) bool {
 }
 
 func VerifyPassword(s string) bool {
-	var hasNumber, hasUpperCase, hasLowercase, hasSpecial bool
-	if len(s) < 7 || hasSQLInjection(s) {
-		return false
-	}
+	//var hasNumber, hasUpperCase, hasLowercase, hasSpecial bool
+	//if len(s) < 7 || hasSQLInjection(s) {
+	//	return false
+	//}
 
-	for _, c := range s {
-		switch {
-		case unicode.IsNumber(c):
-			hasNumber = true
-		case unicode.IsUpper(c):
-			hasUpperCase = true
-		case unicode.IsLower(c):
-			hasLowercase = true
-		case c == '#' || c == '|':
-			return false
-		case unicode.IsPunct(c) || unicode.IsSymbol(c):
-			hasSpecial = true
+	//for _, c := range s {
+	//	switch {
+	//	case unicode.IsNumber(c):
+	//		hasNumber = true
+	//	case unicode.IsUpper(c):
+	//		hasUpperCase = true
+	//	case unicode.IsLower(c):
+	//		hasLowercase = true
+	//	case c == '#' || c == '|':
+	//		return false
+	//	case unicode.IsPunct(c) || unicode.IsSymbol(c):
+	//		hasSpecial = true
 
-		}
-	}
-	return hasNumber && hasUpperCase && hasLowercase && hasSpecial
+	//	}
+	//}
+	//return hasNumber && hasUpperCase && hasLowercase && hasSpecial
+	return true
 }
 
 func ValidateEmail(value string) bool {
