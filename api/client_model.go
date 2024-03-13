@@ -74,6 +74,9 @@ type CreateMessageParams struct {
 	ParentID          string `json:"parent_id"`
 	Reference         string `json:"reference"`
 	SelectedContactID string `json:"selected_contact_id"`
+	LatestTime        string `json:"latest_time"`
+	UserID            string `json:"user_id"`
+	ForUnlist         bool   `json:"for_unlist"`
 }
 
 type CreateMessageRes struct {
@@ -105,3 +108,5 @@ type UnreadMessageRes struct {
 	SelectedContactID string   `json:"selected_contact_id"`
 	UserID            string   `json:"user_id"`
 }
+
+

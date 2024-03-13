@@ -612,54 +612,92 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 		}
 		return
 	}
-	senderID, err := tools.StringToUuid(msg.SenderID)
-	if err != nil {
-		log.Printf("error decoding HandleMessage tools.StringToUuid(msg.SenderID) response: %v, user: %v", err, ctx.userID)
-		return
+	switch msg.ForUnlist {
+	case true:
+		contactID, errData := tools.StringToUuid(msg.SelectedContactID)
+		if errData != nil {
+			log.Printf("error decoding HandleUnreadMessageList contact tools.StringToUuid(id): %v, user: %v, id: %v", err, ctx.userID, msg.SelectedContactID)
+			return
+		}
+		userID, errData := tools.StringToUuid(msg.UserID)
+		if errData != nil {
+			log.Printf("error decoding HandleUnreadMessageList user tools.StringToUuid(id): %v, user: %v, id: %v", err, ctx.userID, msg.SelectedContactID)
+			return
+		}
+		// Update in database
+		updatedIDs, errData := ctx.server.store.UpdateMessageRead(ctx.ctx, db.UpdateMessageReadParams{
+			Read:       true,
+			SenderID:   contactID,
+			ReceiverID: userID,
+		})
+		if errData != nil {
+			log.Printf("error decoding HandleUnreadMessageList user server.store.UpdateMessageRead(id): %v, user: %v", err, ctx.userID)
+			return
+		}
+		readIDs := tools.ListUuidToString(updatedIDs)
+		if len(readIDs) != 0 {
+			res := UnreadMessageRes{
+				List:              readIDs,
+				UserID:            msg.UserID,
+				SelectedContactID: msg.SelectedContactID,
+			}
+			resBytes := new(bytes.Buffer)
+			err = json.NewEncoder(resBytes).Encode(res)
+			if err != nil {
+				log.Println("error showing", err)
+			}
+			hasData = true
+			data = resBytes.Bytes()
+		}
+	case false:
+		senderID, errData := tools.StringToUuid(msg.SenderID)
+		if errData != nil {
+			log.Printf("error decoding HandleMessage tools.StringToUuid(msg.SenderID) response: %v, user: %v", err, ctx.userID)
+			return
+		}
+		receiverID, errData := tools.StringToUuid(msg.ReceiverID)
+		if errData != nil {
+			log.Printf("error decoding HandleMessage tools.StringToUuid(msg.ReceiverID response: %v, user: %v", err, ctx.userID)
+			return
+		}
+		msgTime := time.Now().Add(time.Hour)
+		msgD, errData := ctx.server.store.CreateMessage(ctx.ctx, db.CreateMessageParams{
+			MsgID:      uuid.New(),
+			SenderID:   senderID,
+			ReceiverID: receiverID,
+			Message:    msg.Message,
+			Type:       msg.Type,
+			Photo:      msg.Photo,
+			Read:       false,
+			ParentID:   msg.ParentID,
+			Reference:  msg.Reference,
+			CreatedAt:  msgTime,
+			UpdatedAt:  msgTime,
+		})
+		if errData != nil {
+			log.Printf("error decoding HandleMessage ctx.server.store.CreateMessage response: %v, user: %v", err, ctx.userID)
+			return
+		}
+		msgRes := MessageItem{
+			ID:         tools.UuidToString(msgD.MsgID),
+			SenderID:   msg.SenderID,
+			ReceiverID: msg.ReceiverID,
+			Message:    msg.Message,
+			Type:       msg.Type,
+			Read:       false,
+			Photo:      msg.Photo,
+			ParentID:   msg.ParentID,
+			Reference:  msg.Reference,
+			CreatedAt:  tools.ConvertTimeToString(msgTime),
+		}
+		resBytes := new(bytes.Buffer)
+		log.Println("resData handle message", msgRes)
+		err = json.NewEncoder(resBytes).Encode(msgRes)
+		if errData != nil {
+			log.Println("error showing", err)
+		}
+		hasData = true
+		data = resBytes.Bytes()
 	}
-	receiverID, err := tools.StringToUuid(msg.ReceiverID)
-	if err != nil {
-		log.Printf("error decoding HandleMessage tools.StringToUuid(msg.ReceiverID response: %v, user: %v", err, ctx.userID)
-		return
-	}
-	msgTime := time.Now().Add(time.Hour)
-	msgD, err := ctx.server.store.CreateMessage(ctx.ctx, db.CreateMessageParams{
-		MsgID:      uuid.New(),
-		SenderID:   senderID,
-		ReceiverID: receiverID,
-		Message:    msg.Message,
-		Type:       msg.Type,
-		Photo:      msg.Photo,
-		Read:       false,
-		ParentID:   msg.ParentID,
-		Reference:  msg.Reference,
-		CreatedAt:  msgTime,
-		UpdatedAt:  msgTime,
-	})
-	if err != nil {
-		log.Printf("error decoding HandleMessage ctx.server.store.CreateMessage response: %v, user: %v", err, ctx.userID)
-		return
-	}
-	msgRes := MessageItem{
-		ID:         tools.UuidToString(msgD.MsgID),
-		SenderID:   msg.SenderID,
-		ReceiverID: msg.ReceiverID,
-		Message:    msg.Message,
-		Type:       msg.Type,
-		Read:       false,
-		Photo:      msg.Photo,
-		ParentID:   msg.ParentID,
-		Reference:  msg.Reference,
-		CreatedAt:  tools.ConvertTimeToString(msgTime),
-	}
-
-	resBytes := new(bytes.Buffer)
-	log.Println("resData handle message", msgRes)
-	err = json.NewEncoder(resBytes).Encode(msgRes)
-	if err != nil {
-		log.Println("error showing", err)
-	}
-	hasData = true
-	data = resBytes.Bytes()
 	return
 }
