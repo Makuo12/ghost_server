@@ -612,7 +612,7 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 		}
 		return
 	}
-	
+	log.Println("msg-go: ", msg)
 	switch msg.ForUnlist {
 	case true:
 		contactID, errData := tools.StringToUuid(msg.SelectedContactID)
@@ -651,7 +651,7 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 			data = resBytes.Bytes()
 		}
 	case false:
-		log.Println("msg-go: ", msg)
+		
 		senderID, errData := tools.StringToUuid(msg.SenderID)
 		if errData != nil {
 			log.Printf("error decoding HandleMessage tools.StringToUuid(msg.SenderID) response: %v, user: %v", err, ctx.userID)
