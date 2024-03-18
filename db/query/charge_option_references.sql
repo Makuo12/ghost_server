@@ -240,7 +240,6 @@ SELECT od.host_name_option, co.discount, co.main_price, co.service_fee, co.total
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id
-    JOIN wifi_details w_d on w_d.option_id = oi.id
 WHERE co.id = $1 AND co.user_id = $2 AND co.cancelled = $3 AND co.is_complete=$4;
 
 

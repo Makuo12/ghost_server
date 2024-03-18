@@ -284,6 +284,7 @@ type Querier interface {
 	GetMessageContact(ctx context.Context, arg GetMessageContactParams) (GetMessageContactRow, error)
 	GetMessageContactCount(ctx context.Context, senderID uuid.UUID) (int64, error)
 	GetMessageCount(ctx context.Context, arg GetMessageCountParams) (int64, error)
+	GetMessageWithTime(ctx context.Context, id uuid.UUID) (GetMessageWithTimeRow, error)
 	GetNotificationUserRequest(ctx context.Context, arg GetNotificationUserRequestParams) (GetNotificationUserRequestRow, error)
 	GetOptionAddCharge(ctx context.Context, arg GetOptionAddChargeParams) (GetOptionAddChargeRow, error)
 	GetOptionAndUser(ctx context.Context, id uuid.UUID) (GetOptionAndUserRow, error)

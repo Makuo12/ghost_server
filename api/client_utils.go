@@ -612,6 +612,7 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 		}
 		return
 	}
+	
 	switch msg.ForUnlist {
 	case true:
 		contactID, errData := tools.StringToUuid(msg.SelectedContactID)
@@ -650,6 +651,7 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 			data = resBytes.Bytes()
 		}
 	case false:
+		log.Println("msg-go: ", msg)
 		senderID, errData := tools.StringToUuid(msg.SenderID)
 		if errData != nil {
 			log.Printf("error decoding HandleMessage tools.StringToUuid(msg.SenderID) response: %v, user: %v", err, ctx.userID)
@@ -678,21 +680,64 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 			log.Printf("error decoding HandleMessage ctx.server.store.CreateMessage response: %v, user: %v", err, ctx.userID)
 			return
 		}
-		msgRes := MessageItem{
-			ID:         tools.UuidToString(msgD.MsgID),
-			SenderID:   msg.SenderID,
-			ReceiverID: msg.ReceiverID,
-			Message:    msg.Message,
-			Type:       msg.Type,
-			Read:       false,
-			Photo:      msg.Photo,
-			ParentID:   msg.ParentID,
-			Reference:  msg.Reference,
-			CreatedAt:  tools.ConvertTimeToString(msgTime),
+		msgData, errData := ctx.server.store.GetMessageWithTime(ctx.ctx, msgD.MID)
+		if errData != nil {
+			log.Printf("error decoding HandleMessage ctx.server.store.GetMessageWithTime response: %v, user: %v", err, ctx.userID)
+			return
+		}
+		var mainMsg MessageItem
+		var parentMsg MessageItem
+		var parentEmpty bool
+		mainMsg = MessageItem{
+			ID:         tools.UuidToString(msgData.MsgID),
+			SenderID:   tools.UuidToString(msgData.SenderID),
+			ReceiverID: tools.UuidToString(msgData.ReceiverID),
+			Message:    msgData.Message,
+			Type:       msgData.Type,
+			Read:       msgData.Read,
+			Photo:      msgData.Photo,
+			ParentID:   msgData.ParentID,
+			Reference:  msgData.Reference,
+			CreatedAt:  tools.ConvertTimeToString(msgData.CreatedAt),
+		}
+		if msgData.MainParentID.Valid {
+			parentMsg = MessageItem{
+				ID:         tools.UuidToString(HandleSqlNullUUID(msgData.ParentMsgID)),
+				SenderID:   tools.UuidToString(HandleSqlNullUUID(msgData.ParentSenderID)),
+				ReceiverID: tools.UuidToString(HandleSqlNullUUID(msgData.ParentReceiverID)),
+				Message:    HandleSqlNullString(msgData.ParentMessage),
+				Type:       HandleSqlNullString(msgData.ParentType),
+				Read:       HandleSqlNullBool(msgData.ParentRead),
+				Photo:      HandleSqlNullString(msgData.ParentPhoto),
+				ParentID:   HandleSqlNullString(msgData.ParentParentID),
+				Reference:  HandleSqlNullString(msgData.ParentReference),
+				CreatedAt:  tools.ConvertTimeToString(HandleSqlNullTimestamp(msgData.ParentCreatedAt)),
+			}
+			parentEmpty = false
+		} else {
+			parentMsg = MessageItem{
+				ID:         "none",
+				SenderID:   "none",
+				ReceiverID: "none",
+				Message:    "none",
+				Type:       "none",
+				Read:       false,
+				Photo:      "none",
+				ParentID:   "none",
+				Reference:  "none",
+				CreatedAt:  "none",
+			}
+			parentEmpty = true
+		}
+		msgItem := MessageMainItem{
+			MainMsg:        mainMsg,
+			MainMsgEmpty:   false,
+			ParentMsg:      parentMsg,
+			ParentMsgEmpty: parentEmpty,
 		}
 		resBytes := new(bytes.Buffer)
-		log.Println("resData handle message", msgRes)
-		err = json.NewEncoder(resBytes).Encode(msgRes)
+		log.Println("resData handle message", msgItem)
+		err = json.NewEncoder(resBytes).Encode(msgItem)
 		if errData != nil {
 			log.Println("error showing", err)
 		}

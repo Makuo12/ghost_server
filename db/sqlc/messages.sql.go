@@ -344,6 +344,93 @@ func (q *Queries) GetMessageCount(ctx context.Context, arg GetMessageCountParams
 	return count, err
 }
 
+const getMessageWithTime = `-- name: GetMessageWithTime :one
+SELECT 
+    m.id AS message_id,
+    m.msg_id,
+    m.sender_id,
+    m.receiver_id,
+    m.message,
+    m.type,
+    m.read,
+    m.photo,
+    m.parent_id,
+    m.reference,
+    m.created_at,
+    m.updated_at,
+    p.id AS main_parent_id,
+    p.msg_id AS parent_msg_id,
+    p.sender_id AS parent_sender_id,
+    p.receiver_id AS parent_receiver_id,
+    p.message AS parent_message,
+    p.type AS parent_type,
+    p.read AS parent_read,
+    p.photo AS parent_photo,
+    p.parent_id AS parent_parent_id,
+    p.reference AS parent_reference,
+    p.created_at AS parent_created_at
+FROM messages m
+LEFT JOIN messages p ON m.parent_id <> 'none' AND m.parent_id = p.msg_id::VARCHAR
+WHERE m.id = $1
+`
+
+type GetMessageWithTimeRow struct {
+	MessageID        uuid.UUID          `json:"message_id"`
+	MsgID            uuid.UUID          `json:"msg_id"`
+	SenderID         uuid.UUID          `json:"sender_id"`
+	ReceiverID       uuid.UUID          `json:"receiver_id"`
+	Message          string             `json:"message"`
+	Type             string             `json:"type"`
+	Read             bool               `json:"read"`
+	Photo            string             `json:"photo"`
+	ParentID         string             `json:"parent_id"`
+	Reference        string             `json:"reference"`
+	CreatedAt        time.Time          `json:"created_at"`
+	UpdatedAt        time.Time          `json:"updated_at"`
+	MainParentID     pgtype.UUID        `json:"main_parent_id"`
+	ParentMsgID      pgtype.UUID        `json:"parent_msg_id"`
+	ParentSenderID   pgtype.UUID        `json:"parent_sender_id"`
+	ParentReceiverID pgtype.UUID        `json:"parent_receiver_id"`
+	ParentMessage    pgtype.Text        `json:"parent_message"`
+	ParentType       pgtype.Text        `json:"parent_type"`
+	ParentRead       pgtype.Bool        `json:"parent_read"`
+	ParentPhoto      pgtype.Text        `json:"parent_photo"`
+	ParentParentID   pgtype.Text        `json:"parent_parent_id"`
+	ParentReference  pgtype.Text        `json:"parent_reference"`
+	ParentCreatedAt  pgtype.Timestamptz `json:"parent_created_at"`
+}
+
+func (q *Queries) GetMessageWithTime(ctx context.Context, id uuid.UUID) (GetMessageWithTimeRow, error) {
+	row := q.db.QueryRow(ctx, getMessageWithTime, id)
+	var i GetMessageWithTimeRow
+	err := row.Scan(
+		&i.MessageID,
+		&i.MsgID,
+		&i.SenderID,
+		&i.ReceiverID,
+		&i.Message,
+		&i.Type,
+		&i.Read,
+		&i.Photo,
+		&i.ParentID,
+		&i.Reference,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.MainParentID,
+		&i.ParentMsgID,
+		&i.ParentSenderID,
+		&i.ParentReceiverID,
+		&i.ParentMessage,
+		&i.ParentType,
+		&i.ParentRead,
+		&i.ParentPhoto,
+		&i.ParentParentID,
+		&i.ParentReference,
+		&i.ParentCreatedAt,
+	)
+	return i, err
+}
+
 const listMessage = `-- name: ListMessage :many
 SELECT 
     m.id AS message_id,

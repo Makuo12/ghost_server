@@ -137,6 +137,35 @@ LEFT JOIN messages p ON m.parent_id <> 'none' AND m.parent_id = p.msg_id::VARCHA
 WHERE (m.sender_id = $1 AND m.receiver_id = $2) OR (m.sender_id = $3 AND m.receiver_id = $4) AND m.created_at > $5
 ORDER BY m.created_at DESC;
 
+-- name: GetMessageWithTime :one
+SELECT 
+    m.id AS message_id,
+    m.msg_id,
+    m.sender_id,
+    m.receiver_id,
+    m.message,
+    m.type,
+    m.read,
+    m.photo,
+    m.parent_id,
+    m.reference,
+    m.created_at,
+    m.updated_at,
+    p.id AS main_parent_id,
+    p.msg_id AS parent_msg_id,
+    p.sender_id AS parent_sender_id,
+    p.receiver_id AS parent_receiver_id,
+    p.message AS parent_message,
+    p.type AS parent_type,
+    p.read AS parent_read,
+    p.photo AS parent_photo,
+    p.parent_id AS parent_parent_id,
+    p.reference AS parent_reference,
+    p.created_at AS parent_created_at
+FROM messages m
+LEFT JOIN messages p ON m.parent_id <> 'none' AND m.parent_id = p.msg_id::VARCHAR
+WHERE m.id = $1;
+
 -- name: ListMessageContact :many
 SELECT
     connected_user_id::uuid,
