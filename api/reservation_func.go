@@ -40,6 +40,10 @@ func HandleReserveOptionHost(selection string, server *Server, ctx *gin.Context,
 			log.Printf("Error at  HandleTime in ConvertDateTimeStringToTim err: %v, user: %v, startTimeType: %v\n", err, user.ID, "leave_before")
 			continue
 		}
+		roomID, err := SingleContextRoom(ctx, server, user.UserID, d.UserID, "HandleMessageListen")
+		if err != nil {
+			continue
+		}
 		if d.HostType == "main_host" {
 			dOptionID = tools.UuidToString(d.OptionID)
 		} else {
@@ -52,19 +56,19 @@ func HandleReserveOptionHost(selection string, server *Server, ctx *gin.Context,
 			canReserve = true
 		}
 		if !tools.ServerStringEmpty(d.ArriveAfter) {
-			hasItem, dataRes, err := HandleTime(selection, user, d, startDate, endDate, d.ArriveAfter, currentTime, "arrive_after", leaveBefore, currentDateOnlyString, canReserve, canScanCode, dOptionID)
+			hasItem, dataRes, err := HandleTime(selection, user, d, startDate, endDate, d.ArriveAfter, currentTime, "arrive_after", leaveBefore, currentDateOnlyString, canReserve, canScanCode, dOptionID, tools.UuidToString(roomID))
 			if err == nil && hasItem {
 				res = append(res, dataRes)
 				continue
 			}
 		} else if !tools.ServerStringEmpty(d.ArriveBefore) {
-			hasItem, dataRes, err := HandleTime(selection, user, d, startDate, endDate, d.ArriveBefore, currentTime, "arrive_before", leaveBefore, currentDateOnlyString, canReserve, canScanCode, dOptionID)
+			hasItem, dataRes, err := HandleTime(selection, user, d, startDate, endDate, d.ArriveBefore, currentTime, "arrive_before", leaveBefore, currentDateOnlyString, canReserve, canScanCode, dOptionID, tools.UuidToString(roomID))
 			if err == nil && hasItem {
 				res = append(res, dataRes)
 				continue
 			}
 		} else {
-			hasItem, dataRes, err := HandleTime(selection, user, d, startDate, endDate, "08:00", currentTime, "none", leaveBefore, currentDateOnlyString, canReserve, canScanCode, dOptionID)
+			hasItem, dataRes, err := HandleTime(selection, user, d, startDate, endDate, "08:00", currentTime, "none", leaveBefore, currentDateOnlyString, canReserve, canScanCode, dOptionID, tools.UuidToString(roomID))
 			if err == nil && hasItem {
 				res = append(res, dataRes)
 				continue
@@ -77,7 +81,7 @@ func HandleReserveOptionHost(selection string, server *Server, ctx *gin.Context,
 	return
 }
 
-func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHostRow, startDate string, endDate string, timeString string, currentTime time.Time, startTimeType string, leaveBefore time.Time, currentDateOnlyString string, canReserve bool, canScanCode bool, dOptionID string) (hasItem bool, data ReserveHostItem, err error) {
+func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHostRow, startDate string, endDate string, timeString string, currentTime time.Time, startTimeType string, leaveBefore time.Time, currentDateOnlyString string, canReserve bool, canScanCode bool, dOptionID string, roomID string) (hasItem bool, data ReserveHostItem, err error) {
 	// We want to add 2 hours to the time
 	timeData, err := tools.ConvertDateTimeStringToTime(startDate, timeString)
 	if err != nil {
@@ -107,6 +111,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					CanReserve:     canReserve,
 					OptionStatus:   d.Status,
 					CoverImage:     d.CoverImage,
+					RoomID:         roomID,
 				}
 				hasItem = true
 
@@ -135,6 +140,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					CanReserve:     canReserve,
 					OptionStatus:   d.Status,
 					CoverImage:     d.CoverImage,
+					RoomID:         roomID,
 				}
 				hasItem = true
 
@@ -163,6 +169,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					CanReserve:     canReserve,
 					OptionStatus:   d.Status,
 					CoverImage:     d.CoverImage,
+					RoomID:         roomID,
 				}
 				hasItem = true
 
@@ -190,6 +197,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					CanReserve:     canReserve,
 					OptionStatus:   d.Status,
 					CoverImage:     d.CoverImage,
+					RoomID:         roomID,
 				}
 				hasItem = true
 
@@ -218,6 +226,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					CanReserve:     canReserve,
 					OptionStatus:   d.Status,
 					CoverImage:     d.CoverImage,
+					RoomID:         roomID,
 				}
 				hasItem = true
 
@@ -231,21 +240,19 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 }
 
 func ListReservationDetailResOffset(data []ReserveHostItem, offset int, limit int) []ReserveHostItem {
-    // If offset is greater than or equal to the length of data, return an empty slice.
-    if offset >= len(data) {
-        return []ReserveHostItem{}
-    }
+	// If offset is greater than or equal to the length of data, return an empty slice.
+	if offset >= len(data) {
+		return []ReserveHostItem{}
+	}
 
-    // Calculate the end index based on offset and limit.
-    end := offset + limit
+	// Calculate the end index based on offset and limit.
+	end := offset + limit
 
-    // If the end index is greater than the length of data, set it to the length of data.
-    if end > len(data) {
-        end = len(data)
-    }
+	// If the end index is greater than the length of data, set it to the length of data.
+	if end > len(data) {
+		end = len(data)
+	}
 
-    // Return a subset of data starting from the offset and up to the end index.
-    return data[offset:end]
+	// Return a subset of data starting from the offset and up to the end index.
+	return data[offset:end]
 }
-
-

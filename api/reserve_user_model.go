@@ -24,6 +24,7 @@ type ReserveUserItem struct {
 	Timezone         string   `json:"timezone"`
 	City             string   `json:"city"`
 	ReviewStatus     string   `json:"review_status"`
+	RoomID           string   `json:"room_id"`
 }
 
 type ListReserveUserItemRes struct {

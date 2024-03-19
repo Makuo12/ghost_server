@@ -40,6 +40,10 @@ func HandleCurrentListReserveUserOptionItem(server *Server, ctx *gin.Context, us
 
 	for _, r := range reserves {
 		timeString, timeType := HandleReserveUserTime(r.ArriveAfter, r.ArriveBefore)
+		roomID, err := SingleContextRoom(ctx, server, user.UserID, r.UserID, "HandleMessageListen")
+		if err != nil {
+			continue
+		}
 		data := ReserveUserItem{
 			ID:               tools.UuidToString(r.ID),
 			MainOption:       r.MainOptionType,
@@ -64,6 +68,7 @@ func HandleCurrentListReserveUserOptionItem(server *Server, ctx *gin.Context, us
 			Street:           r.Street,
 			City:             r.City,
 			ReviewStatus:     r.ReviewStage,
+			RoomID:           tools.UuidToString(roomID),
 		}
 		resData = append(resData, data)
 	}
@@ -141,6 +146,7 @@ func HandleCurrentListReserveUserEventItem(server *Server, ctx *gin.Context, use
 			Street:           HandleSqlNullString(r.Street),
 			City:             HandleSqlNullString(r.City),
 			ReviewStatus:     r.ReviewStage,
+			RoomID:           "none",
 		}
 		resData = append(resData, data)
 	}
@@ -192,6 +198,10 @@ func HandleVisitedListReserveUserOptionItem(server *Server, ctx *gin.Context, us
 	var resData []ReserveUserItem
 
 	for _, r := range reserves {
+		roomID, err := SingleContextRoom(ctx, server, user.UserID, r.UserID, "HandleMessageListen")
+		if err != nil {
+			continue
+		}
 		timeString, timeType := HandleReserveUserTime(r.ArriveAfter, r.ArriveBefore)
 		data := ReserveUserItem{
 			ID:               tools.UuidToString(r.ID),
@@ -217,6 +227,7 @@ func HandleVisitedListReserveUserOptionItem(server *Server, ctx *gin.Context, us
 			Street:           r.Street,
 			City:             r.City,
 			ReviewStatus:     "none",
+			RoomID:           tools.UuidToString(roomID),
 		}
 		resData = append(resData, data)
 	}
@@ -295,6 +306,7 @@ func HandleVisitedListReserveUserEventItem(server *Server, ctx *gin.Context, use
 			Street:           HandleSqlNullString(r.Street),
 			City:             HandleSqlNullString(r.City),
 			ReviewStatus:     "none",
+			RoomID:           "none",
 		}
 		resData = append(resData, data)
 	}

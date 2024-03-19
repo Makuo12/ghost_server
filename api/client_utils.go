@@ -395,6 +395,10 @@ func HandleMessageListen(ctx *connection, payload []byte) (data []byte, hasData 
 	}
 	var resData []MessageContactItem
 	for _, contact := range contacts {
+		roomID, err := SingleContextRoom(ctx.ctx, ctx.server, ctx.userID, contact.ConnectedUserID, "HandleMessageListen")
+		if err != nil {
+			continue
+		}
 		contactData := MessageContactItem{
 			MsgID:                      tools.UuidToString(contact.MessageID),
 			ConnectedUserID:            tools.UuidToString(contact.ConnectedUserID),
@@ -407,6 +411,7 @@ func HandleMessageListen(ctx *connection, payload []byte) (data []byte, hasData 
 			UnreadUserCancelCount:      int(contact.UnreadUserCancelCount),
 			UnreadHostCancelCount:      int(contact.UnreadHostCancelCount),
 			UnreadHostChangeDatesCount: int(contact.UnreadHostChangeDatesCount),
+			RoomID:                     tools.UuidToString(roomID),
 		}
 		resData = append(resData, contactData)
 	}
@@ -651,7 +656,7 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 			data = resBytes.Bytes()
 		}
 	case false:
-		
+
 		senderID, errData := tools.StringToUuid(msg.SenderID)
 		if errData != nil {
 			log.Printf("error decoding HandleMessage tools.StringToUuid(msg.SenderID) response: %v, user: %v", err, ctx.userID)

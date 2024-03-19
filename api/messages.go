@@ -50,6 +50,10 @@ func (server *Server) ListMessageContact(ctx *gin.Context) {
 	var res ListMessageContactRes
 	var resData []MessageContactItem
 	for _, contact := range contacts {
+		roomID, err := SingleContextRoom(ctx, server, user.UserID, contact.ConnectedUserID, "ListMessage")
+		if err != nil {
+			continue
+		}
 		data := MessageContactItem{
 			MsgID:                      tools.UuidToString(contact.MessageID),
 			ConnectedUserID:            tools.UuidToString(contact.ConnectedUserID),
@@ -62,6 +66,7 @@ func (server *Server) ListMessageContact(ctx *gin.Context) {
 			UnreadUserCancelCount:      int(contact.UnreadUserCancelCount),
 			UnreadHostCancelCount:      int(contact.UnreadHostCancelCount),
 			UnreadHostChangeDatesCount: int(contact.UnreadHostChangeDatesCount),
+			RoomID:                     tools.UuidToString(roomID),
 		}
 		resData = append(resData, data)
 	}
@@ -72,7 +77,6 @@ func (server *Server) ListMessageContact(ctx *gin.Context) {
 	if count <= int64(req.Offset+len(contacts)) {
 		onLastIndex = true
 	}
-
 	res = ListMessageContactRes{
 		List:        resData,
 		Offset:      req.Offset + len(contacts),
@@ -263,10 +267,10 @@ func (server *Server) CreateMessage(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	// We a notification to the receiver 
+	// We a notification to the receiver
 	HandleUserIdMessageApn(ctx, server, receiverID, req.Message, user.FirstName)
-	res := CreateMessageRes {
-		MsgID: tools.UuidToString(msgD.MsgID),
+	res := CreateMessageRes{
+		MsgID:     tools.UuidToString(msgD.MsgID),
 		CreatedAt: tools.ConvertTimeToString(msgTime),
 	}
 	ctx.JSON(http.StatusOK, res)

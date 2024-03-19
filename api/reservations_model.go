@@ -20,6 +20,7 @@ type ReserveHostItem struct {
 	StartTimeType  string `json:"start_time_type"`
 	OptionStatus   string `json:"option_status"`
 	CoverImage     string `json:"cover_image"`
+	RoomID         string `json:"room_id"`
 }
 
 type ListReservationDetailRes struct {

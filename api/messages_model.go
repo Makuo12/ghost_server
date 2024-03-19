@@ -17,6 +17,7 @@ type MessageContactItem struct {
 	UnreadUserCancelCount      int    `json:"unread_user_cancel_count"`
 	UnreadHostCancelCount      int    `json:"unread_host_cancel_count"`
 	UnreadHostChangeDatesCount int    `json:"unread_host_change_dates_count"`
+	RoomID                     string `json:"room_id"`
 }
 
 type ListMessageContactRes struct {
@@ -85,8 +86,6 @@ type MessageMainItem struct {
 	ParentMsgEmpty bool        `json:"parent_msg_empty"`
 }
 
-
-
 type MessageItem struct {
 	ID         string `json:"id"`
 	SenderID   string `json:"sender_id"`
@@ -102,13 +101,12 @@ type MessageItem struct {
 
 type ListMessageRes struct {
 	List              []MessageMainItem `json:"list"`
-	Offset            int           `json:"offset"`
-	OnLastIndex       bool          `json:"on_last_index" binding:"required"`
-	SelectedContactID string        `json:"selected_contact_id"`
-	RoomID            string        `json:"room_id" binding:"required"`
-	IsEmpty           bool          `json:"is_empty"`
+	Offset            int               `json:"offset"`
+	OnLastIndex       bool              `json:"on_last_index" binding:"required"`
+	SelectedContactID string            `json:"selected_contact_id"`
+	RoomID            string            `json:"room_id" binding:"required"`
+	IsEmpty           bool              `json:"is_empty"`
 }
-
 
 type ListMessageContactListenRes struct {
 	List        []MessageContactItem `json:"list"`
