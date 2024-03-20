@@ -204,7 +204,7 @@ func GenerateDateListTime(startDate, endDate string) ([]time.Time, error) {
 
 func FindDateDifference(startDate, endDate string) (int, error) {
 	if startDate == endDate {
-		return 0, nil
+		return 1, nil
 	}
 	layout := "2006-01-02" // The format of the input dates
 	start, err := time.Parse(layout, startDate)

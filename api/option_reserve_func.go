@@ -251,6 +251,7 @@ func ReserveAvailableSetting(startDate string, endDate string, optionID uuid.UUI
 
 func ReserveTripLength(startDate string, endDate string, optionID uuid.UUID, minStay int, maxStay int, manualApprove bool, allowRequest bool, dayCount int) (confirm bool, requireRequest bool, requestType string, err error) {
 	// minStay
+	requestType = "normal_stay"
 	if dayCount < minStay {
 		if allowRequest {
 			requireRequest = true
@@ -271,7 +272,7 @@ func ReserveTripLength(startDate string, endDate string, optionID uuid.UUID, min
 			return
 		}
 	}
-
+	
 	// We set confirm to true because means it pass available settings
 	confirm = true
 	return
