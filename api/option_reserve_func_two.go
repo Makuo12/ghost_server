@@ -5,6 +5,7 @@ import (
 	"flex_server/constants"
 	db "flex_server/db/sqlc"
 	"flex_server/tools"
+	"flex_server/utils"
 	"fmt"
 	"log"
 	"net/http"
@@ -401,7 +402,7 @@ func HandleConvertCardToResponse(card db.Card) CardDetailResponse {
 	res := CardDetailResponse{
 		CardID:    tools.UuidToString(card.ID),
 		CardLast4: card.Last4,
-		CardType:  card.CardType,
+		CardType:  utils.MatchCardType(card.CardType),
 		ExpMonth:  card.ExpMonth,
 		ExpYear:   card.ExpYear,
 		Currency:  card.Currency,
@@ -417,3 +418,5 @@ func HandleGetAnyCard(ctx context.Context, server *Server, user db.User, funcNam
 	}
 	return card, true
 }
+
+
