@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -94,8 +95,8 @@ func (server *Server) CreateEventDateTicket(ctx *gin.Context) {
 	}
 	eventDateTicket, err := server.store.CreateEventDateTicket(ctx, db.CreateEventDateTicketParams{
 		EventDateTimeID: eventDateTimeID,
-		StartDate:       startDate,
-		EndDate:         endDate,
+		StartDate:       startDate.Add(-time.Hour*24),
+		EndDate:         endDate.Add(time.Hour*24),
 		StartTime:       startTime,
 		EndTime:         endTime,
 		Name:            req.Name,
