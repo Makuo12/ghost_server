@@ -980,7 +980,7 @@ FROM options_infos o_i
    JOIN option_availability_settings oas on o_i.id = oas.option_id
    JOIN option_trip_lengths otl on o_i.id = otl.option_id
 WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4
-ORDER BY (u.id = 'a29143e6-2dcc-45ae-ae3d-26dbe5637067' OR u.id = '80dd6eac-6367-4ad7-b202-d7502baa581d' OR u.id = '06f63694-7208-48c4-b885-3d2f4baacb68' OR u.id = '09383658-58dd-49d6-be6d-003acccbac7f'OR u.id = 'da885ea9-ed82-4071-b2a3-422eae3f9bfb') AND o_p.price > 4000000 AND o_p.price < 9600000 DESC
+ORDER BY (u.id = '80dd6eac-6367-4ad7-b202-d7502baa581d' OR u.id = 'a29143e6-2dcc-45ae-ae3d-26dbe5637067' OR u.id = '06f63694-7208-48c4-b885-3d2f4baacb68' OR u.id = '09383658-58dd-49d6-be6d-003acccbac7f'OR u.id = 'da885ea9-ed82-4071-b2a3-422eae3f9bfb') AND o_p.price > 4000000 AND o_p.price < 9600000 DESC
 `
 
 type ListOptionExperienceParams struct {
