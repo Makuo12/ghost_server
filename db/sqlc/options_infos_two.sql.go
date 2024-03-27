@@ -779,7 +779,7 @@ func (q *Queries) GetOptionInfoStartYear(ctx context.Context, arg GetOptionInfoS
 }
 
 const listEventExperience = `-- name: ListEventExperience :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three, o_i.is_complete AS option_is_complete, u.is_active AS host_is_active, o_i.is_active AS option_is_active
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -788,15 +788,8 @@ FROM options_infos o_i
    JOIN event_infos e_i on o_i.id = e_i.option_id
    JOIN users u on o_i.host_id = u.id
    JOIN identity i_d on u.id = i_d.user_id
-WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4
+WHERE main_option_type = $1
 `
-
-type ListEventExperienceParams struct {
-	IsComplete     bool   `json:"is_complete"`
-	IsActive       bool   `json:"is_active"`
-	IsActive_2     bool   `json:"is_active_2"`
-	MainOptionType string `json:"main_option_type"`
-}
 
 type ListEventExperienceRow struct {
 	ID               uuid.UUID `json:"id"`
@@ -818,15 +811,13 @@ type ListEventExperienceRow struct {
 	Status           string    `json:"status"`
 	CategoryTwo      string    `json:"category_two"`
 	CategoryThree    string    `json:"category_three"`
+	OptionIsComplete bool      `json:"option_is_complete"`
+	HostIsActive     bool      `json:"host_is_active"`
+	OptionIsActive   bool      `json:"option_is_active"`
 }
 
-func (q *Queries) ListEventExperience(ctx context.Context, arg ListEventExperienceParams) ([]ListEventExperienceRow, error) {
-	rows, err := q.db.Query(ctx, listEventExperience,
-		arg.IsComplete,
-		arg.IsActive,
-		arg.IsActive_2,
-		arg.MainOptionType,
-	)
+func (q *Queries) ListEventExperience(ctx context.Context, mainOptionType string) ([]ListEventExperienceRow, error) {
+	rows, err := q.db.Query(ctx, listEventExperience, mainOptionType)
 	if err != nil {
 		return nil, err
 	}
@@ -854,6 +845,9 @@ func (q *Queries) ListEventExperience(ctx context.Context, arg ListEventExperien
 			&i.Status,
 			&i.CategoryTwo,
 			&i.CategoryThree,
+			&i.OptionIsComplete,
+			&i.HostIsActive,
+			&i.OptionIsActive,
 		); err != nil {
 			return nil, err
 		}
@@ -966,7 +960,7 @@ func (q *Queries) ListEventExperienceByLocation(ctx context.Context, arg ListEve
 }
 
 const listOptionExperience = `-- name: ListOptionExperience :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, o_i.is_complete AS option_is_complete, u.is_active AS host_is_active, o_i.is_active AS option_is_active
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -979,16 +973,9 @@ FROM options_infos o_i
    JOIN identity i_d on u.id = i_d.user_id
    JOIN option_availability_settings oas on o_i.id = oas.option_id
    JOIN option_trip_lengths otl on o_i.id = otl.option_id
-WHERE o_i.is_complete = $1 AND u.is_active = $2 AND o_i.is_active = $3 AND o_i.main_option_type = $4
+WHERE o_i.main_option_type = $1
 ORDER BY (u.id = '80dd6eac-6367-4ad7-b202-d7502baa581d' OR u.id = 'a29143e6-2dcc-45ae-ae3d-26dbe5637067' OR u.id = '06f63694-7208-48c4-b885-3d2f4baacb68' OR u.id = '09383658-58dd-49d6-be6d-003acccbac7f'OR u.id = 'da885ea9-ed82-4071-b2a3-422eae3f9bfb') AND o_p.price > 4000000 AND o_p.price < 9600000 DESC
 `
-
-type ListOptionExperienceParams struct {
-	IsComplete     bool   `json:"is_complete"`
-	IsActive       bool   `json:"is_active"`
-	IsActive_2     bool   `json:"is_active_2"`
-	MainOptionType string `json:"main_option_type"`
-}
 
 type ListOptionExperienceRow struct {
 	ID                          uuid.UUID    `json:"id"`
@@ -1023,15 +1010,13 @@ type ListOptionExperienceRow struct {
 	MaxStayNight                int32        `json:"max_stay_night"`
 	ManualApproveRequestPassMax bool         `json:"manual_approve_request_pass_max"`
 	AllowReservationRequest     bool         `json:"allow_reservation_request"`
+	OptionIsComplete            bool         `json:"option_is_complete"`
+	HostIsActive                bool         `json:"host_is_active"`
+	OptionIsActive              bool         `json:"option_is_active"`
 }
 
-func (q *Queries) ListOptionExperience(ctx context.Context, arg ListOptionExperienceParams) ([]ListOptionExperienceRow, error) {
-	rows, err := q.db.Query(ctx, listOptionExperience,
-		arg.IsComplete,
-		arg.IsActive,
-		arg.IsActive_2,
-		arg.MainOptionType,
-	)
+func (q *Queries) ListOptionExperience(ctx context.Context, mainOptionType string) ([]ListOptionExperienceRow, error) {
+	rows, err := q.db.Query(ctx, listOptionExperience, mainOptionType)
 	if err != nil {
 		return nil, err
 	}
@@ -1072,6 +1057,9 @@ func (q *Queries) ListOptionExperience(ctx context.Context, arg ListOptionExperi
 			&i.MaxStayNight,
 			&i.ManualApproveRequestPassMax,
 			&i.AllowReservationRequest,
+			&i.OptionIsComplete,
+			&i.HostIsActive,
+			&i.OptionIsActive,
 		); err != nil {
 			return nil, err
 		}

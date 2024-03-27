@@ -4,6 +4,7 @@ import "fmt"
 
 
 func NumInAscendingOrder(nums []float64) (numsOrdered map[int]float64) {
+	numsOrdered = make(map[int]float64)
 	var currentSmallNum float64 = nums[0]
 	var currentSmallNumIndex int = 0
 	loopLength := len(nums)-1
