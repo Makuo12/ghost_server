@@ -1,9 +1,10 @@
 package api
 
 import (
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"time"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 )
 
 func GetDateAndAmount(data []db.ListChargeTicketReferencePayoutRow) (amount float64, date time.Time) {

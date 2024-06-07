@@ -1,13 +1,14 @@
 package api
 
 import (
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

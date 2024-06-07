@@ -2,12 +2,13 @@ package api
 
 import (
 	"errors"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
 	"net/http"
 	"time"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -95,8 +96,8 @@ func (server *Server) CreateEventDateTicket(ctx *gin.Context) {
 	}
 	eventDateTicket, err := server.store.CreateEventDateTicket(ctx, db.CreateEventDateTicketParams{
 		EventDateTimeID: eventDateTimeID,
-		StartDate:       startDate.Add(-time.Hour*24),
-		EndDate:         endDate.Add(time.Hour*24),
+		StartDate:       startDate.Add(-time.Hour * 24),
+		EndDate:         endDate.Add(time.Hour * 24),
 		StartTime:       startTime,
 		EndTime:         endTime,
 		Name:            req.Name,

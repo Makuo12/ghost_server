@@ -10,10 +10,10 @@ import (
 
 	//"log"
 	// "net/http"
-	db "flex_server/db/sqlc"
-	"flex_server/token"
-	"flex_server/utils"
-	"flex_server/val"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/token"
+	"github.com/makuo12/ghost_server/utils"
+	"github.com/makuo12/ghost_server/val"
 
 	// "strings"
 	//"time"
@@ -35,7 +35,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-//var Context *gin.Context
+// var Context *gin.Context
 var RedisClient *redis.Client
 
 type Server struct {

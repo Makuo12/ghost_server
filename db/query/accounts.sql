@@ -7,10 +7,33 @@ VALUES (
     $1, $2
     );
 
+-- name: CreateTestAccount :one
+INSERT INTO accounts (
+    user_id,
+    currency,
+    balance
+    )
+VALUES (
+    $1, $2, $3
+    )
+RETURNING *;
+
 -- name: GetAccount :one
 SELECT *
 FROM accounts
 WHERE user_id = $1 AND currency = $2
+LIMIT 1;
+
+-- name: GetAccountByMainID :one
+SELECT *
+FROM accounts
+WHERE id = $1
+LIMIT 1;
+
+-- name: GetAccountByUserID :one
+SELECT *
+FROM accounts
+WHERE user_id = $1
 LIMIT 1;
 
 -- name: ListAccount :many
@@ -18,11 +41,11 @@ SELECT *
 FROM accounts
 WHERE user_id = $1;
 
----- name: UpdateAccount :one
---UPDATE accounts
---SET balance = $2
---WHERE id = $1
---RETURNING *;
+-- name: UpdateAccount :one
+UPDATE accounts
+SET balance = $2
+WHERE id = $1
+RETURNING *;
 
 -- name: GetAccountForUpdate :one
 SELECT * FROM accounts

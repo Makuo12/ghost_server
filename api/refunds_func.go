@@ -2,18 +2,17 @@ package api
 
 import (
 	"context"
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
-	"flex_server/utils"
 	"fmt"
 	"log"
 	"time"
 
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
+	"github.com/makuo12/ghost_server/utils"
+
 	"github.com/google/uuid"
 )
-
-
 
 func HandleRefundPayoutData(server *Server, dollarToNaira string, dollarToCAD string, data db.ListRefundPayoutWithUserRow, payout PayoutData) (res PayoutData, err error) {
 	amount, err := tools.ConvertPrice(tools.IntToMoneyString(data.Amount), data.Currency, utils.NGN, dollarToNaira, dollarToCAD, data.HostID)
@@ -64,7 +63,6 @@ func GetRefundPayout(ctx context.Context, server *Server, dollarToNaira string, 
 	}
 	return payouts, nil
 }
-
 
 func HandleRefundPayouts(ctx context.Context, server *Server, redisDateIDs []string, refundIDs []string) {
 	dollarToNaira := server.config.DollarToNaira

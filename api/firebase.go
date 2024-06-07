@@ -2,12 +2,13 @@ package api
 
 import (
 	"context"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
 	"net/url"
 	"time"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
@@ -56,11 +57,11 @@ func UpdateFireStorageMeta(ctx context.Context, server *Server, object string) {
 		return
 	}
 	o = o.If(storage.Conditions{GenerationMatch: attrs.Generation})
-	
+
 	// Create metadata
 	objectAttrsToUpdate := storage.ObjectAttrsToUpdate{
 		ContentType: "image/jpeg", // Set the content type, adjust accordingly
-	
+
 		//Metadata: map[string]string{
 		//	"key1": "value1",
 		//	"key2": "value2",
@@ -160,5 +161,3 @@ func constructDownloadURL(projectID, filePath, token string) string {
 	fullURL.RawQuery = queryParams.Encode()
 	return fullURL.String()
 }
-
-

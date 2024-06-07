@@ -1,13 +1,13 @@
 package token
 
 import (
-	"flex_server/utils"
 	"testing"
 	"time"
 
+	"github.com/makuo12/ghost_server/utils"
+
 	"github.com/stretchr/testify/require"
 )
-
 
 func TestPasetoMaker(t *testing.T) {
 	maker, err := NewPasetoMaker(utils.RandomString((32)))

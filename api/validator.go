@@ -1,7 +1,7 @@
 package api
 
 import (
-	"flex_server/val"
+	"github.com/makuo12/ghost_server/val"
 
 	"github.com/go-playground/validator/v10"
 )
@@ -152,7 +152,6 @@ var validUserOptionCancel validator.Func = func(fieldLevel validator.FieldLevel)
 	}
 	return false
 }
-
 
 var validUserEventCancel validator.Func = func(fieldLevel validator.FieldLevel) bool {
 	if reason, ok := fieldLevel.Field().Interface().(string); ok {

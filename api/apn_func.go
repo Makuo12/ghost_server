@@ -2,9 +2,10 @@ package api
 
 import (
 	"context"
-	"flex_server/tools"
 	"fmt"
 	"log"
+
+	"github.com/makuo12/ghost_server/tools"
 
 	"firebase.google.com/go/messaging"
 	"github.com/google/uuid"

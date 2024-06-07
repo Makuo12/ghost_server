@@ -15,11 +15,11 @@ func SendAccountChangeBrevo(ctx context.Context, cfg *brevo.Configuration, toNam
 	//cfg.AddDefaultHeader("api-key", appKey)
 	params := map[string]any{
 		"mainheader": mainHeader,
-		"header": header,
-		"message": message,
-		"expire": expire,
-		"code": code,
-		"year": fmt.Sprint(time.Now().Year()),
+		"header":     header,
+		"message":    message,
+		"expire":     expire,
+		"code":       code,
+		"year":       fmt.Sprint(time.Now().Year()),
 	}
 	dataString := fmt.Sprintf("<html><body><h1>%v</h1><h2>%v</h2><div>%v</div><div>%v</div><div>%v</div><footer>Team Flizzup</footer></body></html", mainHeader, header, message, code, expire)
 	tID, err := strconv.Atoi(templateID)
@@ -28,7 +28,7 @@ func SendAccountChangeBrevo(ctx context.Context, cfg *brevo.Configuration, toNam
 		fmt.Println("Error:", err)
 		return
 	}
-	var paramsData any = params
+	var paramsData map[string]any = params
 	br := brevo.NewAPIClient(cfg)
 	body := brevo.SendSmtpEmail{
 		HtmlContent: dataString,
@@ -40,7 +40,7 @@ func SendAccountChangeBrevo(ctx context.Context, cfg *brevo.Configuration, toNam
 			Name:  "team",
 			Email: "support@flizzup.com",
 		},
-		Params: &paramsData,
+		Params: paramsData,
 	}
 	obj, resp, err := br.TransactionalEmailsApi.SendTransacEmail(ctx, body)
 	if err != nil {

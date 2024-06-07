@@ -2,17 +2,18 @@ package api
 
 import (
 	"errors"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
 	"net/http"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 )
 
 func (server *Server) CreateEventReserveDetail(ctx *gin.Context) {
-	
+
 	var req ReserveEventParams
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		log.Printf("error at CreateEventReserveDetail in ShouldBindJSON: %v \n", err)
@@ -52,7 +53,7 @@ func (server *Server) CreateEventReserveDetail(ctx *gin.Context) {
 	userID := tools.UuidToString(user.ID)
 	// Card Details
 	defaultCardID, cardDetail, hasCard := HandleReserveCard(ctx, server, user, "CreateEventReserveDetail")
-	
+
 	reserveData, err := HandleEventReserveRedisData(userID, reference)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

@@ -2,7 +2,8 @@ package api
 
 import (
 	"encoding/json"
-	db "flex_server/db/sqlc"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
 )
 
 func StructToStringShortlet(shortlet db.Shortlet) (string, error) {

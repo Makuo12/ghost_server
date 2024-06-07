@@ -2,7 +2,9 @@ package db
 
 import (
 	"context"
-	"flex_server/tools"
+	"log"
+
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -41,8 +43,10 @@ type TransferTxResult struct {
 	Transfer    Transfer `json:"transfer"`
 	FromAccount Account  `json:"from_account"`
 	ToAccount   Account  `json:"to_account"`
-	FromEntry   Entry    `json:"from_entry"`
-	ToEntry     Entry    `json:"to_entry"`
+	// This records that money is moving out
+	FromEntry Entry `json:"from_entry"`
+	// This records that money is moving in
+	ToEntry Entry `json:"to_entry"`
 }
 
 var txKey = struct{}{}
@@ -63,6 +67,7 @@ func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (Tr
 			Amount:           tools.MoneyStringToInt(arg.Amount),
 		})
 		if err != nil {
+			log.Println("err: 1", err)
 			return err
 		}
 		result.FromEntry, err = q.CreateEntry(ctx, CreateEntryParams{
@@ -70,6 +75,7 @@ func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (Tr
 			Amount:    -tools.MoneyStringToInt(arg.Amount),
 		})
 		if err != nil {
+			log.Println("err: 2", err)
 			return err
 		}
 		result.ToEntry, err = q.CreateEntry(ctx, CreateEntryParams{
@@ -77,20 +83,24 @@ func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (Tr
 			Amount:    tools.MoneyStringToInt(arg.Amount),
 		})
 		if err != nil {
+			log.Println("err: 3", err)
 			return err
 		}
-		// TODO update accounts' balance
 
+		// TODO update accounts' balance
+		log.Println("from: ", arg.FromAccountIDInt, " to: ", arg.ToAccountIDInt)
 		if arg.FromAccountIDInt < arg.ToAccountIDInt {
-			result.FromAccount, result.ToAccount, err = addMoney(ctx, q, arg.FromAccountID, "-"+arg.Amount, arg.ToAccountID, arg.Amount)
+			result.FromAccount, result.ToAccount, err = addMoney(ctx, q, arg.FromAccountID, arg.FromAccountIDInt, -tools.MoneyStringToInt(arg.Amount), arg.ToAccountID, arg.ToAccountIDInt, tools.MoneyStringToInt(arg.Amount))
 			if err != nil {
 				return err
 			}
+
 		} else {
-			result.ToAccount, result.FromAccount, err = addMoney(ctx, q, arg.ToAccountID, arg.Amount, arg.FromAccountID, "-"+arg.Amount)
+			result.ToAccount, result.FromAccount, err = addMoney(ctx, q, arg.ToAccountID, arg.ToAccountIDInt, tools.MoneyStringToInt(arg.Amount), arg.FromAccountID, arg.FromAccountIDInt, -tools.MoneyStringToInt(arg.Amount))
 			if err != nil {
 				return err
 			}
+
 		}
 		return nil
 	})
@@ -103,20 +113,22 @@ func addMoney(
 	ctx context.Context,
 	q *Queries,
 	accountIDOne uuid.UUID,
-	amountOne string,
+	accountIDOneInt int64,
+	amountOne int64,
 	accountIDTwo uuid.UUID,
-	amountTwo string,
+	accountIDTwoInt int64,
+	amountTwo int64,
 ) (accountOne Account, accountTwo Account, err error) {
 	accountOne, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
 		ID:     accountIDOne,
-		Amount: tools.MoneyStringToInt(amountOne),
+		Amount: amountOne,
 	})
 	if err != nil {
 		return
 	}
 	accountTwo, err = q.AddAccountBalance(ctx, AddAccountBalanceParams{
 		ID:     accountIDTwo,
-		Amount: tools.MoneyStringToInt(amountTwo),
+		Amount: amountTwo,
 	})
 	if err != nil {
 		return

@@ -1,14 +1,15 @@
 package api
 
 import (
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
-	"flex_server/val"
 	"fmt"
 	"log"
 	"net/http"
 	"strconv"
 	"strings"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
+	"github.com/makuo12/ghost_server/val"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -323,7 +324,6 @@ func (server *Server) UpdateUserProfile(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-//
 func (server *Server) UpdateUserProfilePhoto(ctx *gin.Context) {
 	var req UpdateProfilePhotoParams
 	if err := ctx.ShouldBindJSON(&req); err != nil {

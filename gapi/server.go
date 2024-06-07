@@ -9,10 +9,10 @@ import (
 
 	//"log"
 	// "net/http"
-	db "flex_server/db/sqlc"
-	"flex_server/pb"
-	"flex_server/token"
-	"flex_server/utils"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/pb"
+	"github.com/makuo12/ghost_server/token"
+	"github.com/makuo12/ghost_server/utils"
 
 	// "strings"
 	//"time"
@@ -72,7 +72,7 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 		config:     config,
 		store:      store,
 		tokenMaker: tokenMaker,
-		Bucket: bucket,
+		Bucket:     bucket,
 	}
 	// adr := []string{"redis_flex:6379"}
 	// rdb := redis.NewFailoverClient(&redis.FailoverOptions{
@@ -88,8 +88,6 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	})
 	RedisClient = rdb
 	rdb.Ping(RedisContext)
-
-	
 
 	return server, nil
 }

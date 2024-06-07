@@ -2,10 +2,11 @@ package api
 
 import (
 	//"encoding/json"
-	//db "flex_server/db/sqlc"
-	"flex_server/val"
+	//db "github.com/makuo12/ghost_server/db/sqlc"
 	"log"
 	"sync"
+
+	"github.com/makuo12/ghost_server/val"
 
 	//"log"
 
@@ -350,23 +351,23 @@ func (h *hub) Run() {
 				if val.ValidateMsgRoom(c.roomId) {
 					log.Println("saw message")
 					select {
-						case c.send <- m.Data:
-						default:
-							func() {
-								defer func() {
-									if r := recover(); r != nil {
-										// Handle the panic, if any
-										log.Println("Panic occurred during send operation:", r)
-									}
-								}()
-
-								close(c.send)
-								delete(connections, c)
-								if len(connections) == 0 {
-									delete(h.rooms, m.Room)
+					case c.send <- m.Data:
+					default:
+						func() {
+							defer func() {
+								if r := recover(); r != nil {
+									// Handle the panic, if any
+									log.Println("Panic occurred during send operation:", r)
 								}
 							}()
-						}
+
+							close(c.send)
+							delete(connections, c)
+							if len(connections) == 0 {
+								delete(h.rooms, m.Room)
+							}
+						}()
+					}
 
 				}
 			}

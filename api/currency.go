@@ -1,9 +1,10 @@
 package api
 
 import (
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"log"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -20,7 +21,7 @@ func UpdateEventCurrency(currencyToConvert string, ctx *gin.Context, server *Ser
 		return
 	}
 	for _, t := range tickets {
-		
+
 		price, err := tools.ConvertPrice(tools.IntToMoneyString(t.Price), oldCurrency, currencyToConvert, dollarToNaira, dollarToCAD, userID)
 		if err != nil {
 			log.Printf("There an error at UpdateEventCurrency at tools.ConvertPrice: %v, optionID: %v, eventDateTimeID: %v, userID: %v \n", err.Error(), option.ID, eventDateTimeID, userID)

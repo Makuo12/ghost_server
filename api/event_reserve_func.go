@@ -1,14 +1,15 @@
 package api
 
 import (
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
-	"flex_server/utils"
 	"fmt"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
+	"github.com/makuo12/ghost_server/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -65,13 +66,13 @@ func ReserveEventCalculate(user db.User, server *Server, ctx *gin.Context, ticke
 		id, startDate := strings.Split(ticketDateID, "&")[0], strings.Split(ticketDateID, "&")[1]
 		ticketID, errTicket := tools.StringToUuid(id)
 		if errTicket != nil {
-			log.Printf("Error at ReserveEventCalculate in StringToUuid %v for user: %v. ticket: %v\n", err.Error(), user.ID, ticketID)
+			log.Printf("Error at ReserveEventCalculate in StringToUuid %v for user: %v. ticket: %v\n", errTicket.Error(), user.ID, ticketID)
 			err = fmt.Errorf("one of the tickets selected does not exist")
 			return
 		}
 		eventDateID, errEventDate := tools.StringToUuid(ticket[0].EventDateID)
 		if errEventDate != nil {
-			log.Printf("Error at ReserveEventCalculate date in StringToUuid %v for user: %v. ticket: %v\n", err.Error(), user.ID, ticketID)
+			log.Printf("Error at ReserveEventCalculate date in StringToUuid %v for user: %v. ticket: %v\n", errEventDate.Error(), user.ID, ticketID)
 			err = fmt.Errorf("event date selected does not exist")
 			return
 		}

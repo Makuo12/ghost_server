@@ -1,11 +1,12 @@
 package api
 
 import (
-	"flex_server/constants"
-	"flex_server/tools"
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/makuo12/ghost_server/constants"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 )
@@ -22,7 +23,7 @@ func (server *Server) GetOptionUserCancelDetail(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	
+
 	chargeID, err := tools.StringToUuid(req.ChargeID)
 	if err != nil {
 		log.Printf("Error at GetOptionUserCancelDetail tools.StringToUuid: %v, ChargeID: %v \n", err.Error(), req.ChargeID)

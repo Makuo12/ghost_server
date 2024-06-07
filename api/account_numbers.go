@@ -1,11 +1,12 @@
 package api
 
 import (
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
 	"net/http"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -210,7 +211,7 @@ func (server *Server) RemoveAccountNumber(ctx *gin.Context) {
 		ID:     accountID,
 	})
 	if err != nil {
-		log.Printf("Error at RemoveAccountNumber in RemoveAccountNumbe: %v, userID: %v \n", err.Error(), user.ID)
+		log.Printf("Error at RemoveAccountNumber in RemoveAccountNumber: %v, userID: %v \n", err.Error(), user.ID)
 		err = fmt.Errorf("could not remove this account number")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

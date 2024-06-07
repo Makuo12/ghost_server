@@ -16,6 +16,10 @@ SELECT *
 FROM identity
 WHERE user_id = $1;
 
+-- name ListIdentityByAdmin :many
+SELECT *
+FROM identity;
+
 -- name: UpdateIdentity :one
 UPDATE identity 
 SET 

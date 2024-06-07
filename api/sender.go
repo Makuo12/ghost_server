@@ -1,13 +1,14 @@
 package api
 
 import (
-	"flex_server/sender"
-	"flex_server/utils"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/makuo12/ghost_server/sender"
+	"github.com/makuo12/ghost_server/utils"
 )
 
 //func SendEmailVerifyCode(server *Server, toEmail string, toName string, usernameString string, funcName string) (err error) {

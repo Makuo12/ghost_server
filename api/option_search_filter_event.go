@@ -2,10 +2,11 @@ package api
 
 import (
 	"context"
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"log"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 )
 
 func HandleExEventFilterPrice(ctx context.Context, server *Server, funcName string, req ExControlEventRequest) (startPrice string, endPrice string) {

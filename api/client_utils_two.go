@@ -3,10 +3,11 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"log"
 	"strings"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 )
 
 func EventExSearchText(ctx *connection, payload []byte) (data []byte, hasData bool, err error) {
@@ -120,7 +121,7 @@ func EventExSearchText(ctx *connection, payload []byte) (data []byte, hasData bo
 		resData = append(resData, newData)
 	}
 	if len(resData) > 0 {
-		res := EventSearchTextRes {
+		res := EventSearchTextRes{
 			List: resData,
 		}
 		resBytes := new(bytes.Buffer)

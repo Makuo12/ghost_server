@@ -1,10 +1,11 @@
 package api
 
 import (
-	"flex_server/tools"
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 )

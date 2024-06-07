@@ -2,8 +2,9 @@ package api
 
 import (
 	"context"
-	db "flex_server/db/sqlc"
 	"log"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
 
 	"github.com/google/uuid"
 )

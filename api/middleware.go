@@ -2,10 +2,11 @@ package api
 
 import (
 	"errors"
-	"flex_server/token"
 	"fmt"
 	"net/http"
 	"strings"
+
+	"github.com/makuo12/ghost_server/token"
 
 	"github.com/gin-gonic/gin"
 )

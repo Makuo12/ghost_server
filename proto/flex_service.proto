@@ -3,7 +3,7 @@ package pb;
 //import "google/protobuf/timestamp.proto";
 
 import "rpc_users_func.proto";
-option go_package = "flex_server/pb";
+option go_package = "github.com/makuo12/ghost_server/pb";
 
 
 service FlexService {

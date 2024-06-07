@@ -1,14 +1,15 @@
 package api
 
 import (
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
-	"flex_server/utils"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
 	"time"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
+	"github.com/makuo12/ghost_server/utils"
 
 	"firebase.google.com/go/auth"
 	"github.com/gin-gonic/gin"

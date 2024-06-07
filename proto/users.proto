@@ -1,7 +1,7 @@
 syntax = "proto3";
 package pb;
 import "google/protobuf/timestamp.proto";
-option go_package = "flex_server/pb";
+option go_package = "github.com/makuo12/ghost_server/pb";
 
 
 

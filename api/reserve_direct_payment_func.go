@@ -2,11 +2,12 @@ package api
 
 import (
 	"context"
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 )
 
 func HandleInitPaymentEvent(user db.User, reference string) (res InitPaymentRes, err error) {
@@ -44,15 +45,15 @@ func HandleInitRefund(ctx context.Context, server *Server, user db.User, referen
 		return
 	}
 	_, err = server.store.CreateMainRefund(ctx, db.CreateMainRefundParams{
-		ChargeID: charge.ID,
+		ChargeID:    charge.ID,
 		UserPercent: 100,
 		HostPercent: 0,
-		ChargeType: constants.CHARGE_REFERENCE,
-		Type: constants.USER_PAYMENT_INVALID,
+		ChargeType:  constants.CHARGE_REFERENCE,
+		Type:        constants.USER_PAYMENT_INVALID,
 	})
 	if err != nil {
 		log.Printf("Error at FuncName: %v HandleInitRefund in CreateMainRefund: %v, reference: %v, userID: %v \n", funcName, err.Error(), reference, user.ID)
-		
+
 	}
 	return
 }

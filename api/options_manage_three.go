@@ -1,13 +1,14 @@
 package api
 
 import (
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
-	"flex_server/val"
 	"fmt"
 	"log"
 	"net/http"
 	"strings"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
+	"github.com/makuo12/ghost_server/val"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"

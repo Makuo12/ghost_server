@@ -2,10 +2,10 @@ package api
 
 //import (
 //	"database/sql"
-//	"flex_server/constants"
-//	db "flex_server/db/sqlc"
-//	"flex_server/token"
-//	"flex_server/utils"
+//	"github.com/makuo12/ghost_server/constants"
+//	db "github.com/makuo12/ghost_server/db/sqlc"
+//	"github.com/makuo12/ghost_server/token"
+//	"github.com/makuo12/ghost_server/utils"
 //	"fmt"
 //	"log"
 //	"net/http"

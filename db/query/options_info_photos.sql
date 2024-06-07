@@ -7,13 +7,16 @@ INSERT INTO options_info_photos (
 VALUES ($1, $2, $3)
 RETURNING *;
 
-
 -- name: GetOptionInfoPhoto :one
 SELECT * 
 FROM options_info_photos
 WHERE option_id = $1;
 
 -- name: ListAllPhoto :many
+SELECT *
+FROM options_info_photos;
+
+-- name: ListOptionPhotoByAdmin :many
 SELECT *
 FROM options_info_photos;
 

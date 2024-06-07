@@ -2,9 +2,9 @@
 INSERT INTO transfers (
     from_account_id,
     to_account_id,
+    amount,
     from_account_id_int,
-    to_account_id_int,
-    amount
+    to_account_id_int
     )
 VALUES (
     $1,

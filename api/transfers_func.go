@@ -5,16 +5,17 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
-	"flex_server/utils"
 	"fmt"
 	"log"
 	"math"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
+	"github.com/makuo12/ghost_server/utils"
 
 	"github.com/google/uuid"
 )

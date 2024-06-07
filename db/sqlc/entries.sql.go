@@ -13,6 +13,7 @@ import (
 
 const createEntry = `-- name: CreateEntry :one
 INSERT INTO entries (
+    
     account_id,
     amount
     )

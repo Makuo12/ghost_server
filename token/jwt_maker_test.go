@@ -1,9 +1,10 @@
 package token
 
 import (
-	"flex_server/utils"
 	"testing"
 	"time"
+
+	"github.com/makuo12/ghost_server/utils"
 
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/stretchr/testify/require"
@@ -45,7 +46,7 @@ func TestExpiredJWTToken(t *testing.T) {
 	require.Nil(t, payload)
 }
 
-//TestInvalidJWTTokenAlgNone should only be used for testing
+// TestInvalidJWTTokenAlgNone should only be used for testing
 func TestInvalidJWTTokenAlgNone(t *testing.T) {
 	payload, err := NewPayload(utils.RandomEmail(), time.Minute)
 	require.NoError(t, err)

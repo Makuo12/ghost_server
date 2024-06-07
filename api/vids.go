@@ -1,11 +1,12 @@
 package api
 
 import (
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"log"
 	"net/http"
+
 	"github.com/gin-gonic/gin"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 )
 
 func (server *Server) ListVid(ctx *gin.Context) {
@@ -60,5 +61,3 @@ func (server *Server) ListVid(ctx *gin.Context) {
 	}
 	ctx.JSON(http.StatusOK, res)
 }
-
-

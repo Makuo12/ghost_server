@@ -2,11 +2,12 @@ package api
 
 import (
 	"context"
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/google/uuid"
 )
@@ -142,7 +143,7 @@ func TicketQuantity(server *Server, ctx context.Context, capacity int, ticketID 
 			IsComplete: true,
 		})
 		if errCharge != nil {
-			log.Printf("Error at TicketQuantity in CountChargeTicketReference %v eventDateIDString: %v ticketIDString: %v\n", err.Error(), eventDateTimeID, ticketID)
+			log.Printf("Error at TicketQuantity in CountChargeTicketReference %v eventDateIDString: %v ticketIDString: %v\n", errCharge.Error(), eventDateTimeID, ticketID)
 			if err == db.ErrorRecordNotFound {
 				err = nil
 				quantityOk = true
@@ -181,7 +182,7 @@ func TicketQuantity(server *Server, ctx context.Context, capacity int, ticketID 
 				IsComplete: true,
 			})
 			if errCharge != nil {
-				log.Printf("Error at TicketQuantity in store.CountChargeTicketReferenceByStartDate %v eventDateIDString: %v ticketIDString: %v\n", err.Error(), eventDateTimeID, ticketID)
+				log.Printf("Error at TicketQuantity in store.CountChargeTicketReferenceByStartDate %v eventDateIDString: %v ticketIDString: %v\n", errCharge.Error(), eventDateTimeID, ticketID)
 				if errCharge == db.ErrorRecordNotFound {
 					err = nil
 					continue
@@ -192,9 +193,6 @@ func TicketQuantity(server *Server, ctx context.Context, capacity int, ticketID 
 			if maxTicketCount < int(ticketCount) {
 				maxTicketCount = int(ticketCount)
 			}
-		}
-		if err != nil {
-			return
 		}
 		if capacity < int(maxTicketCount) {
 			err = fmt.Errorf("there are %v tickets sold, the capacity cannot be less than the tickets sold", maxTicketCount)

@@ -1,10 +1,11 @@
 package api
 
 import (
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"log"
 	"time"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 
@@ -199,8 +200,6 @@ func HandleTicketCapacity(server *Server, ctx *gin.Context, startTime time.Time,
 	}
 	return int(ticketCount)
 }
-
-
 
 func HandleReserveEventHostOptionDates(eventDates []db.ListEventDateTimeByOptionRow, user db.User) []db.ListEventDateTimeByUserRow {
 	data := []db.ListEventDateTimeByUserRow{}

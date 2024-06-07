@@ -2,22 +2,25 @@ package main
 
 import (
 	"context"
-	"flex_server/api"
-	db "flex_server/db/sqlc"
 
-	//"flex_server/gapi"
-	//"flex_server/pb"
-	"flex_server/utils"
+	"github.com/makuo12/ghost_server/api"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+
+	//"github.com/makuo12/ghost_server/gapi"
+	//"github.com/makuo12/ghost_server/pb"
 	"log"
 
+	"github.com/makuo12/ghost_server/utils"
+
 	//"net"
+
+	_ "time/tzdata"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	_ "github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	_ "time/tzdata"
 	_ "github.com/lib/pq"
 	//"google.golang.org/grpc"
 	//"google.golang.org/grpc/reflection"
@@ -97,3 +100,4 @@ func runDBMigration(migrationURL string, dbSource string) {
 	}
 	log.Println("db migrated successfully")
 }
+

@@ -2,11 +2,12 @@ package api
 
 import (
 	"context"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
 	"strings"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 )
 
 func HandleOptionChargeToReserve(server *Server, charge db.ChargeOptionReference, userCurrency string) (ExperienceReserveOModel, error) {
@@ -166,10 +167,10 @@ func HandleChargeToOptionData(ctx context.Context, server *Server, charge db.Cha
 	dollarToNaira := server.config.DollarToNaira
 	dollarToCAD := server.config.DollarToCAD
 	data, err := server.store.GetOptionExperienceByOptionUserID(ctx, db.GetOptionExperienceByOptionUserIDParams{
-		OptionUserID:    charge.OptionUserID,
-		IsComplete:      true,
-		IsActive:        true,
-		IsActive_2:      true,
+		OptionUserID: charge.OptionUserID,
+		IsComplete:   true,
+		IsActive:     true,
+		IsActive_2:   true,
 	})
 	if err != nil {
 		log.Printf("Error at FuncName %v HandleChargeToOptionData in GetOptionExperienceByOptionUserID charge.NightlyGuestFee err: %v, user: %v\n", funcName, err, charge.ID)

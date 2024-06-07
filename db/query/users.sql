@@ -21,6 +21,10 @@ VALUES (
    )
 RETURNING *;
 
+-- name: ListUserByAdmin :many
+SELECT * 
+FROM users;
+
 -- name: GetUser :one
 SELECT *
 FROM users

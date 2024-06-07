@@ -43,22 +43,22 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-  caddy:
-    image: caddy/caddy:2.2.1-alpine
-    container_name: caddy-service
-    restart: unless-stopped
-    depends_on:
-      - api
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:            
-      - $PWD/Caddyfile:/etc/caddy/Caddyfile
-      - $PWD/site:/srv
-      - caddy_data:/data
-      - caddy_config:/config
-    networks:
-      - app-network
+  #caddy:
+  #  image: caddy/caddy:2.2.1-alpine
+  #  container_name: caddy-service
+  #  restart: unless-stopped
+  #  depends_on:
+  #    - api
+  #  ports:
+  #    - "80:80"
+  #    - "443:443"
+  #  volumes:            
+  #    - $PWD/Caddyfile:/etc/caddy/Caddyfile
+  #    - $PWD/site:/srv
+  #    - caddy_data:/data
+  #    - caddy_config:/config
+  #  networks:
+  #    - app-network
   #nginx:
   #  build: ./nginx
   #  image: nginx
@@ -76,5 +76,5 @@ networks:
 volumes:
   data:
   redisdata:
-  caddy_data:
-  caddy_config:
+  #caddy_data:
+  #caddy_config:

@@ -3,12 +3,13 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"flex_server/constants"
-	"flex_server/tools"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	"github.com/makuo12/ghost_server/constants"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 )
@@ -166,7 +167,7 @@ func DailyHandleTransferWebhookData(ctx context.Context, server *Server) func() 
 		// We want to remove the reference from PAYOUT_CHARGE_DATE_IDS because we are no more awaiting a response
 		for _, r := range references {
 			// Remember that this reference is the same with payout.id
-			
+
 			data, err := RedisClient.HGetAll(ctx, r).Result()
 			if err != nil {
 				log.Printf("Error at DailyHandleWebhookData in RedisClient.HGetAll err:%v, reference: %v\n", err.Error(), r)

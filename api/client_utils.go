@@ -3,9 +3,10 @@ package api
 import (
 	"bytes"
 	"encoding/json"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"time"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"log"
 	"strings"
@@ -743,9 +744,7 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 		resBytes := new(bytes.Buffer)
 		log.Println("resData handle message", msgItem)
 		err = json.NewEncoder(resBytes).Encode(msgItem)
-		if errData != nil {
-			log.Println("error showing", err)
-		}
+
 		hasData = true
 		data = resBytes.Bytes()
 	}

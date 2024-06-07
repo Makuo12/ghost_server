@@ -2,11 +2,12 @@ package api
 
 import (
 	"context"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"log"
 	"sort"
 	"time"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/google/uuid"
 )

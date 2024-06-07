@@ -25,7 +25,7 @@ func SendEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName string
 		fmt.Println("Error:", err)
 		return
 	}
-	var paramsData any = params
+	var paramsData map[string]any = params
 	br := brevo.NewAPIClient(cfg)
 	body := brevo.SendSmtpEmail{
 		HtmlContent: dataString,
@@ -37,7 +37,7 @@ func SendEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName string
 			Name:  "team",
 			Email: "support@flizzup.com",
 		},
-		Params: &paramsData,
+		Params: paramsData,
 	}
 	obj, resp, err := br.TransactionalEmailsApi.SendTransacEmail(ctx, body)
 	if err != nil {
@@ -66,7 +66,7 @@ func SendInviteEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName 
 		fmt.Println("Error:", err)
 		return
 	}
-	var paramsData any = params
+	var paramsData map[string]any = params
 	br := brevo.NewAPIClient(cfg)
 	body := brevo.SendSmtpEmail{
 		HtmlContent: dataString,
@@ -78,7 +78,7 @@ func SendInviteEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName 
 			Name:  "team",
 			Email: "support@flizzup.com",
 		},
-		Params: &paramsData,
+		Params: paramsData,
 	}
 	obj, resp, err := br.TransactionalEmailsApi.SendTransacEmail(ctx, body)
 	if err != nil {
@@ -105,7 +105,7 @@ func SendCoHostDeactivateBrevo(ctx context.Context, cfg *brevo.Configuration, co
 		fmt.Println("Error:", err)
 		return
 	}
-	var paramsData any = params
+	var paramsData map[string]any = params
 	br := brevo.NewAPIClient(cfg)
 	body := brevo.SendSmtpEmail{
 		HtmlContent: dataString,
@@ -117,7 +117,7 @@ func SendCoHostDeactivateBrevo(ctx context.Context, cfg *brevo.Configuration, co
 			Name:  "team",
 			Email: "support@flizzup.com",
 		},
-		Params: &paramsData,
+		Params: paramsData,
 	}
 	obj, resp, err := br.TransactionalEmailsApi.SendTransacEmail(ctx, body)
 	if err != nil {
@@ -145,7 +145,7 @@ func SendReservationRequestBrevo(ctx context.Context, cfg *brevo.Configuration, 
 		fmt.Println("Error:", err)
 		return
 	}
-	var paramsData any = params
+	var paramsData map[string]any = params
 	br := brevo.NewAPIClient(cfg)
 	body := brevo.SendSmtpEmail{
 		HtmlContent: dataString,
@@ -157,7 +157,7 @@ func SendReservationRequestBrevo(ctx context.Context, cfg *brevo.Configuration, 
 			Name:  "team",
 			Email: "support@flizzup.com",
 		},
-		Params: &paramsData,
+		Params: paramsData,
 	}
 	obj, resp, err := br.TransactionalEmailsApi.SendTransacEmail(ctx, body)
 	if err != nil {

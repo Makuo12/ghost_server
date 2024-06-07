@@ -14,6 +14,10 @@ SELECT des, photo
 FROM event_check_in_steps
 WHERE id = $1 AND event_date_time_id=$2;
 
+-- name: ListEventCheckInStepByAdmin :many
+SELECT *
+FROM event_check_in_steps;
+
 -- name: ListEventCheckInStepOrdered :many
 SELECT des, photo, id
 FROM event_check_in_steps

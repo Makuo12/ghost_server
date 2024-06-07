@@ -3,13 +3,14 @@ package api
 import (
 	"context"
 	"errors"
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/google/uuid"
 )
@@ -185,7 +186,7 @@ func CreateAndValidateChargeCodeTicket(ctx context.Context, server *Server, req 
 		err = errors.New("your not allowed to verify this code")
 		return
 	}
-	
+
 	if !chargeMain.ScanCode {
 		err = errors.New("your not allowed to verify this code")
 		return
@@ -229,7 +230,7 @@ func CreateAndValidateChargeCodeOption(ctx context.Context, server *Server, req 
 		err = errors.New("your not allowed to verify this code")
 		return
 	}
-	
+
 	if !chargeMain.ScanCode {
 		err = errors.New("your not allowed to verify this code")
 		return

@@ -1,11 +1,12 @@
 package api
 
 import (
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -384,8 +385,6 @@ func HandleExSingle(option db.OptionsInfo, server *Server, ctx *gin.Context) (am
 
 	return
 }
-
-
 
 func HandleExTripRules(option db.OptionsInfo, server *Server, ctx *gin.Context) (houseRules []ExperienceHouseRules, tripLength ExOptionTripLength) {
 	rules, err := server.store.ListAllOptionRule(ctx, option.ID)

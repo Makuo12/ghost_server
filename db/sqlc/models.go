@@ -13,6 +13,7 @@ import (
 
 type Account struct {
 	ID        uuid.UUID `json:"id"`
+	IDInt     int64     `json:"id_int"`
 	UserID    uuid.UUID `json:"user_id"`
 	Currency  string    `json:"currency"`
 	Balance   int64     `json:"balance"`

@@ -1,11 +1,12 @@
 package api
 
 import (
-	"flex_server/algo"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"log"
 	"strings"
+
+	"github.com/makuo12/ghost_server/algo"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"

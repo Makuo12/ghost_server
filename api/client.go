@@ -3,12 +3,13 @@ package api
 import (
 	//"encoding/json"
 	"errors"
-	db "flex_server/db/sqlc"
-	"flex_server/val"
 	"log"
 	"net/http"
 	"sync"
 	"time"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/val"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"

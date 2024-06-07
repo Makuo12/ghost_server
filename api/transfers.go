@@ -2,12 +2,13 @@ package api
 
 import (
 	"context"
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"

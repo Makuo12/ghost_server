@@ -1,11 +1,12 @@
 package api
 
 import (
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"log"
 	"net/http"
 	"time"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -290,7 +291,7 @@ func (server *Server) ListRefund(ctx *gin.Context) {
 	}
 	count, err := server.store.CountRefund(ctx, db.CountRefundParams{
 		RefundComplete: req.IsComplete,
-		UID:              user.UserID,
+		UID:            user.UserID,
 	})
 	if err != nil {
 		log.Printf("Error at  ListRefund in .CountRefund err: %v, user: %v\n", err, user.ID)

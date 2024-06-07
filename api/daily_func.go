@@ -2,12 +2,13 @@ package api
 
 import (
 	"context"
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
 )
 
 // This function remove the reserve option stored in redis
@@ -85,8 +86,6 @@ func DailyRemoveEventReserveUser() {
 	}
 }
 
-
-
 func DailyHandleUserRequest(ctx context.Context, server *Server) func() {
 	// All the ids are stored in constants.USER_REQUEST_APPROVE
 	return func() {
@@ -119,7 +118,7 @@ func DailyHandleUserRequest(ctx context.Context, server *Server) func() {
 				if err != nil {
 					log.Printf("DailyHandleUserRequest in RedisClient.Del id: %v, err:%v\n", id, err.Error())
 				}
-			
+
 			}
 		}
 	}

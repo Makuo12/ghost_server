@@ -161,6 +161,7 @@ CREATE TABLE "cards" (
 
 CREATE TABLE "accounts" (
   "id" uuid UNIQUE PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
+  "id_int" bigserial UNIQUE NOT NULL,
   "user_id" uuid NOT NULL,
   "currency" varchar NOT NULL,
   "balance" bigint NOT NULL DEFAULT 0,
@@ -181,7 +182,7 @@ CREATE TABLE "users_locations" (
 );
 
 CREATE TABLE "entries" (
-  "id" uuid PRIMARY KEY NOT NULL,
+  "id" uuid PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "account_id" uuid NOT NULL,
   "amount" bigint NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),

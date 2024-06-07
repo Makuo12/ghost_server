@@ -9,6 +9,11 @@ VALUES (
     )
 RETURNING *;
 
+
+-- name: ListCheckInStepByAdmin :many
+SELECT *
+FROM check_in_steps;
+
 -- name: GetCheckInStep :one
 SELECT des, photo
 FROM check_in_steps

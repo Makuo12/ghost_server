@@ -104,6 +104,7 @@ type Querier interface {
 	CreateShortlet(ctx context.Context, arg CreateShortletParams) (Shortlet, error)
 	CreateSingleRoom(ctx context.Context, arg CreateSingleRoomParams) (uuid.UUID, error)
 	CreateSpaceArea(ctx context.Context, arg CreateSpaceAreaParams) (SpaceArea, error)
+	CreateTestAccount(ctx context.Context, arg CreateTestAccountParams) (Account, error)
 	CreateThingToNote(ctx context.Context, arg CreateThingToNoteParams) (ThingsToNote, error)
 	CreateTransfer(ctx context.Context, arg CreateTransferParams) (Transfer, error)
 	CreateUser(ctx context.Context, arg CreateUserParams) (User, error)
@@ -192,11 +193,8 @@ type Querier interface {
 	DeleteShortlet(ctx context.Context, optionID uuid.UUID) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	GetAccount(ctx context.Context, arg GetAccountParams) (Account, error)
-	//-- name: UpdateAccount :one
-	//UPDATE accounts
-	//SET balance = $2
-	//WHERE id = $1
-	//RETURNING *;
+	GetAccountByMainID(ctx context.Context, id uuid.UUID) (Account, error)
+	GetAccountByUserID(ctx context.Context, userID uuid.UUID) (Account, error)
 	GetAccountForUpdate(ctx context.Context, id uuid.UUID) (Account, error)
 	GetAccountNumberAny(ctx context.Context, userID uuid.UUID) (GetAccountNumberAnyRow, error)
 	GetAmenity(ctx context.Context, id uuid.UUID) (Amenity, error)
@@ -574,6 +572,7 @@ type Querier interface {
 	RemoveWifiDetail(ctx context.Context, optionID uuid.UUID) error
 	RemoveWishlist(ctx context.Context, arg RemoveWishlistParams) error
 	RemoveWishlistItem(ctx context.Context, id uuid.UUID) error
+	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateAllOptionDateTime(ctx context.Context, arg UpdateAllOptionDateTimeParams) (OptionDateTime, error)
 	UpdateAmenity(ctx context.Context, arg UpdateAmenityParams) (UpdateAmenityRow, error)
 	UpdateAmenityDetail(ctx context.Context, arg UpdateAmenityDetailParams) (UpdateAmenityDetailRow, error)

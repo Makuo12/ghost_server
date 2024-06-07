@@ -1,12 +1,13 @@
 package api
 
 import (
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
-	"flex_server/utils"
 	"fmt"
 	"log"
 	"net/http"
+
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
+	"github.com/makuo12/ghost_server/utils"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -91,7 +92,7 @@ func (server *Server) RemoveDetailReview(ctx *gin.Context) {
 			String: "started",
 			Valid:  true,
 		},
-		ChargeID:   chargeID,
+		ChargeID: chargeID,
 	})
 
 	if err != nil {
@@ -138,7 +139,7 @@ func (server *Server) RemovePrivateNoteReview(ctx *gin.Context) {
 			String: "none",
 			Valid:  true,
 		},
-		ChargeID:   chargeID,
+		ChargeID: chargeID,
 	})
 
 	if err != nil {
@@ -195,7 +196,7 @@ func (server *Server) RemovePublicNoteReview(ctx *gin.Context) {
 				String: utils.PrivateNoteReview,
 				Valid:  true,
 			},
-			ChargeID:   chargeID,
+			ChargeID: chargeID,
 		})
 
 		if err != nil {
@@ -272,7 +273,7 @@ func (server *Server) RemoveStayCleanReview(ctx *gin.Context) {
 			String: "none",
 			Valid:  true,
 		},
-		ChargeID:   chargeID,
+		ChargeID: chargeID,
 	})
 
 	if err != nil {
@@ -319,7 +320,7 @@ func (server *Server) RemoveComfortReview(ctx *gin.Context) {
 			String: "none",
 			Valid:  true,
 		},
-		ChargeID:   chargeID,
+		ChargeID: chargeID,
 	})
 
 	if err != nil {
@@ -366,7 +367,7 @@ func (server *Server) RemoveHostReview(ctx *gin.Context) {
 			String: "none",
 			Valid:  true,
 		},
-		ChargeID:   chargeID,
+		ChargeID: chargeID,
 	})
 
 	if err != nil {
@@ -413,7 +414,7 @@ func (server *Server) RemoveAllAmenityReview(ctx *gin.Context) {
 		return
 	}
 	res := CreateHostReviewParams{
-		HostReview: review.HostReview,
+		HostReview:     review.HostReview,
 		ChargeID:       tools.UuidToString(chargeID),
 		MainOptionType: req.MainOptionType,
 		CurrentState:   review.CurrentState,

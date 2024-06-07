@@ -2,14 +2,15 @@ package api
 
 import (
 	"context"
-	"flex_server/constants"
-	db "flex_server/db/sqlc"
-	"flex_server/tools"
-	"flex_server/utils"
-	"flex_server/val"
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/tools"
+	"github.com/makuo12/ghost_server/utils"
+	"github.com/makuo12/ghost_server/val"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -272,7 +273,7 @@ func ReserveTripLength(startDate string, endDate string, optionID uuid.UUID, min
 			return
 		}
 	}
-	
+
 	// We set confirm to true because means it pass available settings
 	confirm = true
 	return
