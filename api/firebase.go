@@ -267,6 +267,7 @@ func (server *Server) UpdatePhotoUserAdmin(ctx *gin.Context) {
 						String: req.Update,
 						Valid:  true,
 					},
+					ID: u.ID,
 				})
 				if err != nil {
 					log.Printf("Error at UpdatePhotoUserAdmin %v\n", err.Error())
