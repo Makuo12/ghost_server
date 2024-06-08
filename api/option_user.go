@@ -38,6 +38,7 @@ func (server *Server) ListExperience(ctx *gin.Context) {
 	if hasData && err == nil {
 		switch req.MainOptionType {
 		case "options":
+			log.Println("resOption: ", resOption)
 			ctx.JSON(http.StatusOK, resOption)
 			return
 		case "events":
