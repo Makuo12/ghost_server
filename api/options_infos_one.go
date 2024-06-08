@@ -683,7 +683,7 @@ func (server *Server) CreateOptionPhoto(ctx *gin.Context) {
 		// we want to remove the photo from firebase
 		err = RemoveAllPhoto(server, ctx, option)
 		if err != nil {
-			log.Println("Error at CreateOptionPhoto %v,", err.Error())
+			log.Printf("Error at CreateOptionPhoto %v, \n", err.Error())
 		}
 		err = nil
 	}
@@ -699,11 +699,6 @@ func (server *Server) CreateOptionPhoto(ctx *gin.Context) {
 		err = fmt.Errorf("your photos were not saved, please try uploading them again")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
-	}
-	// We want to update the optionInfo
-
-	if err != nil {
-		log.Printf("Error at CreateOptionPhoto in UpdateOptionInfoComplete: %v, optionID: %v, userID: %v \n", err.Error(), requestID, user.ID)
 	}
 	currentState, previousState := utils.PhotoViewState(option.OptionType)
 	completeOption, err := HandleCompleteOption(currentState, previousState, server, ctx, option, user.ID)

@@ -20,7 +20,7 @@ INSERT INTO event_check_in_steps (
 VALUES (
         $1, $2, $3
     )
-RETURNING id, event_date_time_id, photo, des, created_at, updated_at
+RETURNING id, event_date_time_id, photo, public_photo, des, created_at, updated_at
 `
 
 type CreateEventCheckInStepParams struct {
@@ -36,6 +36,7 @@ func (q *Queries) CreateEventCheckInStep(ctx context.Context, arg CreateEventChe
 		&i.ID,
 		&i.EventDateTimeID,
 		&i.Photo,
+		&i.PublicPhoto,
 		&i.Des,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -64,6 +65,39 @@ func (q *Queries) GetEventCheckInStep(ctx context.Context, arg GetEventCheckInSt
 	var i GetEventCheckInStepRow
 	err := row.Scan(&i.Des, &i.Photo)
 	return i, err
+}
+
+const listEventCheckInStepByAdmin = `-- name: ListEventCheckInStepByAdmin :many
+SELECT id, event_date_time_id, photo, public_photo, des, created_at, updated_at
+FROM event_check_in_steps
+`
+
+func (q *Queries) ListEventCheckInStepByAdmin(ctx context.Context) ([]EventCheckInStep, error) {
+	rows, err := q.db.Query(ctx, listEventCheckInStepByAdmin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []EventCheckInStep{}
+	for rows.Next() {
+		var i EventCheckInStep
+		if err := rows.Scan(
+			&i.ID,
+			&i.EventDateTimeID,
+			&i.Photo,
+			&i.PublicPhoto,
+			&i.Des,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listEventCheckInStepOrdered = `-- name: ListEventCheckInStepOrdered :many
@@ -201,6 +235,32 @@ type UpdateEventCheckInStepPhotoRow struct {
 func (q *Queries) UpdateEventCheckInStepPhoto(ctx context.Context, arg UpdateEventCheckInStepPhotoParams) (UpdateEventCheckInStepPhotoRow, error) {
 	row := q.db.QueryRow(ctx, updateEventCheckInStepPhoto, arg.Photo, arg.ID, arg.EventDateTimeID)
 	var i UpdateEventCheckInStepPhotoRow
+	err := row.Scan(&i.Des, &i.Photo, &i.ID)
+	return i, err
+}
+
+const updateEventCheckInStepPublicPhoto = `-- name: UpdateEventCheckInStepPublicPhoto :one
+UPDATE event_check_in_steps
+    SET public_photo = $1, 
+    updated_at = NOW()
+WHERE id = $2
+RETURNING des, photo, id
+`
+
+type UpdateEventCheckInStepPublicPhotoParams struct {
+	PublicPhoto string    `json:"public_photo"`
+	ID          uuid.UUID `json:"id"`
+}
+
+type UpdateEventCheckInStepPublicPhotoRow struct {
+	Des   string    `json:"des"`
+	Photo string    `json:"photo"`
+	ID    uuid.UUID `json:"id"`
+}
+
+func (q *Queries) UpdateEventCheckInStepPublicPhoto(ctx context.Context, arg UpdateEventCheckInStepPublicPhotoParams) (UpdateEventCheckInStepPublicPhotoRow, error) {
+	row := q.db.QueryRow(ctx, updateEventCheckInStepPublicPhoto, arg.PublicPhoto, arg.ID)
+	var i UpdateEventCheckInStepPublicPhotoRow
 	err := row.Scan(&i.Des, &i.Photo, &i.ID)
 	return i, err
 }

@@ -33,6 +33,13 @@ UPDATE check_in_steps
 WHERE id = $2 AND option_id = $3
 RETURNING des, photo, id;
 
+-- name: UpdateCheckInStepPublicPhoto :one
+UPDATE check_in_steps
+    SET public_photo = $1, 
+    updated_at = NOW()
+WHERE id = $2
+RETURNING des, photo, id;
+
 -- name: UpdateCheckInStepPhoto :one
 UPDATE check_in_steps
     SET photo = $1, 

@@ -245,12 +245,13 @@ type CheckInOutDetail struct {
 }
 
 type CheckInStep struct {
-	ID        uuid.UUID `json:"id"`
-	OptionID  uuid.UUID `json:"option_id"`
-	Photo     string    `json:"photo"`
-	Des       string    `json:"des"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID          uuid.UUID `json:"id"`
+	OptionID    uuid.UUID `json:"option_id"`
+	Photo       string    `json:"photo"`
+	PublicPhoto string    `json:"public_photo"`
+	Des         string    `json:"des"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type CompleteChargeReview struct {
@@ -295,6 +296,7 @@ type EventCheckInStep struct {
 	ID              uuid.UUID `json:"id"`
 	EventDateTimeID uuid.UUID `json:"event_date_time_id"`
 	Photo           string    `json:"photo"`
+	PublicPhoto     string    `json:"public_photo"`
 	Des             string    `json:"des"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
@@ -985,6 +987,7 @@ type User struct {
 	IsActive          bool      `json:"is_active"`
 	IsDeleted         bool      `json:"is_deleted"`
 	Photo             string    `json:"photo"`
+	PublicPhoto       string    `json:"public_photo"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`

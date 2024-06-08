@@ -197,10 +197,8 @@ func (server *Server) ValidateChargeCode(ctx *gin.Context) {
 		}
 		ctx.JSON(http.StatusOK, res)
 	default:
-		if err != nil {
-			err = fmt.Errorf("option not found")
-			ctx.JSON(http.StatusBadRequest, errorResponse(err))
-			return
-		}
+		err = fmt.Errorf("option not found")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 }

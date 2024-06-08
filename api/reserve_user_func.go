@@ -114,7 +114,6 @@ func HandleCurrentListReserveUserEventItem(server *Server, ctx *gin.Context, use
 		Limit:      10,
 		Offset:     int32(req.Offset),
 	})
-	log.Printf("reserves 12 %v \n")
 	if err != nil {
 		log.Printf("Error at HandleCurrentListReserveUserEventItem in ListChargeTicketReferenceCurrent err: %v, user: %v\n", err, user.ID)
 		hasData = false
@@ -273,7 +272,6 @@ func HandleVisitedListReserveUserEventItem(server *Server, ctx *gin.Context, use
 		Limit:      10,
 		Offset:     int32(req.Offset),
 	})
-	log.Printf("reserves 12 %v \n")
 	if err != nil {
 		log.Printf("Error at HandleVisitedListReserveUserEventItem in ListChargeTicketReferenceVisited err: %v, user: %v\n", err, user.ID)
 		hasData = false

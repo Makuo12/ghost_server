@@ -207,9 +207,7 @@ func CreateAndValidateChargeCodeTicket(ctx context.Context, server *Server, req 
 		ChargeType:  constants.CHARGE_TICKET_REFERENCE,
 	})
 	if err != nil {
-		if err != nil {
-			log.Printf("Error at FuncName: %v CreateAndValidateChargeCodeTicket in CreateScannedCharge err: %v, user: %v\n", funcName, err, user.ID)
-		}
+		log.Printf("Error at FuncName: %v CreateAndValidateChargeCodeTicket in CreateScannedCharge err: %v, user: %v\n", funcName, err, user.ID)
 		err = errors.New("this code could not be verified")
 		return
 	}
@@ -251,9 +249,7 @@ func CreateAndValidateChargeCodeOption(ctx context.Context, server *Server, req 
 		ChargeType:  constants.CHARGE_OPTION_REFERENCE,
 	})
 	if err != nil {
-		if err != nil {
-			log.Printf("Error at FuncName: %v CreateAndValidateChargeCodeOption in CreateScannedCharge err: %v, user: %v\n", funcName, err, user.ID)
-		}
+		log.Printf("Error at FuncName: %v CreateAndValidateChargeCodeOption in CreateScannedCharge err: %v, user: %v\n", funcName, err, user.ID)
 		err = errors.New("this code could not be verified")
 		return
 	}

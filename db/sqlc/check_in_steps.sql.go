@@ -20,7 +20,7 @@ INSERT INTO check_in_steps (
 VALUES (
         $1, $2, $3
     )
-RETURNING id, option_id, photo, des, created_at, updated_at
+RETURNING id, option_id, photo, public_photo, des, created_at, updated_at
 `
 
 type CreateCheckInStepParams struct {
@@ -36,6 +36,7 @@ func (q *Queries) CreateCheckInStep(ctx context.Context, arg CreateCheckInStepPa
 		&i.ID,
 		&i.OptionID,
 		&i.Photo,
+		&i.PublicPhoto,
 		&i.Des,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -64,6 +65,39 @@ func (q *Queries) GetCheckInStep(ctx context.Context, arg GetCheckInStepParams) 
 	var i GetCheckInStepRow
 	err := row.Scan(&i.Des, &i.Photo)
 	return i, err
+}
+
+const listCheckInStepByAdmin = `-- name: ListCheckInStepByAdmin :many
+SELECT id, option_id, photo, public_photo, des, created_at, updated_at
+FROM check_in_steps
+`
+
+func (q *Queries) ListCheckInStepByAdmin(ctx context.Context) ([]CheckInStep, error) {
+	rows, err := q.db.Query(ctx, listCheckInStepByAdmin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CheckInStep{}
+	for rows.Next() {
+		var i CheckInStep
+		if err := rows.Scan(
+			&i.ID,
+			&i.OptionID,
+			&i.Photo,
+			&i.PublicPhoto,
+			&i.Des,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listCheckInStepOrdered = `-- name: ListCheckInStepOrdered :many
@@ -171,6 +205,32 @@ type UpdateCheckInStepPhotoRow struct {
 func (q *Queries) UpdateCheckInStepPhoto(ctx context.Context, arg UpdateCheckInStepPhotoParams) (UpdateCheckInStepPhotoRow, error) {
 	row := q.db.QueryRow(ctx, updateCheckInStepPhoto, arg.Photo, arg.ID, arg.OptionID)
 	var i UpdateCheckInStepPhotoRow
+	err := row.Scan(&i.Des, &i.Photo, &i.ID)
+	return i, err
+}
+
+const updateCheckInStepPublicPhoto = `-- name: UpdateCheckInStepPublicPhoto :one
+UPDATE check_in_steps
+    SET public_photo = $1, 
+    updated_at = NOW()
+WHERE id = $2
+RETURNING des, photo, id
+`
+
+type UpdateCheckInStepPublicPhotoParams struct {
+	PublicPhoto string    `json:"public_photo"`
+	ID          uuid.UUID `json:"id"`
+}
+
+type UpdateCheckInStepPublicPhotoRow struct {
+	Des   string    `json:"des"`
+	Photo string    `json:"photo"`
+	ID    uuid.UUID `json:"id"`
+}
+
+func (q *Queries) UpdateCheckInStepPublicPhoto(ctx context.Context, arg UpdateCheckInStepPublicPhotoParams) (UpdateCheckInStepPublicPhotoRow, error) {
+	row := q.db.QueryRow(ctx, updateCheckInStepPublicPhoto, arg.PublicPhoto, arg.ID)
+	var i UpdateCheckInStepPublicPhotoRow
 	err := row.Scan(&i.Des, &i.Photo, &i.ID)
 	return i, err
 }

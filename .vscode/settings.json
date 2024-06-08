@@ -33,6 +33,7 @@
         "robfig",
         "sendgrid",
         "Shortlets",
+        "SMEMBERS",
         "Subaccount",
         "subquery",
         "Timestamptz",

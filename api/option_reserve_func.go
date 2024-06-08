@@ -392,7 +392,7 @@ func ReserveAddCharge(optionID uuid.UUID, user db.User, charges []db.ListOptionA
 	// guestCount["children"] + guestCount["adult"] cannot be greater than numOfGuest
 	totalGuests := guestCount["children"] + guestCount["adult"]
 	if totalGuests > numOfGuests {
-		log.Printf("Error at ReserveAddCharge in HandleListCount: %v optionID: %v\n", err.Error(), optionID)
+		log.Printf("Error at ReserveAddCharge in HandleListCount: optionID: %v\n", optionID)
 		err = fmt.Errorf("the number of guests coming has exceeded the host maximum number")
 		return
 	}

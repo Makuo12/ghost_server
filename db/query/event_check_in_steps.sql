@@ -44,6 +44,13 @@ UPDATE event_check_in_steps
 WHERE id = $2 AND event_date_time_id = $3
 RETURNING des, photo, id;
 
+-- name: UpdateEventCheckInStepPublicPhoto :one
+UPDATE event_check_in_steps
+    SET public_photo = $1, 
+    updated_at = NOW()
+WHERE id = $2
+RETURNING des, photo, id;
+
 -- name: RemoveEventCheckInStep :exec
 DELETE FROM event_check_in_steps 
 WHERE event_date_time_id = $1 AND id = $2;

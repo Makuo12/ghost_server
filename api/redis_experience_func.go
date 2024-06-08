@@ -270,11 +270,8 @@ func SetupExperienceEventData(ctx context.Context, server *Server, data db.ListE
 	//	HandleExperienceRedisDateTimeLocation(dateTimes)
 	//}
 	dateTimes = HandleExEventDates(dateTimes, "SERVER")
-	if err != nil || len(dateTimes) == 0 {
+	if len(dateTimes) == 0 {
 		log.Println("At SetupExperienceEventData empty")
-		if err != nil {
-			log.Printf("Error at FuncName %v SetupExperienceEventData in ListEventDateTimeOnSale err: %v id: %v\n", funcName, err, data.ID)
-		}
 		startDateData = none
 		endDateData = none
 		ticketAvailable = false

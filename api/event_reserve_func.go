@@ -82,7 +82,7 @@ func ReserveEventCalculate(user db.User, server *Server, ctx *gin.Context, ticke
 			EventDateID:  eventDateID,
 		})
 		if errOption != nil {
-			log.Printf("Error at ReserveEventCalculate in GetTicketByIDAndOptionID %v for user: %v. ticket: %v\n", err.Error(), user.ID, ticketID)
+			log.Printf("Error at ReserveEventCalculate in GetTicketByIDAndOptionID %v for user: %v. ticket: %v\n", errOption.Error(), user.ID, ticketID)
 			err = fmt.Errorf("ticket is unavailable at this moment")
 			return
 		}
@@ -156,9 +156,6 @@ func GetEventDateData(user db.User, eventDateID string, ticketIDs []string, tick
 		totalServicePrice += serviceFee * float64(len(ticketData[ticketID]))
 		totalDateAbsorbFee += absorbFee * float64(len(ticketData[ticketID]))
 	}
-	if err != nil {
-		return
-	}
 	eventDate = DateReserveItemDB{
 		ID:                  tools.UuidToString(data.EventDateID),
 		StartDate:           startDate,
@@ -203,9 +200,6 @@ func HandleReserveEventData(user db.User, ticketData map[string][]TicketItem, ti
 		totalServiceFee += eventDate.TotalDateServiceFee
 		totalAbsorbFee += eventDate.TotalDateAbsorbFee
 		dateTimes = append(dateTimes, eventDate)
-	}
-	if err != nil {
-		return
 	}
 	totalFee += totalServiceFee
 

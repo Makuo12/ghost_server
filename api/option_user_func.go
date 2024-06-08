@@ -105,7 +105,7 @@ func HandleListOptionExperience(ctx *gin.Context, server *Server, req Experience
 		}
 		resData = append(resData, newData)
 	}
-	if err == nil && hasData {
+	if hasData {
 		if count <= int64(req.OptionOffset+len(optionInfos)) {
 			onLastIndex = true
 		}

@@ -113,7 +113,7 @@ func HandleWishlistOptionExperience(ctx *gin.Context, server *Server, user db.Us
 
 	}
 	err = nil
-	if err == nil && hasData {
+	if hasData {
 		if count <= int64(req.OptionOffset+len(optionUserIDs)) {
 			onLastIndex = true
 		}
@@ -135,13 +135,6 @@ func HandleWishlistEventExperience(ctx *gin.Context, server *Server, user db.Use
 	wishlistID, err := tools.StringToUuid(req.WishlistID)
 	if err != nil {
 		log.Printf("Error at  HandleWishlistEventExperience in StringToUuid err: %v, user: %v\n", err, user.ID)
-		hasData = false
-		err = fmt.Errorf("could not perform your request")
-		return
-	}
-	log.Println("wishlistID Check", wishlistID)
-	if err != nil {
-		log.Printf("Error at  HandleListEventExperience in GetOptionExperienceCount err: %v, user: %v\n", err, user.ID)
 		hasData = false
 		err = fmt.Errorf("could not perform your request")
 		return
@@ -288,7 +281,7 @@ func HandleWishlistEventExperience(ctx *gin.Context, server *Server, user db.Use
 		}
 		resData = append(resData, newData)
 	}
-	if err == nil && hasData {
+	if hasData {
 		if count <= int64(req.OptionOffset+len(optionUserIDs)) {
 			onLastIndex = true
 		}

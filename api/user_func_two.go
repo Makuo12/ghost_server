@@ -411,14 +411,14 @@ func (server *Server) CreateUserAPNDetail(ctx *gin.Context) {
 	}
 	publicID, err := tools.StringToUuid(req.PublicID)
 	if err != nil {
-		log.Printf("Error at  CreateUserAPNDetail in tools.StringToUuid err: %v, user: %v\n", err, ctx.ClientIP)
+		log.Printf("Error at  CreateUserAPNDetail in tools.StringToUuid err: %v, user: %v\n", err, ctx.ClientIP())
 		err = fmt.Errorf("public id not in the right format")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 	user, err := server.store.GetUserByPD(ctx, publicID)
 	if err != nil {
-		log.Printf("Error at  CreateUserAPNDetail in GetUserByPD err: %v, user: %v\n", err, ctx.ClientIP)
+		log.Printf("Error at  CreateUserAPNDetail in GetUserByPD err: %v, user: %v\n", err, ctx.ClientIP())
 		err = fmt.Errorf("public id not in the right format")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -431,7 +431,7 @@ func (server *Server) CreateUserAPNDetail(ctx *gin.Context) {
 		Token:               req.Token,
 	})
 	if err != nil {
-		log.Printf("Error at CreateUserAPNDetail in CreateUserAPNDetail err: %v, user: %v\n", err, ctx.ClientIP)
+		log.Printf("Error at CreateUserAPNDetail in CreateUserAPNDetail err: %v, user: %v\n", err, ctx.ClientIP())
 		err = fmt.Errorf("public id not in the right format")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -442,7 +442,7 @@ func (server *Server) CreateUserAPNDetail(ctx *gin.Context) {
 		ID:     id,
 	})
 	if err != nil {
-		log.Printf("Error at CreateUserAPNDetail in RemoveAllUserAPNDetailButOne err: %v, user: %v\n", err, ctx.ClientIP)
+		log.Printf("Error at CreateUserAPNDetail in RemoveAllUserAPNDetailButOne err: %v, user: %v\n", err, ctx.ClientIP())
 	}
 	res := UserResponseMsg{
 		Success: true,
@@ -460,14 +460,14 @@ func (server *Server) CreateUserAPNDetail(ctx *gin.Context) {
 //	}
 //	publicID, err := tools.StringToUuid(req.PublicID)
 //	if err != nil {
-//		log.Printf("Error at  CreateUserAPNDetail in tools.StringToUuid err: %v, user: %v\n", err, ctx.ClientIP)
+//		log.Printf("Error at  CreateUserAPNDetail in tools.StringToUuid err: %v, user: %v\n", err, ctx.ClientIP())
 //		err = fmt.Errorf("public id not in the right format")
 //		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 //		return
 //	}
 //	user, err := server.store.GetUserByPD(ctx, publicID)
 //	if err != nil {
-//		log.Printf("Error at  CreateUserAPNDetail in GetUserByPD err: %v, user: %v\n", err, ctx.ClientIP)
+//		log.Printf("Error at  CreateUserAPNDetail in GetUserByPD err: %v, user: %v\n", err, ctx.ClientIP())
 //		err = fmt.Errorf("public id not in the right format")
 //		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 //		return
@@ -476,7 +476,7 @@ func (server *Server) CreateUserAPNDetail(ctx *gin.Context) {
 //	details, err := server.store.ListUidAPNDetail(ctx, user.ID)
 //	if err != nil || len(details) == 0 {
 //		if err != nil {
-//			log.Printf("Error at  CreateUserAPNDetail in .ListUidAPNDetail err: %v, user: %v\n", err, ctx.ClientIP)
+//			log.Printf("Error at  CreateUserAPNDetail in .ListUidAPNDetail err: %v, user: %v\n", err, ctx.ClientIP())
 //		}
 //		exist = false
 //	} else {
@@ -494,7 +494,7 @@ func (server *Server) CreateUserAPNDetail(ctx *gin.Context) {
 //					Token: req.Token,
 //				})
 //				if err != nil {
-//					log.Printf("Error at CreateUserAPNDetail in UpdateUserAPNDetailToken err: %v, user: %v\n", err, ctx.ClientIP)
+//					log.Printf("Error at CreateUserAPNDetail in UpdateUserAPNDetailToken err: %v, user: %v\n", err, ctx.ClientIP())
 //					err = fmt.Errorf("could not update your token")
 //					ctx.JSON(http.StatusBadRequest, errorResponse(err))
 //					return
@@ -512,7 +512,7 @@ func (server *Server) CreateUserAPNDetail(ctx *gin.Context) {
 //				Token:               req.Token,
 //			})
 //			if err != nil {
-//				log.Printf("Error at exist CreateUserAPNDetail in CreateUserAPNDetail err: %v, user: %v\n", err, ctx.ClientIP)
+//				log.Printf("Error at exist CreateUserAPNDetail in CreateUserAPNDetail err: %v, user: %v\n", err, ctx.ClientIP())
 //				err = fmt.Errorf("could not create your token")
 //				ctx.JSON(http.StatusBadRequest, errorResponse(err))
 //				return
@@ -527,7 +527,7 @@ func (server *Server) CreateUserAPNDetail(ctx *gin.Context) {
 //			Token:               req.Token,
 //		})
 //		if err != nil {
-//			log.Printf("Error at non-exist  CreateUserAPNDetail in CreateUserAPNDetail err: %v, user: %v\n", err, ctx.ClientIP)
+//			log.Printf("Error at non-exist  CreateUserAPNDetail in CreateUserAPNDetail err: %v, user: %v\n", err, ctx.ClientIP())
 //			err = fmt.Errorf("public id not in the right format")
 //			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 //			return

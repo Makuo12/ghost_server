@@ -67,7 +67,7 @@ func HandleRedisOptionExperience(ctx *gin.Context, server *Server, req Experienc
 	//log.Println("resData redis experience", resData)
 	resIndexData := GetExperienceOptionOffset(resData, req.OptionOffset, 7)
 	//log.Println("resIndexData redis experience", resIndexData)
-	if err == nil && hasData {
+	if hasData {
 		res = ListExperienceOptionRes{
 			List:         resIndexData,
 			OptionOffset: req.OptionOffset + len(resIndexData),
@@ -121,7 +121,7 @@ func HandleRedisEventExperience(ctx *gin.Context, server *Server, req Experience
 	resData = CustomEventExperienceDataSort(resData, req.State, req.Country)
 	resIndexData := GetExperienceEventOffset(resData, req.OptionOffset, 7)
 	log.Println("resIndexData redis experience", resIndexData)
-	if err == nil && hasData {
+	if hasData {
 		res = ListExperienceEventRes{
 			List:         resIndexData,
 			OptionOffset: req.OptionOffset + len(resIndexData),

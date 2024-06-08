@@ -82,6 +82,45 @@ func (q *Queries) GetIdentityStatus(ctx context.Context, userID uuid.UUID) (GetI
 	return i, err
 }
 
+const listIdentityByAdmin = `-- name: ListIdentityByAdmin :many
+SELECT user_id, country, type, id_photo, id_photo_list, id_back_photo, id_back_photo_list, facial_photo, facial_photo_list, status, is_verified, created_at, updated_at
+FROM identity
+`
+
+func (q *Queries) ListIdentityByAdmin(ctx context.Context) ([]Identity, error) {
+	rows, err := q.db.Query(ctx, listIdentityByAdmin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Identity{}
+	for rows.Next() {
+		var i Identity
+		if err := rows.Scan(
+			&i.UserID,
+			&i.Country,
+			&i.Type,
+			&i.IDPhoto,
+			&i.IDPhotoList,
+			&i.IDBackPhoto,
+			&i.IDBackPhotoList,
+			&i.FacialPhoto,
+			&i.FacialPhotoList,
+			&i.Status,
+			&i.IsVerified,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const removeIdentity = `-- name: RemoveIdentity :exec
 DELETE FROM identity
 WHERE user_id = $1

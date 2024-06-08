@@ -70,6 +70,7 @@ SET
    is_active = COALESCE(sqlc.narg(is_active), is_active),
    is_deleted = COALESCE(sqlc.narg(is_deleted), is_deleted),
    photo = COALESCE(sqlc.narg(photo), photo),
+   public_photo = COALESCE(sqlc.narg(public_photo), public_photo),
    default_card = COALESCE(sqlc.narg(default_card), default_card),
    default_payout_card = COALESCE(sqlc.narg(default_payout_card), default_payout_card),
    default_account_id = COALESCE(sqlc.narg(default_account_id), default_account_id),

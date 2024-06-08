@@ -158,9 +158,9 @@ func HandleEventReserveRedis(user db.User, eventData EventDateReserveDB) (refere
 			}
 			ticketReferences = append(ticketReferences, ticketID)
 		}
-		if err != nil {
-			return
-		}
+		//if err != nil {
+		//	return
+		//}
 		// Store all ticketReferences in the database
 		errTicketReference := RedisClient.SAdd(RedisContext, ticketRedisID, ticketReferences).Err()
 
@@ -202,9 +202,9 @@ func HandleEventReserveRedis(user db.User, eventData EventDateReserveDB) (refere
 		}
 		dateReferences = append(dateReferences, dateID)
 	}
-	if err != nil {
-		return
-	}
+	//if err != nil {
+	//	return
+	//}
 	// We save the dateReferences
 	err = RedisClient.SAdd(RedisContext, dateRedisID, dateReferences).Err()
 	if err != nil {

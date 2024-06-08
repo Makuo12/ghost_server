@@ -125,6 +125,40 @@ func (q *Queries) ListAllPhoto(ctx context.Context) ([]OptionsInfoPhoto, error) 
 	return items, nil
 }
 
+const listOptionPhotoByAdmin = `-- name: ListOptionPhotoByAdmin :many
+SELECT option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, created_at, updated_at
+FROM options_info_photos
+`
+
+func (q *Queries) ListOptionPhotoByAdmin(ctx context.Context) ([]OptionsInfoPhoto, error) {
+	rows, err := q.db.Query(ctx, listOptionPhotoByAdmin)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []OptionsInfoPhoto{}
+	for rows.Next() {
+		var i OptionsInfoPhoto
+		if err := rows.Scan(
+			&i.OptionID,
+			&i.CoverImage,
+			&i.HasMetaData,
+			&i.PublicCoverImage,
+			&i.PublicPhoto,
+			&i.Photo,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const removeOptionInfoPhoto = `-- name: RemoveOptionInfoPhoto :exec
 DELETE FROM options_info_photos
 WHERE option_id = $1

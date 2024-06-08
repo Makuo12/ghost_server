@@ -54,7 +54,7 @@ func HandleEventInsights(ctx context.Context, server *Server, user db.User, req 
 				case "recurring":
 					startTime, err = tools.ConvertDateOnlyStringToDate(d.EventDate)
 					if err != nil {
-						log.Printf("Error at FuncName GetEventInsight tools.ConvertDateOnlyStringToDate %v, OptionUserID: %v \n", funcName, err.Error(), req.OptionUserID)
+						log.Printf("Error at FuncName GetEventInsight tools.ConvertDateOnlyStringToDate %v, err: %v OptionUserID: %v \n", funcName, err.Error(), req.OptionUserID)
 						continue
 					}
 					startDate = d.EventDate
@@ -195,7 +195,7 @@ func HandleAllEventInsights(ctx context.Context, server *Server, user db.User, r
 				case "recurring":
 					startTime, err = tools.ConvertDateOnlyStringToDate(d.EventDate)
 					if err != nil {
-						log.Printf("Error at FuncName GetEventInsight tools.ConvertDateOnlyStringToDate %v, user.ID: %v \n", funcName, err.Error(), user.ID)
+						log.Printf("Error at FuncName GetEventInsight tools.ConvertDateOnlyStringToDate %v, err: %v, user.ID: %v \n", funcName, err.Error(), user.ID)
 						continue
 					}
 					startDate = d.EventDate

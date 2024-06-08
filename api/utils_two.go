@@ -287,15 +287,10 @@ func HandleUpdateDes(ctx *gin.Context, server *Server, option db.OptionsInfo, us
 			description = optionInfoDetail.OtherDes
 		}
 	}
-	if err != nil {
-		err = fmt.Errorf("error occurred while performing your request, please try again")
-
-	} else {
-		res = UpdateOptionDesParams{
-			OptionID: tools.UuidToString(option.ID),
-			Des:      description,
-			DesType:  req.DesType,
-		}
+	res = UpdateOptionDesParams{
+		OptionID: tools.UuidToString(option.ID),
+		Des:      description,
+		DesType:  req.DesType,
 	}
 	return
 }
@@ -372,7 +367,7 @@ func HandleListOptionSelectComplete(ctx *gin.Context, server *Server, user db.Us
 		}
 		resData = append(resData, newData)
 	}
-	if err == nil && hasData {
+	if hasData {
 		hasData = true
 		if count <= int64(req.OptionOffset+len(optionInfos)) {
 			onLastIndex = true
@@ -472,10 +467,7 @@ func HandleListOptionSelectInProgress(ctx *gin.Context, server *Server, user db.
 		}
 		resData = append(resData, newData)
 	}
-	if err != nil {
-		err = fmt.Errorf("an error occurred while getting your data")
-	}
-	if err == nil && hasData {
+	if hasData {
 		hasData = true
 		if count <= int64(req.OptionOffset+len(optionInfos)) {
 			onLastIndex = true
@@ -561,7 +553,7 @@ func HandleListOptionSelectInActive(ctx *gin.Context, server *Server, user db.Us
 		}
 		resData = append(resData, newData)
 	}
-	if err == nil && hasData {
+	if hasData {
 		hasData = true
 		if count <= int64(req.OptionOffset+len(optionInfos)) {
 			onLastIndex = true

@@ -34,11 +34,11 @@ func (server *Server) AccountChange(ctx *gin.Context) {
 	var msgData string
 	switch req.Type {
 	case "delete":
-		mainHeader = fmt.Sprintf("Account deletion")
-		header = fmt.Sprintf("Request for account to be deleted")
+		mainHeader = "Account deletion"
+		header = "Request for account to be deleted"
 		msgData = fmt.Sprintf("Hey %v, we just received a request for your account to be deleted if this was not you just ignore this email and we would handle the rest. However, if this was you just enter in the six-digit code below\nNote that this would delete your data with us and you would no more have access to this account or anything related to this account", tools.CapitalizeFirstCharacter(user.FirstName))
 	default:
-		err = fmt.Errorf("This page not found")
+		err = fmt.Errorf("this page not found")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -146,7 +146,7 @@ func (server *Server) VerifyAccountChange(ctx *gin.Context) {
 			log.Printf("error %v at HandleUserSession for RemoveAllUserAPNDetail for type%v for user%v\n", err, "logout", user.Username)
 		}
 	default:
-		err = fmt.Errorf("This page not found")
+		err = fmt.Errorf("this page not found")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}

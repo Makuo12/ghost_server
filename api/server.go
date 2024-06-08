@@ -346,6 +346,17 @@ func (server *Server) setupRouter() {
 	//	log.Printf("Error at server setupRouter %v", err.Error())
 	//}
 
+	// Admin
+	router.GET("admin/photo/list/user", server.ListPhotoUserAdmin)
+	router.GET("admin/photo/list/option", server.ListPhotoOptionAdmin)
+	router.GET("admin/photo/list/event-check", server.ListPhotoEventCheckInStepAdmin)
+	router.GET("admin/photo/list/option-check", server.ListPhotoCheckInStepAdmin)
+
+	router.PUT("admin/photo/update/user", server.UpdatePhotoUserAdmin)
+	router.PUT("admin/photo/update/option", server.UpdatePhotoOptionAdmin)
+	router.PUT("admin/photo/update/event-check", server.UpdatePhotoEventCheckInStepAdmin)
+	router.PUT("admin/photo/update/option-check", server.UpdatePhotoCheckInStepAdmin)
+
 	router.POST("/users/email/check", server.JoinVerifyEmail)
 	router.POST("/users/email/confirm", server.ConfirmCode)
 
