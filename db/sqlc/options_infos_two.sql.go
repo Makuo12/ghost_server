@@ -50,7 +50,7 @@ func (q *Queries) CountOptionInfoInsight(ctx context.Context, arg CountOptionInf
 }
 
 const getEventExperienceByDeepLinkID = `-- name: GetEventExperienceByDeepLinkID :one
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_p.public_cover_image, o_i_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -72,22 +72,25 @@ type GetEventExperienceByDeepLinkIDParams struct {
 }
 
 type GetEventExperienceByDeepLinkIDRow struct {
-	ID               uuid.UUID `json:"id"`
-	OptionUserID     uuid.UUID `json:"option_user_id"`
-	Currency         string    `json:"currency"`
-	OptionType       string    `json:"option_type"`
-	HostNameOption   string    `json:"host_name_option"`
-	CoverImage       string    `json:"cover_image"`
-	Photo            []string  `json:"photo"`
-	IsVerified       bool      `json:"is_verified"`
-	EventType        string    `json:"event_type"`
-	SubCategoryType  string    `json:"sub_category_type"`
-	HostAsIndividual bool      `json:"host_as_individual"`
-	Photo_2          string    `json:"photo_2"`
-	FirstName        string    `json:"first_name"`
-	CreatedAt        time.Time `json:"created_at"`
-	IsVerified_2     bool      `json:"is_verified_2"`
-	Category         string    `json:"category"`
+	ID                uuid.UUID `json:"id"`
+	OptionUserID      uuid.UUID `json:"option_user_id"`
+	Currency          string    `json:"currency"`
+	OptionType        string    `json:"option_type"`
+	HostNameOption    string    `json:"host_name_option"`
+	CoverImage        string    `json:"cover_image"`
+	Photo             []string  `json:"photo"`
+	IsVerified        bool      `json:"is_verified"`
+	EventType         string    `json:"event_type"`
+	SubCategoryType   string    `json:"sub_category_type"`
+	HostAsIndividual  bool      `json:"host_as_individual"`
+	Photo_2           string    `json:"photo_2"`
+	FirstName         string    `json:"first_name"`
+	CreatedAt         time.Time `json:"created_at"`
+	IsVerified_2      bool      `json:"is_verified_2"`
+	Category          string    `json:"category"`
+	PublicCoverImage  string    `json:"public_cover_image"`
+	OptionPublicPhoto []string  `json:"option_public_photo"`
+	HostPublicPhoto   string    `json:"host_public_photo"`
 }
 
 func (q *Queries) GetEventExperienceByDeepLinkID(ctx context.Context, arg GetEventExperienceByDeepLinkIDParams) (GetEventExperienceByDeepLinkIDRow, error) {
@@ -115,12 +118,15 @@ func (q *Queries) GetEventExperienceByDeepLinkID(ctx context.Context, arg GetEve
 		&i.CreatedAt,
 		&i.IsVerified_2,
 		&i.Category,
+		&i.PublicCoverImage,
+		&i.OptionPublicPhoto,
+		&i.HostPublicPhoto,
 	)
 	return i, err
 }
 
 const getEventExperienceByOptionUserID = `-- name: GetEventExperienceByOptionUserID :one
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_p.public_cover_image, o_i_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -142,22 +148,25 @@ type GetEventExperienceByOptionUserIDParams struct {
 }
 
 type GetEventExperienceByOptionUserIDRow struct {
-	ID               uuid.UUID `json:"id"`
-	OptionUserID     uuid.UUID `json:"option_user_id"`
-	Currency         string    `json:"currency"`
-	OptionType       string    `json:"option_type"`
-	HostNameOption   string    `json:"host_name_option"`
-	CoverImage       string    `json:"cover_image"`
-	Photo            []string  `json:"photo"`
-	IsVerified       bool      `json:"is_verified"`
-	EventType        string    `json:"event_type"`
-	SubCategoryType  string    `json:"sub_category_type"`
-	HostAsIndividual bool      `json:"host_as_individual"`
-	Photo_2          string    `json:"photo_2"`
-	FirstName        string    `json:"first_name"`
-	CreatedAt        time.Time `json:"created_at"`
-	IsVerified_2     bool      `json:"is_verified_2"`
-	Category         string    `json:"category"`
+	ID                uuid.UUID `json:"id"`
+	OptionUserID      uuid.UUID `json:"option_user_id"`
+	Currency          string    `json:"currency"`
+	OptionType        string    `json:"option_type"`
+	HostNameOption    string    `json:"host_name_option"`
+	CoverImage        string    `json:"cover_image"`
+	Photo             []string  `json:"photo"`
+	IsVerified        bool      `json:"is_verified"`
+	EventType         string    `json:"event_type"`
+	SubCategoryType   string    `json:"sub_category_type"`
+	HostAsIndividual  bool      `json:"host_as_individual"`
+	Photo_2           string    `json:"photo_2"`
+	FirstName         string    `json:"first_name"`
+	CreatedAt         time.Time `json:"created_at"`
+	IsVerified_2      bool      `json:"is_verified_2"`
+	Category          string    `json:"category"`
+	PublicCoverImage  string    `json:"public_cover_image"`
+	OptionPublicPhoto []string  `json:"option_public_photo"`
+	HostPublicPhoto   string    `json:"host_public_photo"`
 }
 
 func (q *Queries) GetEventExperienceByOptionUserID(ctx context.Context, arg GetEventExperienceByOptionUserIDParams) (GetEventExperienceByOptionUserIDRow, error) {
@@ -185,6 +194,9 @@ func (q *Queries) GetEventExperienceByOptionUserID(ctx context.Context, arg GetE
 		&i.CreatedAt,
 		&i.IsVerified_2,
 		&i.Category,
+		&i.PublicCoverImage,
+		&i.OptionPublicPhoto,
+		&i.HostPublicPhoto,
 	)
 	return i, err
 }
@@ -237,7 +249,7 @@ func (q *Queries) GetOptionCount(ctx context.Context, hostID uuid.UUID) (int64, 
 }
 
 const getOptionExperienceByDeepLinkID = `-- name: GetOptionExperienceByDeepLinkID :one
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, o_i_p.public_cover_image, o_i_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -289,6 +301,9 @@ type GetOptionExperienceByDeepLinkIDRow struct {
 	MaxStayNight                int32     `json:"max_stay_night"`
 	ManualApproveRequestPassMax bool      `json:"manual_approve_request_pass_max"`
 	AllowReservationRequest     bool      `json:"allow_reservation_request"`
+	PublicCoverImage            string    `json:"public_cover_image"`
+	OptionPublicPhoto           []string  `json:"option_public_photo"`
+	HostPublicPhoto             string    `json:"host_public_photo"`
 }
 
 func (q *Queries) GetOptionExperienceByDeepLinkID(ctx context.Context, arg GetOptionExperienceByDeepLinkIDParams) (GetOptionExperienceByDeepLinkIDRow, error) {
@@ -328,12 +343,15 @@ func (q *Queries) GetOptionExperienceByDeepLinkID(ctx context.Context, arg GetOp
 		&i.MaxStayNight,
 		&i.ManualApproveRequestPassMax,
 		&i.AllowReservationRequest,
+		&i.PublicCoverImage,
+		&i.OptionPublicPhoto,
+		&i.HostPublicPhoto,
 	)
 	return i, err
 }
 
 const getOptionExperienceByOptionUserID = `-- name: GetOptionExperienceByOptionUserID :one
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, o_i_p.public_cover_image, o_i_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -385,6 +403,9 @@ type GetOptionExperienceByOptionUserIDRow struct {
 	MaxStayNight                int32     `json:"max_stay_night"`
 	ManualApproveRequestPassMax bool      `json:"manual_approve_request_pass_max"`
 	AllowReservationRequest     bool      `json:"allow_reservation_request"`
+	PublicCoverImage            string    `json:"public_cover_image"`
+	OptionPublicPhoto           []string  `json:"option_public_photo"`
+	HostPublicPhoto             string    `json:"host_public_photo"`
 }
 
 func (q *Queries) GetOptionExperienceByOptionUserID(ctx context.Context, arg GetOptionExperienceByOptionUserIDParams) (GetOptionExperienceByOptionUserIDRow, error) {
@@ -424,6 +445,9 @@ func (q *Queries) GetOptionExperienceByOptionUserID(ctx context.Context, arg Get
 		&i.MaxStayNight,
 		&i.ManualApproveRequestPassMax,
 		&i.AllowReservationRequest,
+		&i.PublicCoverImage,
+		&i.OptionPublicPhoto,
+		&i.HostPublicPhoto,
 	)
 	return i, err
 }
@@ -779,7 +803,7 @@ func (q *Queries) GetOptionInfoStartYear(ctx context.Context, arg GetOptionInfoS
 }
 
 const listEventExperience = `-- name: ListEventExperience :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three, o_i.is_complete AS option_is_complete, u.is_active AS host_is_active, o_i.is_active AS option_is_active
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three, o_i.is_complete AS option_is_complete, u.is_active AS host_is_active, o_i.is_active AS option_is_active, o_i_p.public_cover_image, o_i_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -792,28 +816,31 @@ WHERE main_option_type = $1
 `
 
 type ListEventExperienceRow struct {
-	ID               uuid.UUID `json:"id"`
-	OptionUserID     uuid.UUID `json:"option_user_id"`
-	Currency         string    `json:"currency"`
-	OptionType       string    `json:"option_type"`
-	HostNameOption   string    `json:"host_name_option"`
-	CoverImage       string    `json:"cover_image"`
-	Photo            []string  `json:"photo"`
-	IsVerified       bool      `json:"is_verified"`
-	EventType        string    `json:"event_type"`
-	SubCategoryType  string    `json:"sub_category_type"`
-	HostAsIndividual bool      `json:"host_as_individual"`
-	Photo_2          string    `json:"photo_2"`
-	FirstName        string    `json:"first_name"`
-	CreatedAt        time.Time `json:"created_at"`
-	IsVerified_2     bool      `json:"is_verified_2"`
-	Category         string    `json:"category"`
-	Status           string    `json:"status"`
-	CategoryTwo      string    `json:"category_two"`
-	CategoryThree    string    `json:"category_three"`
-	OptionIsComplete bool      `json:"option_is_complete"`
-	HostIsActive     bool      `json:"host_is_active"`
-	OptionIsActive   bool      `json:"option_is_active"`
+	ID                uuid.UUID `json:"id"`
+	OptionUserID      uuid.UUID `json:"option_user_id"`
+	Currency          string    `json:"currency"`
+	OptionType        string    `json:"option_type"`
+	HostNameOption    string    `json:"host_name_option"`
+	CoverImage        string    `json:"cover_image"`
+	Photo             []string  `json:"photo"`
+	IsVerified        bool      `json:"is_verified"`
+	EventType         string    `json:"event_type"`
+	SubCategoryType   string    `json:"sub_category_type"`
+	HostAsIndividual  bool      `json:"host_as_individual"`
+	Photo_2           string    `json:"photo_2"`
+	FirstName         string    `json:"first_name"`
+	CreatedAt         time.Time `json:"created_at"`
+	IsVerified_2      bool      `json:"is_verified_2"`
+	Category          string    `json:"category"`
+	Status            string    `json:"status"`
+	CategoryTwo       string    `json:"category_two"`
+	CategoryThree     string    `json:"category_three"`
+	OptionIsComplete  bool      `json:"option_is_complete"`
+	HostIsActive      bool      `json:"host_is_active"`
+	OptionIsActive    bool      `json:"option_is_active"`
+	PublicCoverImage  string    `json:"public_cover_image"`
+	OptionPublicPhoto []string  `json:"option_public_photo"`
+	HostPublicPhoto   string    `json:"host_public_photo"`
 }
 
 func (q *Queries) ListEventExperience(ctx context.Context, mainOptionType string) ([]ListEventExperienceRow, error) {
@@ -848,6 +875,9 @@ func (q *Queries) ListEventExperience(ctx context.Context, mainOptionType string
 			&i.OptionIsComplete,
 			&i.HostIsActive,
 			&i.OptionIsActive,
+			&i.PublicCoverImage,
+			&i.OptionPublicPhoto,
+			&i.HostPublicPhoto,
 		); err != nil {
 			return nil, err
 		}
@@ -960,7 +990,7 @@ func (q *Queries) ListEventExperienceByLocation(ctx context.Context, arg ListEve
 }
 
 const listOptionExperience = `-- name: ListOptionExperience :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, o_i.is_complete AS option_is_complete, u.is_active AS host_is_active, o_i.is_active AS option_is_active
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, l.geolocation, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_s.status, o_i.category_two, o_i.category_three, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, o_i.is_complete AS option_is_complete, u.is_active AS host_is_active, o_i.is_active AS option_is_active, o_i_p.public_cover_image, o_i_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -1013,6 +1043,9 @@ type ListOptionExperienceRow struct {
 	OptionIsComplete            bool         `json:"option_is_complete"`
 	HostIsActive                bool         `json:"host_is_active"`
 	OptionIsActive              bool         `json:"option_is_active"`
+	PublicCoverImage            string       `json:"public_cover_image"`
+	OptionPublicPhoto           []string     `json:"option_public_photo"`
+	HostPublicPhoto             string       `json:"host_public_photo"`
 }
 
 func (q *Queries) ListOptionExperience(ctx context.Context, mainOptionType string) ([]ListOptionExperienceRow, error) {
@@ -1060,6 +1093,9 @@ func (q *Queries) ListOptionExperience(ctx context.Context, mainOptionType strin
 			&i.OptionIsComplete,
 			&i.HostIsActive,
 			&i.OptionIsActive,
+			&i.PublicCoverImage,
+			&i.OptionPublicPhoto,
+			&i.HostPublicPhoto,
 		); err != nil {
 			return nil, err
 		}
@@ -1072,7 +1108,7 @@ func (q *Queries) ListOptionExperience(ctx context.Context, mainOptionType strin
 }
 
 const listOptionExperienceByLocation = `-- name: ListOptionExperienceByLocation :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, s.type_of_shortlet, o_q.host_as_individual, o_i.is_verified, o_p.price, o_p.weekend_price, l.state, l.country, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, o_i_p.public_cover_image, o_i_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -1134,6 +1170,9 @@ type ListOptionExperienceByLocationRow struct {
 	MaxStayNight                int32     `json:"max_stay_night"`
 	ManualApproveRequestPassMax bool      `json:"manual_approve_request_pass_max"`
 	AllowReservationRequest     bool      `json:"allow_reservation_request"`
+	PublicCoverImage            string    `json:"public_cover_image"`
+	OptionPublicPhoto           []string  `json:"option_public_photo"`
+	HostPublicPhoto             string    `json:"host_public_photo"`
 }
 
 func (q *Queries) ListOptionExperienceByLocation(ctx context.Context, arg ListOptionExperienceByLocationParams) ([]ListOptionExperienceByLocationRow, error) {
@@ -1186,6 +1225,9 @@ func (q *Queries) ListOptionExperienceByLocation(ctx context.Context, arg ListOp
 			&i.MaxStayNight,
 			&i.ManualApproveRequestPassMax,
 			&i.AllowReservationRequest,
+			&i.PublicCoverImage,
+			&i.OptionPublicPhoto,
+			&i.HostPublicPhoto,
 		); err != nil {
 			return nil, err
 		}

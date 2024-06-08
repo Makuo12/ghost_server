@@ -14,7 +14,7 @@ import (
 )
 
 const listEvent = `-- name: ListEvent :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i.category_two, o_i.category_three
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i.category_two, o_i.category_three, o_i_p.public_cover_image, o_i_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos o_i
     JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
     JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -27,24 +27,27 @@ WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND
 `
 
 type ListEventRow struct {
-	ID               uuid.UUID `json:"id"`
-	OptionUserID     uuid.UUID `json:"option_user_id"`
-	Currency         string    `json:"currency"`
-	OptionType       string    `json:"option_type"`
-	HostNameOption   string    `json:"host_name_option"`
-	CoverImage       string    `json:"cover_image"`
-	Photo            []string  `json:"photo"`
-	IsVerified       bool      `json:"is_verified"`
-	EventType        string    `json:"event_type"`
-	SubCategoryType  string    `json:"sub_category_type"`
-	HostAsIndividual bool      `json:"host_as_individual"`
-	Photo_2          string    `json:"photo_2"`
-	FirstName        string    `json:"first_name"`
-	CreatedAt        time.Time `json:"created_at"`
-	IsVerified_2     bool      `json:"is_verified_2"`
-	Category         string    `json:"category"`
-	CategoryTwo      string    `json:"category_two"`
-	CategoryThree    string    `json:"category_three"`
+	ID                uuid.UUID `json:"id"`
+	OptionUserID      uuid.UUID `json:"option_user_id"`
+	Currency          string    `json:"currency"`
+	OptionType        string    `json:"option_type"`
+	HostNameOption    string    `json:"host_name_option"`
+	CoverImage        string    `json:"cover_image"`
+	Photo             []string  `json:"photo"`
+	IsVerified        bool      `json:"is_verified"`
+	EventType         string    `json:"event_type"`
+	SubCategoryType   string    `json:"sub_category_type"`
+	HostAsIndividual  bool      `json:"host_as_individual"`
+	Photo_2           string    `json:"photo_2"`
+	FirstName         string    `json:"first_name"`
+	CreatedAt         time.Time `json:"created_at"`
+	IsVerified_2      bool      `json:"is_verified_2"`
+	Category          string    `json:"category"`
+	CategoryTwo       string    `json:"category_two"`
+	CategoryThree     string    `json:"category_three"`
+	PublicCoverImage  string    `json:"public_cover_image"`
+	OptionPublicPhoto []string  `json:"option_public_photo"`
+	HostPublicPhoto   string    `json:"host_public_photo"`
 }
 
 func (q *Queries) ListEvent(ctx context.Context) ([]ListEventRow, error) {
@@ -75,6 +78,9 @@ func (q *Queries) ListEvent(ctx context.Context) ([]ListEventRow, error) {
 			&i.Category,
 			&i.CategoryTwo,
 			&i.CategoryThree,
+			&i.PublicCoverImage,
+			&i.OptionPublicPhoto,
+			&i.HostPublicPhoto,
 		); err != nil {
 			return nil, err
 		}
@@ -311,7 +317,7 @@ func (q *Queries) ListEventDateTimeExLocation(ctx context.Context, arg ListEvent
 }
 
 const listEventSearch = `-- name: ListEventSearch :many
-SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category
+SELECT o_i.id, o_i.option_user_id, o_i.currency, o_i.option_type, o_i_d.host_name_option, o_i_p.cover_image, o_i_p.photo, o_i.is_verified, e_i.event_type, e_i.sub_category_type, o_q.host_as_individual, u.photo, u.first_name, u.created_at, i_d.is_verified, o_i.category, o_i_p.public_cover_image, o_i_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos o_i
     JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
     JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -324,22 +330,25 @@ WHERE o_i.is_complete = true AND u.is_active = true AND u.is_deleted = false AND
 `
 
 type ListEventSearchRow struct {
-	ID               uuid.UUID `json:"id"`
-	OptionUserID     uuid.UUID `json:"option_user_id"`
-	Currency         string    `json:"currency"`
-	OptionType       string    `json:"option_type"`
-	HostNameOption   string    `json:"host_name_option"`
-	CoverImage       string    `json:"cover_image"`
-	Photo            []string  `json:"photo"`
-	IsVerified       bool      `json:"is_verified"`
-	EventType        string    `json:"event_type"`
-	SubCategoryType  string    `json:"sub_category_type"`
-	HostAsIndividual bool      `json:"host_as_individual"`
-	Photo_2          string    `json:"photo_2"`
-	FirstName        string    `json:"first_name"`
-	CreatedAt        time.Time `json:"created_at"`
-	IsVerified_2     bool      `json:"is_verified_2"`
-	Category         string    `json:"category"`
+	ID                uuid.UUID `json:"id"`
+	OptionUserID      uuid.UUID `json:"option_user_id"`
+	Currency          string    `json:"currency"`
+	OptionType        string    `json:"option_type"`
+	HostNameOption    string    `json:"host_name_option"`
+	CoverImage        string    `json:"cover_image"`
+	Photo             []string  `json:"photo"`
+	IsVerified        bool      `json:"is_verified"`
+	EventType         string    `json:"event_type"`
+	SubCategoryType   string    `json:"sub_category_type"`
+	HostAsIndividual  bool      `json:"host_as_individual"`
+	Photo_2           string    `json:"photo_2"`
+	FirstName         string    `json:"first_name"`
+	CreatedAt         time.Time `json:"created_at"`
+	IsVerified_2      bool      `json:"is_verified_2"`
+	Category          string    `json:"category"`
+	PublicCoverImage  string    `json:"public_cover_image"`
+	OptionPublicPhoto []string  `json:"option_public_photo"`
+	HostPublicPhoto   string    `json:"host_public_photo"`
 }
 
 func (q *Queries) ListEventSearch(ctx context.Context, hostNameOption string) ([]ListEventSearchRow, error) {
@@ -368,6 +377,9 @@ func (q *Queries) ListEventSearch(ctx context.Context, hostNameOption string) ([
 			&i.CreatedAt,
 			&i.IsVerified_2,
 			&i.Category,
+			&i.PublicCoverImage,
+			&i.OptionPublicPhoto,
+			&i.HostPublicPhoto,
 		); err != nil {
 			return nil, err
 		}
@@ -415,7 +427,7 @@ func (q *Queries) ListOptionInfoPrice(ctx context.Context) ([]ListOptionInfoPric
 }
 
 const listOptionInfoSearch = `-- name: ListOptionInfoSearch :many
-SELECT oi.option_user_id, oi.id, oid.host_name_option, oi.is_verified AS option_is_verified, oip.cover_image, oip.photo, oq.host_as_individual, op.price, op.weekend_price, oi.currency, s.type_of_shortlet, l.state, l.country, oi.category, oi.category_two, oi.category_three, oi.category_four, u.first_name AS host_name, u.created_at, id.is_verified AS host_verified, u.photo AS profile_photo, oid.pets_allowed, s.guest_welcomed, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, s.space_type, s.check_in_method, obm.instant_book
+SELECT oi.option_user_id, oi.id, oid.host_name_option, oi.is_verified AS option_is_verified, oip.cover_image, oip.photo, oq.host_as_individual, op.price, op.weekend_price, oi.currency, s.type_of_shortlet, l.state, l.country, oi.category, oi.category_two, oi.category_three, oi.category_four, u.first_name AS host_name, u.created_at, id.is_verified AS host_verified, u.photo AS profile_photo, oid.pets_allowed, s.guest_welcomed, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, s.space_type, s.check_in_method, obm.instant_book, oip.public_cover_image, oip.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos oi
     JOIN options_info_details oid on oi.id = oid.option_id
     JOIN options_info_photos oip on oi.id = oip.option_id
@@ -468,6 +480,9 @@ type ListOptionInfoSearchRow struct {
 	SpaceType                   string    `json:"space_type"`
 	CheckInMethod               string    `json:"check_in_method"`
 	InstantBook                 bool      `json:"instant_book"`
+	PublicCoverImage            string    `json:"public_cover_image"`
+	OptionPublicPhoto           []string  `json:"option_public_photo"`
+	HostPublicPhoto             string    `json:"host_public_photo"`
 }
 
 func (q *Queries) ListOptionInfoSearch(ctx context.Context) ([]ListOptionInfoSearchRow, error) {
@@ -515,6 +530,9 @@ func (q *Queries) ListOptionInfoSearch(ctx context.Context) ([]ListOptionInfoSea
 			&i.SpaceType,
 			&i.CheckInMethod,
 			&i.InstantBook,
+			&i.PublicCoverImage,
+			&i.OptionPublicPhoto,
+			&i.HostPublicPhoto,
 		); err != nil {
 			return nil, err
 		}
@@ -528,7 +546,7 @@ func (q *Queries) ListOptionInfoSearch(ctx context.Context) ([]ListOptionInfoSea
 
 const listOptionInfoSearchLocation = `-- name: ListOptionInfoSearchLocation :many
 
-SELECT oi.option_user_id, oi.id, oid.host_name_option, oi.is_verified AS option_is_verified, oip.cover_image, oip.photo, oq.host_as_individual, op.price, op.weekend_price, oi.currency, s.type_of_shortlet, l.state, l.country, oi.category, oi.category_two, oi.category_three, oi.category_four, u.first_name AS host_name, u.created_at, id.is_verified AS host_verified, u.photo AS profile_photo, oid.pets_allowed, s.guest_welcomed, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, s.space_type, s.check_in_method, obm.instant_book
+SELECT oi.option_user_id, oi.id, oid.host_name_option, oi.is_verified AS option_is_verified, oip.cover_image, oip.photo, oq.host_as_individual, op.price, op.weekend_price, oi.currency, s.type_of_shortlet, l.state, l.country, oi.category, oi.category_two, oi.category_three, oi.category_four, u.first_name AS host_name, u.created_at, id.is_verified AS host_verified, u.photo AS profile_photo, oid.pets_allowed, s.guest_welcomed, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, s.space_type, s.check_in_method, obm.instant_book, oip.public_cover_image, oip.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM options_infos oi
     JOIN options_info_details oid on oi.id = oid.option_id
     JOIN options_info_photos oip on oi.id = oip.option_id
@@ -592,6 +610,9 @@ type ListOptionInfoSearchLocationRow struct {
 	SpaceType                   string    `json:"space_type"`
 	CheckInMethod               string    `json:"check_in_method"`
 	InstantBook                 bool      `json:"instant_book"`
+	PublicCoverImage            string    `json:"public_cover_image"`
+	OptionPublicPhoto           []string  `json:"option_public_photo"`
+	HostPublicPhoto             string    `json:"host_public_photo"`
 }
 
 // Mostly for handling filters
@@ -646,6 +667,9 @@ func (q *Queries) ListOptionInfoSearchLocation(ctx context.Context, arg ListOpti
 			&i.SpaceType,
 			&i.CheckInMethod,
 			&i.InstantBook,
+			&i.PublicCoverImage,
+			&i.OptionPublicPhoto,
+			&i.HostPublicPhoto,
 		); err != nil {
 			return nil, err
 		}

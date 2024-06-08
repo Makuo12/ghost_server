@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// This stores the date in redis
+// This stores the data in redis
 func HandleOptionReserveRedis(user db.User, canInstantBook bool, datePriceFloat []DatePriceFloat, totalDatePrice float64, discountType string, discount float64, cleanFee float64, extraGuestFee float64, petFee float64, petStayFee float64, extraGuestStayFee float64, totalPrice float64, serviceFee float64, requireRequest bool, requestType string, userCurrency string, optionUserID uuid.UUID, startDate string, endDate string, guests []string) (reference string, err error) {
 	reference = tools.UuidToString(uuid.New())
 	userID := tools.UuidToString(user.ID)

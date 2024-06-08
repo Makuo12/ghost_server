@@ -176,7 +176,7 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 					constants.HOST_AS_INDIVIDUAL,
 					tools.ConvertBoolToString(e.HostAsIndividual),
 					constants.PHOTOS,
-					strings.Join(e.Photo, "&"),
+					strings.Join(e.Photo, "*"),
 					constants.TICKET_AVAILABLE,
 					tools.ConvertBoolToString(ticketAvailable),
 					constants.SUB_EVENT_TYPE,
@@ -203,6 +203,12 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 					strings.Join(locationRedisList, "&"),
 					constants.CURRENCY,
 					e.Currency,
+					constants.PUBLIC_COVER_IMAGE,
+					e.PublicCoverImage,
+					constants.PUBLIC_PHOTOS,
+					strings.Join(e.OptionPublicPhoto, "*"),
+					constants.PUBLIC_PROFILE_PHOTO,
+					e.HostPublicPhoto,
 				}
 
 				err := RedisClient.HSet(RedisContext, eventKey, data).Err()

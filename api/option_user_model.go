@@ -9,19 +9,22 @@ type ExperienceOptionData struct {
 	BasePrice        string `json:"base_price"`
 	WeekendPrice     string `json:"weekend_price"`
 	// AddedPrice for when we are calculating based on more than one night
-	AddedPrice     string   `json:"added_price"`
-	AddPriceFound  bool     `json:"add_price_found"`
-	StartDate      string   `json:"start_date"`
-	EndDate        string   `json:"end_date"`
-	Photos         []string `json:"photos"`
-	TypeOfShortlet string   `json:"type_of_shortlet"`
-	State          string   `json:"state"`
-	Country        string   `json:"country"`
-	ProfilePhoto   string   `json:"profile_photo"`
-	HostName       string   `json:"host_name"`
-	HostJoined     string   `json:"host_joined"`
-	HostVerified   bool     `json:"host_verified"`
-	Category       string   `json:"category"`
+	AddedPrice         string   `json:"added_price"`
+	AddPriceFound      bool     `json:"add_price_found"`
+	StartDate          string   `json:"start_date"`
+	EndDate            string   `json:"end_date"`
+	Photos             []string `json:"photos"`
+	TypeOfShortlet     string   `json:"type_of_shortlet"`
+	State              string   `json:"state"`
+	Country            string   `json:"country"`
+	ProfilePhoto       string   `json:"profile_photo"`
+	HostName           string   `json:"host_name"`
+	HostJoined         string   `json:"host_joined"`
+	HostVerified       bool     `json:"host_verified"`
+	Category           string   `json:"category"`
+	PublicCoverImage   string   `json:"public_cover_image"`
+	PublicPhotos       []string `json:"public_photos"`
+	PublicProfilePhoto string   `json:"public_profile_photo"`
 }
 
 type ListExperienceOptionRes struct {
@@ -38,24 +41,27 @@ type ExperienceEventLocation struct {
 }
 
 type ExperienceEventData struct {
-	UserOptionID      string                    `json:"user_option_id"`
-	Name              string                    `json:"name"`
-	IsVerified        bool                      `json:"is_verified"`
-	CoverImage        string                    `json:"cover_image"`
-	Category          string                    `json:"category"`
-	HostName          string                    `json:"host_name"`
-	ProfilePhoto      string                    `json:"profile_photo"`
-	Photos            []string                  `json:"photos"`
-	TicketAvailable   bool                      `json:"ticket_available"`
-	SubEventType      string                    `json:"sub_event_type"`
-	HostAsIndividual  bool                      `json:"host_as_individual"`
-	TicketLowestPrice string                    `json:"ticket_lowest_price"`
-	EventStartDate    string                    `json:"event_start_date"`
-	EventEndDate      string                    `json:"event_end_date"`
-	HasFreeTicket     bool                      `json:"has_free_ticket"`
-	Location          []ExperienceEventLocation `json:"location"`
-	HostJoined        string                    `json:"host_joined"`
-	HostVerified      bool                      `json:"host_verified"`
+	UserOptionID       string                    `json:"user_option_id"`
+	Name               string                    `json:"name"`
+	IsVerified         bool                      `json:"is_verified"`
+	CoverImage         string                    `json:"cover_image"`
+	Category           string                    `json:"category"`
+	HostName           string                    `json:"host_name"`
+	ProfilePhoto       string                    `json:"profile_photo"`
+	Photos             []string                  `json:"photos"`
+	TicketAvailable    bool                      `json:"ticket_available"`
+	SubEventType       string                    `json:"sub_event_type"`
+	HostAsIndividual   bool                      `json:"host_as_individual"`
+	TicketLowestPrice  string                    `json:"ticket_lowest_price"`
+	EventStartDate     string                    `json:"event_start_date"`
+	EventEndDate       string                    `json:"event_end_date"`
+	HasFreeTicket      bool                      `json:"has_free_ticket"`
+	Location           []ExperienceEventLocation `json:"location"`
+	HostJoined         string                    `json:"host_joined"`
+	HostVerified       bool                      `json:"host_verified"`
+	PublicCoverImage   string                    `json:"public_cover_image"`
+	PublicPhotos       []string                  `json:"public_photos"`
+	PublicProfilePhoto string                    `json:"public_profile_photo"`
 }
 
 type ListExperienceEventRes struct {
