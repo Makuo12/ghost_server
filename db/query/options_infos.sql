@@ -62,7 +62,7 @@ WHERE host_id = $1 AND is_complete = $2;
 -- name: GetHostOptionInfoByHost :many
 SELECT *
 FROM options_infos
-WHERE host_id = $1;
+WHERE host_id = $1 AND main_option_type='options';
 
 -- name: GetOptionForWishlist :one
 SELECT o_i.option_user_id

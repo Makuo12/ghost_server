@@ -312,7 +312,7 @@ func (q *Queries) GetHostOptionInfo(ctx context.Context, arg GetHostOptionInfoPa
 const getHostOptionInfoByHost = `-- name: GetHostOptionInfoByHost :many
 SELECT id, co_host_id, option_user_id, host_id, deep_link_id, primary_user_id, is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, currency, option_img, option_type, main_option_type, created_at, completed, updated_at
 FROM options_infos
-WHERE host_id = $1
+WHERE host_id = $1 AND main_option_type='options'
 `
 
 func (q *Queries) GetHostOptionInfoByHost(ctx context.Context, hostID uuid.UUID) ([]OptionsInfo, error) {

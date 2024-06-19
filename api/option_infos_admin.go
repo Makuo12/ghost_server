@@ -9,7 +9,7 @@ import (
 
 func RemoveOptionInfoAdmin(ctx context.Context, server *Server) func() {
 	return func() {
-		names := []string{"ajibade", "grace", "richard", "ulc homes", "sylvia"}
+		names := []string{"ajibade", "grace", "richard", "ulc homes", "sylvia", "adeniran"}
 		for _, name := range names {
 			user, err := server.store.GetUserByFirstName(ctx, name)
 			if err != nil {
