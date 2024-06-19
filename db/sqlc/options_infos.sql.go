@@ -1917,6 +1917,16 @@ func (q *Queries) RemoveOptionInfo(ctx context.Context, arg RemoveOptionInfoPara
 	return err
 }
 
+const removeOptionInfoByID = `-- name: RemoveOptionInfoByID :exec
+DELETE FROM options_infos
+WHERE id = $1
+`
+
+func (q *Queries) RemoveOptionInfoByID(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeOptionInfoByID, id)
+	return err
+}
+
 const updateOptionInfo = `-- name: UpdateOptionInfo :one
 UPDATE options_infos
 SET 

@@ -577,6 +577,7 @@ type Querier interface {
 	RemoveOptionDiscountByOptionID(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionExtraInfo(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionInfo(ctx context.Context, arg RemoveOptionInfoParams) error
+	RemoveOptionInfoByID(ctx context.Context, id uuid.UUID) error
 	RemoveOptionInfoCategory(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionInfoDetail(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionInfoDetails(ctx context.Context, optionID uuid.UUID) error

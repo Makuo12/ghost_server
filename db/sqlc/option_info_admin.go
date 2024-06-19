@@ -179,6 +179,11 @@ func (store *SQLStore) DeleteOption(ctx context.Context, arg DeleteOptionParams,
 		if err != nil && err != ErrorRecordNotFound {
 			return err
 		}
+		err = q.RemoveOptionInfoByID(ctx, arg.OptionID)
+		if err != nil && err != ErrorRecordNotFound {
+			log.Println("err: RemoveOptionInfoByID ", err)
+			return err
+		}
 		return nil
 	})
 	if err != nil {

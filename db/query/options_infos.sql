@@ -353,3 +353,7 @@ WHERE id = $1 AND host_id = $2;
 -- name: RemoveOptionInfo :exec
 DELETE FROM options_infos
 WHERE id = $1 AND host_id = $2;
+
+-- name: RemoveOptionInfoByID :exec
+DELETE FROM options_infos
+WHERE id = $1;
