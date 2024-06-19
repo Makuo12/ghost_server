@@ -32,5 +32,8 @@ DELETE FROM options_photo_captions
 WHERE option_id = $1 AND photo_id = $2;
 
 
+-- name: RemoveOptionPhotoCaptionByOptionID :exec
+DELETE FROM options_photo_captions
+WHERE option_id = $1;
 
 

@@ -1,8 +1,6 @@
 package api
 
 import (
-	"context"
-
 	db "github.com/makuo12/ghost_server/db/sqlc"
 	"github.com/makuo12/ghost_server/token"
 	"github.com/makuo12/ghost_server/tools"
@@ -11,7 +9,6 @@ import (
 	"log"
 	"time"
 
-	"cloud.google.com/go/storage"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -566,31 +563,6 @@ func RemoveAllPhoto(server *Server, ctx *gin.Context, option db.OptionsInfo) (er
 	err = nil
 	return
 
-}
-
-func RemoveFirebasePhoto(server *Server, ctx *gin.Context, object string) (err error) {
-	// First we delete cover photo
-	if object == "none" || len(object) < 1 {
-		err = fmt.Errorf("no object found here try again")
-		return
-	}
-	contextOne, cancel := context.WithTimeout(ctx, time.Second*20)
-	defer cancel()
-
-	o := server.Bucket.Object(object)
-	attrs, err := o.Attrs(ctx)
-	if err != nil {
-		err = fmt.Errorf("object.Attrs: %v", err)
-		return
-	}
-	o = o.If(storage.Conditions{GenerationMatch: attrs.Generation})
-
-	if err = o.Delete(contextOne); err != nil {
-		err = fmt.Errorf("Object(%q).Delete: %v", object, err)
-		return
-	}
-	fmt.Printf("Object %v was deleted", object)
-	return nil
 }
 
 func HandleCreateGuestArea(server *Server, ctx *gin.Context, option db.OptionsInfo, userID uuid.UUID, spaceArea string, sharedSpace bool) (err error) {

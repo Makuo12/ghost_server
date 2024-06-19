@@ -32,9 +32,6 @@ WHERE option_id = $8
 RETURNING *;
 
 
-
-
-
 -- name: RemoveOptionInfoCategory :exec
 DELETE FROM options_infos_category 
 WHERE option_id = $1;

@@ -19,6 +19,11 @@ SELECT des, photo
 FROM check_in_steps
 WHERE id = $1 AND option_id=$2;
 
+-- name: GetCheckInStepByOptionID :one
+SELECT des, photo
+FROM check_in_steps
+WHERE option_id=$1;
+
 -- name: ListCheckInStepOrdered :many
 SELECT cs.des, cs.photo, cs.id, s.publish_check_in_steps
 FROM check_in_steps cs
@@ -50,3 +55,8 @@ RETURNING des, photo, id;
 -- name: RemoveCheckInStep :exec
 DELETE FROM check_in_steps 
 WHERE option_id = $1 AND id = $2;
+
+
+-- name: RemoveCheckInStepByOptionID :exec
+DELETE FROM check_in_steps 
+WHERE option_id = $1;

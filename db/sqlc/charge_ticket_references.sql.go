@@ -819,7 +819,7 @@ func (q *Queries) ListChargeTicketReferenceByEventDateID(ctx context.Context, ar
 }
 
 const listChargeTicketReferenceCurrent = `-- name: ListChargeTicketReferenceCurrent :many
-SELECT o_i.main_option_type, u.user_id, o_i_d.host_name_option, cd.start_date, u.photo, cd.end_date, u.first_name, ct.id AS charge_id, ct.grade, e_d_d.start_time, e_d_d.end_time, e_d_d.time_zone, e_d_t.check_in_method, o_p_p.cover_image, o_p_p.photo, ct.ticket_type, e_i.event_type, e_d_l.street, e_d_l.state, e_d_l.city, e_d_l.country,
+SELECT o_i.main_option_type, u.user_id, o_i_d.host_name_option, cd.start_date, u.photo, cd.end_date, u.first_name, ct.id AS charge_id, ct.grade, e_d_d.start_time, e_d_d.end_time, e_d_d.time_zone, e_d_t.check_in_method, o_p_p.cover_image, o_p_p.photo, ct.ticket_type, e_i.event_type, e_d_l.street, e_d_l.state, e_d_l.city, e_d_l.country, o_p_p.public_cover_image, o_p_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo,
 CASE
     WHEN NOW() > cd.end_date + INTERVAL '4 hours' AND NOT EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = ct.id) THEN 'started'
     WHEN NOW() > cd.end_date + INTERVAL '4 hours' AND EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = ct.id) THEN cr.status
@@ -858,28 +858,31 @@ type ListChargeTicketReferenceCurrentParams struct {
 }
 
 type ListChargeTicketReferenceCurrentRow struct {
-	MainOptionType string      `json:"main_option_type"`
-	UserID         uuid.UUID   `json:"user_id"`
-	HostNameOption string      `json:"host_name_option"`
-	StartDate      time.Time   `json:"start_date"`
-	Photo          string      `json:"photo"`
-	EndDate        time.Time   `json:"end_date"`
-	FirstName      string      `json:"first_name"`
-	ChargeID       uuid.UUID   `json:"charge_id"`
-	Grade          string      `json:"grade"`
-	StartTime      string      `json:"start_time"`
-	EndTime        string      `json:"end_time"`
-	TimeZone       string      `json:"time_zone"`
-	CheckInMethod  string      `json:"check_in_method"`
-	CoverImage     string      `json:"cover_image"`
-	Photo_2        []string    `json:"photo_2"`
-	TicketType     string      `json:"ticket_type"`
-	EventType      string      `json:"event_type"`
-	Street         pgtype.Text `json:"street"`
-	State          pgtype.Text `json:"state"`
-	City           pgtype.Text `json:"city"`
-	Country        pgtype.Text `json:"country"`
-	ReviewStage    string      `json:"review_stage"`
+	MainOptionType    string      `json:"main_option_type"`
+	UserID            uuid.UUID   `json:"user_id"`
+	HostNameOption    string      `json:"host_name_option"`
+	StartDate         time.Time   `json:"start_date"`
+	Photo             string      `json:"photo"`
+	EndDate           time.Time   `json:"end_date"`
+	FirstName         string      `json:"first_name"`
+	ChargeID          uuid.UUID   `json:"charge_id"`
+	Grade             string      `json:"grade"`
+	StartTime         string      `json:"start_time"`
+	EndTime           string      `json:"end_time"`
+	TimeZone          string      `json:"time_zone"`
+	CheckInMethod     string      `json:"check_in_method"`
+	CoverImage        string      `json:"cover_image"`
+	Photo_2           []string    `json:"photo_2"`
+	TicketType        string      `json:"ticket_type"`
+	EventType         string      `json:"event_type"`
+	Street            pgtype.Text `json:"street"`
+	State             pgtype.Text `json:"state"`
+	City              pgtype.Text `json:"city"`
+	Country           pgtype.Text `json:"country"`
+	PublicCoverImage  string      `json:"public_cover_image"`
+	OptionPublicPhoto []string    `json:"option_public_photo"`
+	HostPublicPhoto   string      `json:"host_public_photo"`
+	ReviewStage       string      `json:"review_stage"`
 }
 
 func (q *Queries) ListChargeTicketReferenceCurrent(ctx context.Context, arg ListChargeTicketReferenceCurrentParams) ([]ListChargeTicketReferenceCurrentRow, error) {
@@ -919,6 +922,9 @@ func (q *Queries) ListChargeTicketReferenceCurrent(ctx context.Context, arg List
 			&i.State,
 			&i.City,
 			&i.Country,
+			&i.PublicCoverImage,
+			&i.OptionPublicPhoto,
+			&i.HostPublicPhoto,
 			&i.ReviewStage,
 		); err != nil {
 			return nil, err
@@ -1095,7 +1101,7 @@ func (q *Queries) ListChargeTicketReferencePayoutInsights(ctx context.Context, a
 }
 
 const listChargeTicketReferenceVisited = `-- name: ListChargeTicketReferenceVisited :many
-SELECT o_i.main_option_type, u.user_id, o_i_d.host_name_option, cd.start_date, u.photo, cd.end_date, u.first_name, ct.id AS charge_id, ct.grade, e_d_d.start_time, e_d_d.end_time, e_d_d.time_zone, e_d_t.check_in_method, o_p_p.cover_image, o_p_p.photo, ct.ticket_type, e_i.event_type, e_d_l.street, e_d_l.state, e_d_l.city, e_d_l.country
+SELECT o_i.main_option_type, u.user_id, o_i_d.host_name_option, cd.start_date, u.photo, cd.end_date, u.first_name, ct.id AS charge_id, ct.grade, e_d_d.start_time, e_d_d.end_time, e_d_d.time_zone, e_d_t.check_in_method, o_p_p.cover_image, o_p_p.photo, ct.ticket_type, e_i.event_type, e_d_l.street, e_d_l.state, e_d_l.city, e_d_l.country, o_p_p.public_cover_image, o_p_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM charge_ticket_references ct
     JOIN charge_date_references cd on cd.id = ct.charge_date_id
     JOIN charge_event_references ce on ce.id = cd.charge_event_id
@@ -1123,27 +1129,30 @@ type ListChargeTicketReferenceVisitedParams struct {
 }
 
 type ListChargeTicketReferenceVisitedRow struct {
-	MainOptionType string      `json:"main_option_type"`
-	UserID         uuid.UUID   `json:"user_id"`
-	HostNameOption string      `json:"host_name_option"`
-	StartDate      time.Time   `json:"start_date"`
-	Photo          string      `json:"photo"`
-	EndDate        time.Time   `json:"end_date"`
-	FirstName      string      `json:"first_name"`
-	ChargeID       uuid.UUID   `json:"charge_id"`
-	Grade          string      `json:"grade"`
-	StartTime      string      `json:"start_time"`
-	EndTime        string      `json:"end_time"`
-	TimeZone       string      `json:"time_zone"`
-	CheckInMethod  string      `json:"check_in_method"`
-	CoverImage     string      `json:"cover_image"`
-	Photo_2        []string    `json:"photo_2"`
-	TicketType     string      `json:"ticket_type"`
-	EventType      string      `json:"event_type"`
-	Street         pgtype.Text `json:"street"`
-	State          pgtype.Text `json:"state"`
-	City           pgtype.Text `json:"city"`
-	Country        pgtype.Text `json:"country"`
+	MainOptionType    string      `json:"main_option_type"`
+	UserID            uuid.UUID   `json:"user_id"`
+	HostNameOption    string      `json:"host_name_option"`
+	StartDate         time.Time   `json:"start_date"`
+	Photo             string      `json:"photo"`
+	EndDate           time.Time   `json:"end_date"`
+	FirstName         string      `json:"first_name"`
+	ChargeID          uuid.UUID   `json:"charge_id"`
+	Grade             string      `json:"grade"`
+	StartTime         string      `json:"start_time"`
+	EndTime           string      `json:"end_time"`
+	TimeZone          string      `json:"time_zone"`
+	CheckInMethod     string      `json:"check_in_method"`
+	CoverImage        string      `json:"cover_image"`
+	Photo_2           []string    `json:"photo_2"`
+	TicketType        string      `json:"ticket_type"`
+	EventType         string      `json:"event_type"`
+	Street            pgtype.Text `json:"street"`
+	State             pgtype.Text `json:"state"`
+	City              pgtype.Text `json:"city"`
+	Country           pgtype.Text `json:"country"`
+	PublicCoverImage  string      `json:"public_cover_image"`
+	OptionPublicPhoto []string    `json:"option_public_photo"`
+	HostPublicPhoto   string      `json:"host_public_photo"`
 }
 
 func (q *Queries) ListChargeTicketReferenceVisited(ctx context.Context, arg ListChargeTicketReferenceVisitedParams) ([]ListChargeTicketReferenceVisitedRow, error) {
@@ -1183,6 +1192,9 @@ func (q *Queries) ListChargeTicketReferenceVisited(ctx context.Context, arg List
 			&i.State,
 			&i.City,
 			&i.Country,
+			&i.PublicCoverImage,
+			&i.OptionPublicPhoto,
+			&i.HostPublicPhoto,
 		); err != nil {
 			return nil, err
 		}

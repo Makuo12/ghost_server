@@ -190,6 +190,15 @@ func (q *Queries) ListRefund(ctx context.Context, arg ListRefundParams) ([]ListR
 	return items, nil
 }
 
+const removeRefund = `-- name: RemoveRefund :exec
+DELETE FROM refunds WHERE charge_id = $1
+`
+
+func (q *Queries) RemoveRefund(ctx context.Context, chargeID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeRefund, chargeID)
+	return err
+}
+
 const updateRefund = `-- name: UpdateRefund :one
 UPDATE refunds
 SET is_complete = $1,

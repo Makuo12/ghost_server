@@ -63,3 +63,7 @@ WHERE u.id = $1;
 -- name: RemoveWishlistItem :exec
 DELETE FROM wishlists_items w_i
 WHERE w_i.id = $1;
+
+-- name: RemoveWishlistItemByOptionUserID :exec
+DELETE FROM wishlists_items
+WHERE option_user_id = $1;

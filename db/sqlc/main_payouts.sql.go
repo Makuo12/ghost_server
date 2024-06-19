@@ -415,6 +415,15 @@ func (q *Queries) ListTicketMainPayoutWithCharge(ctx context.Context, arg ListTi
 	return items, nil
 }
 
+const removeMainPayout = `-- name: RemoveMainPayout :exec
+DELETE FROM main_payouts WHERE charge_id = $1
+`
+
+func (q *Queries) RemoveMainPayout(ctx context.Context, chargeID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeMainPayout, chargeID)
+	return err
+}
+
 const updateMainPayout = `-- name: UpdateMainPayout :exec
 UPDATE main_payouts
 SET is_complete = $1,

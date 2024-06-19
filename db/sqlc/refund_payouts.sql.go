@@ -235,6 +235,15 @@ func (q *Queries) ListRefundPayoutWithUser(ctx context.Context, isComplete bool)
 	return items, nil
 }
 
+const removeRefundPayout = `-- name: RemoveRefundPayout :exec
+DELETE FROM refund_payouts WHERE charge_id = $1
+`
+
+func (q *Queries) RemoveRefundPayout(ctx context.Context, chargeID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeRefundPayout, chargeID)
+	return err
+}
+
 const updateRefundPayout = `-- name: UpdateRefundPayout :exec
 UPDATE refund_payouts
 SET is_complete = $1,

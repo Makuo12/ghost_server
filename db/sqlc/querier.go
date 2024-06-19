@@ -233,6 +233,7 @@ type Querier interface {
 	GetChargeTicketReferenceWifi(ctx context.Context, arg GetChargeTicketReferenceWifiParams) (GetChargeTicketReferenceWifiRow, error)
 	GetCheckInOutDetail(ctx context.Context, optionID uuid.UUID) (GetCheckInOutDetailRow, error)
 	GetCheckInStep(ctx context.Context, arg GetCheckInStepParams) (GetCheckInStepRow, error)
+	GetCheckInStepByOptionID(ctx context.Context, optionID uuid.UUID) (GetCheckInStepByOptionIDRow, error)
 	GetCompleteOptionInfo(ctx context.Context, arg GetCompleteOptionInfoParams) (uuid.UUID, error)
 	GetCompleteOptionInfoAll(ctx context.Context, arg GetCompleteOptionInfoAllParams) (GetCompleteOptionInfoAllRow, error)
 	GetCompleteOptionInfoTwo(ctx context.Context, optionID uuid.UUID) (CompleteOptionInfo, error)
@@ -272,6 +273,7 @@ type Querier interface {
 	GetGuestNumAndSpaces(ctx context.Context, optionID uuid.UUID) ([]GetGuestNumAndSpacesRow, error)
 	GetHelp(ctx context.Context, email string) ([]Help, error)
 	GetHostOptionInfo(ctx context.Context, arg GetHostOptionInfoParams) (OptionsInfo, error)
+	GetHostOptionInfoByHost(ctx context.Context, hostID uuid.UUID) ([]OptionsInfo, error)
 	GetIdentity(ctx context.Context, userID uuid.UUID) (Identity, error)
 	GetIdentityStatus(ctx context.Context, userID uuid.UUID) (GetIdentityStatusRow, error)
 	GetLocation(ctx context.Context, optionID uuid.UUID) (Location, error)
@@ -367,6 +369,7 @@ type Querier interface {
 	GetTicketByIDAndOptionID(ctx context.Context, arg GetTicketByIDAndOptionIDParams) (GetTicketByIDAndOptionIDRow, error)
 	GetTransfer(ctx context.Context, id uuid.UUID) (Transfer, error)
 	GetUser(ctx context.Context, id uuid.UUID) (User, error)
+	GetUserByFirstName(ctx context.Context, firstName string) (User, error)
 	GetUserByPD(ctx context.Context, publicID uuid.UUID) (User, error)
 	GetUserByUserID(ctx context.Context, userID uuid.UUID) (User, error)
 	GetUserIDWithUsername(ctx context.Context, username string) (GetUserIDWithUsernameRow, error)
@@ -388,6 +391,7 @@ type Querier interface {
 	ListAccountNumber(ctx context.Context, userID uuid.UUID) ([]ListAccountNumberRow, error)
 	ListAllChargeTicketReferencePayoutInsights(ctx context.Context, arg ListAllChargeTicketReferencePayoutInsightsParams) ([]ListAllChargeTicketReferencePayoutInsightsRow, error)
 	ListAllEventDateTimeInsight(ctx context.Context, arg ListAllEventDateTimeInsightParams) ([]ListAllEventDateTimeInsightRow, error)
+	ListAllIDChargeOptionReference(ctx context.Context, optionUserID uuid.UUID) ([]uuid.UUID, error)
 	ListAllOptionDateTime(ctx context.Context, optionID uuid.UUID) ([]OptionDateTime, error)
 	ListAllOptionDateTimeByOUD(ctx context.Context, optionUserID uuid.UUID) ([]ListAllOptionDateTimeByOUDRow, error)
 	ListAllOptionMainPayoutInsights(ctx context.Context, arg ListAllOptionMainPayoutInsightsParams) ([]ListAllOptionMainPayoutInsightsRow, error)
@@ -485,6 +489,7 @@ type Querier interface {
 	ListOptionRuleTag(ctx context.Context, arg ListOptionRuleTagParams) ([]string, error)
 	ListOrderedSpaceArea(ctx context.Context, optionID uuid.UUID) ([]SpaceArea, error)
 	ListPaymentGatePayUser(ctx context.Context, arg ListPaymentGatePayUserParams) ([]PaymentsGatePay, error)
+	ListPayout(ctx context.Context) ([]Payout, error)
 	ListRefund(ctx context.Context, arg ListRefundParams) ([]ListRefundRow, error)
 	ListRefundPayout(ctx context.Context, arg ListRefundPayoutParams) ([]ListRefundPayoutRow, error)
 	ListRefundPayoutWithUser(ctx context.Context, isComplete bool) ([]ListRefundPayoutWithUserRow, error)
@@ -517,9 +522,12 @@ type Querier interface {
 	RemoveAllEventDateTicket(ctx context.Context, eventDateTimeID uuid.UUID) error
 	RemoveAllEventDateTime(ctx context.Context, eventInfoID uuid.UUID) error
 	RemoveAllOptionCOHost(ctx context.Context, optionID uuid.UUID) error
+	RemoveAllOptionCOHostOptionID(ctx context.Context, optionID uuid.UUID) error
 	RemoveAllOptionDateTime(ctx context.Context, optionID uuid.UUID) error
 	RemoveAllOptionMessage(ctx context.Context, optionID uuid.UUID) error
 	RemoveAllOptionRule(ctx context.Context, optionID uuid.UUID) error
+	RemoveAllReportOption(ctx context.Context, optionUserID uuid.UUID) error
+	RemoveAllSpaceAreas(ctx context.Context, optionID uuid.UUID) error
 	RemoveAllThingToNote(ctx context.Context, optionID uuid.UUID) error
 	RemoveAllUserAPNDetail(ctx context.Context, userID uuid.UUID) error
 	RemoveAllUserAPNDetailButOne(ctx context.Context, arg RemoveAllUserAPNDetailButOneParams) error
@@ -527,11 +535,20 @@ type Querier interface {
 	RemoveBookRequirement(ctx context.Context, optionID uuid.UUID) error
 	RemoveCancelPolicy(ctx context.Context, optionID uuid.UUID) error
 	RemoveCard(ctx context.Context, arg RemoveCardParams) error
+	RemoveChargeOptionReference(ctx context.Context, id uuid.UUID) error
 	RemoveChargeReview(ctx context.Context, chargeID uuid.UUID) error
 	RemoveChargeReviewTwo(ctx context.Context, chargeID uuid.UUID) error
 	RemoveCheckInOutDetail(ctx context.Context, optionID uuid.UUID) error
 	RemoveCheckInStep(ctx context.Context, arg RemoveCheckInStepParams) error
+	RemoveCheckInStepByOptionID(ctx context.Context, optionID uuid.UUID) error
 	RemoveCompleteOptionInfo(ctx context.Context, optionID uuid.UUID) error
+	//-- name: RemoveCompleteOptionInfo :exec
+	//DELETE
+	//FROM complete_option_info
+	//USING complete_option_info
+	//JOIN options_infos on complete_option_info.option_id = options_infos.id
+	//WHERE complete_option_info.option_id = $1 AND options_infos.host_id = $2;
+	RemoveCompleteOptionInfoByID(ctx context.Context, optionID uuid.UUID) error
 	RemoveEmContact(ctx context.Context, id uuid.UUID) error
 	RemoveEventCheckInStep(ctx context.Context, arg RemoveEventCheckInStepParams) error
 	RemoveEventDateDetail(ctx context.Context, eventDateTimeID uuid.UUID) error
@@ -547,6 +564,8 @@ type Querier interface {
 	RemoveHelp(ctx context.Context, id uuid.UUID) error
 	RemoveIdentity(ctx context.Context, userID uuid.UUID) error
 	RemoveLocation(ctx context.Context, optionID uuid.UUID) error
+	RemoveMainPayout(ctx context.Context, chargeID uuid.UUID) error
+	RemoveMainRefunds(ctx context.Context, chargeID uuid.UUID) error
 	RemoveOptionAddCharge(ctx context.Context, id uuid.UUID) error
 	RemoveOptionAddChargeByType(ctx context.Context, arg RemoveOptionAddChargeByTypeParams) error
 	RemoveOptionAvailabilitySetting(ctx context.Context, optionID uuid.UUID) error
@@ -555,28 +574,36 @@ type Querier interface {
 	RemoveOptionDateTime(ctx context.Context, arg RemoveOptionDateTimeParams) error
 	RemoveOptionDiscount(ctx context.Context, id uuid.UUID) error
 	RemoveOptionDiscountByMainType(ctx context.Context, arg RemoveOptionDiscountByMainTypeParams) error
+	RemoveOptionDiscountByOptionID(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionExtraInfo(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionInfo(ctx context.Context, arg RemoveOptionInfoParams) error
 	RemoveOptionInfoCategory(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionInfoDetail(ctx context.Context, optionID uuid.UUID) error
+	RemoveOptionInfoDetails(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionInfoPhoto(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionInfoStatus(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionMessage(ctx context.Context, arg RemoveOptionMessageParams) error
 	RemoveOptionPhotoCaption(ctx context.Context, arg RemoveOptionPhotoCaptionParams) error
+	RemoveOptionPhotoCaptionByOptionID(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionPrice(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionQuestion(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionReferenceInfo(ctx context.Context, optionChargeID uuid.UUID) error
+	RemoveOptionRemoveChargeByOptionID(ctx context.Context, optionID uuid.UUID) error
 	RemoveOptionRule(ctx context.Context, id uuid.UUID) error
 	RemoveOptionTripLength(ctx context.Context, optionID uuid.UUID) error
+	RemoveRefund(ctx context.Context, chargeID uuid.UUID) error
+	RemoveRefundPayout(ctx context.Context, chargeID uuid.UUID) error
 	RemoveShortlet(ctx context.Context, optionID uuid.UUID) error
 	RemoveSpaceArea(ctx context.Context, arg RemoveSpaceAreaParams) error
 	RemoveSpaceAreaAll(ctx context.Context, optionID uuid.UUID) error
 	RemoveThingToNote(ctx context.Context, id uuid.UUID) error
 	RemoveUserAPNDetail(ctx context.Context, id uuid.UUID) error
 	RemoveUserLocation(ctx context.Context, userID uuid.UUID) error
+	RemoveVid(ctx context.Context, optionUserID uuid.UUID) error
 	RemoveWifiDetail(ctx context.Context, optionID uuid.UUID) error
 	RemoveWishlist(ctx context.Context, arg RemoveWishlistParams) error
 	RemoveWishlistItem(ctx context.Context, id uuid.UUID) error
+	RemoveWishlistItemByOptionUserID(ctx context.Context, optionUserID uuid.UUID) error
 	UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error)
 	UpdateAllOptionDateTime(ctx context.Context, arg UpdateAllOptionDateTimeParams) (OptionDateTime, error)
 	UpdateAmenity(ctx context.Context, arg UpdateAmenityParams) (UpdateAmenityRow, error)

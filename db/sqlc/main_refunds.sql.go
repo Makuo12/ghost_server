@@ -217,6 +217,15 @@ func (q *Queries) ListTicketMainRefundWithCharge(ctx context.Context, refundComp
 	return items, nil
 }
 
+const removeMainRefunds = `-- name: RemoveMainRefunds :exec
+DELETE FROM main_refunds WHERE charge_id = $1
+`
+
+func (q *Queries) RemoveMainRefunds(ctx context.Context, chargeID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeMainRefunds, chargeID)
+	return err
+}
+
 const updateMainRefund = `-- name: UpdateMainRefund :one
 UPDATE main_refunds
 SET 

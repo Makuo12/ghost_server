@@ -77,3 +77,6 @@ LEFT JOIN users AS u
     ON (mp.Type = 'charge_option_reference' AND co.user_id = u.user_id)
     OR (mp.Type = 'charge_ticket_references' AND ce.user_id = u.user_id)
 WHERE re.is_complete = sqlc.arg(payout_is_complete) AND re.user_id = sqlc.arg(u_id);
+
+-- name: RemoveRefundPayout :exec
+DELETE FROM refund_payouts WHERE charge_id = $1;

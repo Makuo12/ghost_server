@@ -31,6 +31,12 @@ FROM users
 WHERE id = $1
 LIMIT 1;
 
+-- name: GetUserByFirstName :one
+SELECT *
+FROM users
+WHERE first_name = $1
+LIMIT 1;
+
 -- name: GetUserByPD :one
 SELECT *
 FROM users

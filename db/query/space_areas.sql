@@ -86,3 +86,9 @@ SELECT *
 FROM space_areas
 WHERE option_id = $1
 ORDER BY space_type, created_at; 
+
+
+-- name: RemoveAllSpaceAreas :exec
+DELETE 
+FROM space_areas 
+WHERE option_id = $1;

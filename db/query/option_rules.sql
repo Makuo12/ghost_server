@@ -40,7 +40,6 @@ SET
 WHERE id = sqlc.arg(id)  AND option_id = sqlc.arg(option_id) 
 RETURNING id, tag, type, checked, des, start_time, end_time;
 
-
 -- name: GetOptionRuleByType :one
 SELECT *
 FROM option_rules
@@ -65,7 +64,6 @@ WHERE option_id = $1 AND checked = $2;
 SELECT tag, type, checked, id, des
 FROM option_rules
 WHERE option_id = $1;
-
 
 -- name: RemoveAllOptionRule :exec
 DELETE FROM option_rules

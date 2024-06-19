@@ -223,6 +223,16 @@ func (q *Queries) RemoveOptionDiscountByMainType(ctx context.Context, arg Remove
 	return err
 }
 
+const removeOptionDiscountByOptionID = `-- name: RemoveOptionDiscountByOptionID :exec
+DELETE FROM option_discounts
+WHERE option_id = $1
+`
+
+func (q *Queries) RemoveOptionDiscountByOptionID(ctx context.Context, optionID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeOptionDiscountByOptionID, optionID)
+	return err
+}
+
 const updateOptionDiscount = `-- name: UpdateOptionDiscount :one
 UPDATE option_discounts 
 SET

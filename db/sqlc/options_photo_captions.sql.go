@@ -108,6 +108,16 @@ func (q *Queries) RemoveOptionPhotoCaption(ctx context.Context, arg RemoveOption
 	return err
 }
 
+const removeOptionPhotoCaptionByOptionID = `-- name: RemoveOptionPhotoCaptionByOptionID :exec
+DELETE FROM options_photo_captions
+WHERE option_id = $1
+`
+
+func (q *Queries) RemoveOptionPhotoCaptionByOptionID(ctx context.Context, optionID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeOptionPhotoCaptionByOptionID, optionID)
+	return err
+}
+
 const updateOptionPhotoCaption = `-- name: UpdateOptionPhotoCaption :one
 UPDATE options_photo_captions
 SET 

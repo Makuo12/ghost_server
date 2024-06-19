@@ -4,51 +4,38 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
 	"net/url"
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/makuo12/ghost_server/db/sqlc"
-	"github.com/makuo12/ghost_server/tools"
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
 )
 
-func HandleImageMetaData(ctx context.Context, server *Server) func() {
-	return func() {
-		photos, err := server.store.ListAllUserPhotos(ctx)
-		if err != nil || len(photos) == 0 {
-			if err != nil {
-				log.Println("HandleImageMetaData err: ", err)
-			}
-			return
-		}
-		for _, p := range photos {
-			// First we handle the photo
-			if tools.ServerStringEmpty(p.Photo) {
-				log.Println("no object found here try again")
-
-				continue
-			}
-			UpdateFireStorageMeta(ctx, server, p.Photo)
-
-			if tools.ServerStringEmpty(p.FacialPhoto) {
-				log.Println("no object found here try again")
-				continue
-			}
-			UpdateFireStorageMeta(ctx, server, p.FacialPhoto)
-
-			if tools.ServerStringEmpty(p.IDPhoto) {
-				log.Println("no object found here try again")
-				continue
-			}
-			UpdateFireStorageMeta(ctx, server, p.IDPhoto)
-		}
+func RemoveFirebasePhoto(server *Server, ctx context.Context, object string) (err error) {
+	// First we delete cover photo
+	if object == "none" || len(object) < 1 {
+		err = fmt.Errorf("no object found here try again")
+		return
 	}
+	contextOne, cancel := context.WithTimeout(ctx, time.Second*20)
+	defer cancel()
 
+	o := server.Bucket.Object(object)
+	attrs, err := o.Attrs(ctx)
+	if err != nil {
+		err = fmt.Errorf("object.Attrs: %v", err)
+		return
+	}
+	o = o.If(storage.Conditions{GenerationMatch: attrs.Generation})
+
+	if err = o.Delete(contextOne); err != nil {
+		err = fmt.Errorf("Object(%q).Delete: %v", object, err)
+		return
+	}
+	log.Printf("Object %v was deleted", object)
+	return nil
 }
 
 func UpdateFireStorageMeta(ctx context.Context, server *Server, object string) {
@@ -163,254 +150,4 @@ func constructDownloadURL(projectID, filePath, token string) string {
 
 	fullURL.RawQuery = queryParams.Encode()
 	return fullURL.String()
-}
-
-func (server *Server) ListPhotoUserAdmin(ctx *gin.Context) {
-	var allPhotos = []string{}
-	users, err := server.store.ListUserByAdmin(ctx)
-	if err == nil && len(users) > 0 {
-		for _, u := range users {
-			allPhotos = append(allPhotos, u.Photo)
-		}
-	}
-	res := ListFirebasePhoto{
-		Photos: allPhotos,
-	}
-	ctx.JSON(http.StatusOK, res)
-}
-
-//func (server *Server) ListPhotoIdentityAdmin(ctx *gin.Context) {
-//	var allPhotos = []string{}
-//	ids, err := server.store.ListIdentityByAdmin(ctx)
-//	if err == nil && len(ids) > 0 {
-//		for _, id := range ids {
-//			if id.IDPhoto != "none" {
-//				allPhotos = append(allPhotos, id.IDPhoto)
-//			}
-//			if id.IDBackPhoto != "none" {
-//				allPhotos = append(allPhotos, id.IDBackPhoto)
-//			}
-//			if id.FacialPhoto != "none" {
-//				allPhotos = append(allPhotos, id.FacialPhoto)
-//			}
-//		}
-//	}
-//	res := ListFirebasePhoto{
-//		Photos: allPhotos,
-//	}
-//	ctx.JSON(http.StatusOK, res)
-//}
-
-func (server *Server) ListPhotoOptionAdmin(ctx *gin.Context) {
-	var allPhotos = []string{}
-	optionPhotos, err := server.store.ListOptionPhotoByAdmin(ctx)
-	if err == nil && len(optionPhotos) > 0 {
-		for _, op := range optionPhotos {
-			if len(op.Photo) > 0 {
-				allPhotos = append(allPhotos, op.Photo...)
-			}
-			allPhotos = append(allPhotos, op.CoverImage)
-		}
-	}
-	res := ListFirebasePhoto{
-		Photos: allPhotos,
-	}
-	ctx.JSON(http.StatusOK, res)
-}
-
-func (server *Server) ListPhotoEventCheckInStepAdmin(ctx *gin.Context) {
-	var allPhotos = []string{}
-	eventCheckInSteps, err := server.store.ListEventCheckInStepByAdmin(ctx)
-	if err == nil && len(eventCheckInSteps) > 0 {
-		for _, e := range eventCheckInSteps {
-			allPhotos = append(allPhotos, e.Photo)
-		}
-	}
-
-	res := ListFirebasePhoto{
-		Photos: allPhotos,
-	}
-	ctx.JSON(http.StatusOK, res)
-}
-
-func (server *Server) ListPhotoCheckInStepAdmin(ctx *gin.Context) {
-	var allPhotos = []string{}
-	checkInSteps, err := server.store.ListCheckInStepByAdmin(ctx)
-	if err == nil && len(checkInSteps) > 0 {
-		for _, optionStep := range checkInSteps {
-			allPhotos = append(allPhotos, optionStep.Photo)
-		}
-	}
-
-	res := ListFirebasePhoto{
-		Photos: allPhotos,
-	}
-	ctx.JSON(http.StatusOK, res)
-}
-
-// Update
-
-func (server *Server) UpdatePhotoUserAdmin(ctx *gin.Context) {
-	var req UpdateFirebasePhotoParams
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("error at UpdateUser in ShouldBindJSON: %v \n", err)
-		err = fmt.Errorf("there was an error while processing your inputs please try again later")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	users, err := server.store.ListUserByAdmin(ctx)
-	if err == nil && len(users) > 0 {
-		for _, u := range users {
-			if u.Photo == req.Actual {
-				_, err := server.store.UpdateUser(ctx, db.UpdateUserParams{
-					PublicPhoto: pgtype.Text{
-						String: req.Update,
-						Valid:  true,
-					},
-					ID: u.ID,
-				})
-				if err != nil {
-					log.Printf("Error at UpdatePhotoUserAdmin %v\n", err.Error())
-				}
-				break
-			}
-		}
-	}
-	res := UserResponseMsg{
-		Success: true,
-	}
-	ctx.JSON(http.StatusOK, res)
-}
-
-//func (server *Server) UpdatePhotoIdentityAdmin(ctx *gin.Context) {
-//	var req UpdateFirebasePhoto
-//	if err := ctx.ShouldBindJSON(&req); err != nil {
-//		log.Printf("error at UpdateIdentity in ShouldBindJSON: %v \n", err)
-//		err = fmt.Errorf("there was an error while processing your inputs please try again later")
-//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-//		return
-//	}
-//	ids, err := server.store.ListIdentityByAdmin(ctx)
-//	if err == nil && len(ids) > 0 {
-//		for _, id := range ids {
-//			if id.IDPhoto != "none" {
-//				allPhotos = append(allPhotos, id.IDPhoto)
-//			}
-//			if id.IDBackPhoto != "none" {
-//				allPhotos = append(allPhotos, id.IDBackPhoto)
-//			}
-//			if id.FacialPhoto != "none" {
-//				allPhotos = append(allPhotos, id.FacialPhoto)
-//			}
-//		}
-//	}
-//	res := ListFirebasePhoto{
-//		Photos: allPhotos,
-//	}
-//	ctx.JSON(http.StatusOK, res)
-//}
-
-func (server *Server) UpdatePhotoOptionAdmin(ctx *gin.Context) {
-	var req UpdateFirebasePhotoParams
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("error at UpdateOption in ShouldBindJSON: %v \n", err)
-		err = fmt.Errorf("there was an error while processing your inputs please try again later")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	optionPhotos, err := server.store.ListOptionPhotoByAdmin(ctx)
-	if err == nil && len(optionPhotos) > 0 {
-		for _, op := range optionPhotos {
-			if op.CoverImage == req.Actual {
-				_, err = server.store.UpdateOptionInfoPhotoCoverUrl(ctx, db.UpdateOptionInfoPhotoCoverUrlParams{
-					OptionID:         op.OptionID,
-					PublicCoverImage: req.Update,
-				})
-				if err != nil {
-					log.Printf("Error at UpdatePhotoOptionAdmin cover %v\n", err.Error())
-				}
-				break
-			}
-			for _, basicPhotos := range op.Photo {
-				if basicPhotos == req.Actual {
-					if !tools.IsInList(op.PublicPhoto, req.Update) {
-						newPhoto := []string{req.Update}
-						newPhoto = append(newPhoto, op.PublicPhoto...)
-						_, err = server.store.UpdateOptionInfoPhotoOnlyUrl(ctx, db.UpdateOptionInfoPhotoOnlyUrlParams{
-							OptionID:    op.OptionID,
-							PublicPhoto: newPhoto,
-						})
-						if err != nil {
-							log.Printf("Error at UpdatePhotoOptionAdmin photo %v\n", err.Error())
-						}
-						break
-					}
-				}
-			}
-		}
-	}
-	res := UserResponseMsg{
-		Success: true,
-	}
-	ctx.JSON(http.StatusOK, res)
-}
-
-func (server *Server) UpdatePhotoEventCheckInStepAdmin(ctx *gin.Context) {
-	var req UpdateFirebasePhotoParams
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("error at UpdateEventCheckInStep in ShouldBindJSON: %v \n", err)
-		err = fmt.Errorf("there was an error while processing your inputs please try again later")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	eventCheckInSteps, err := server.store.ListEventCheckInStepByAdmin(ctx)
-	if err == nil && len(eventCheckInSteps) > 0 {
-		for _, e := range eventCheckInSteps {
-			if e.Photo == req.Actual && e.PublicPhoto != req.Update {
-				_, err = server.store.UpdateEventCheckInStepPublicPhoto(ctx, db.UpdateEventCheckInStepPublicPhotoParams{
-					ID:          e.ID,
-					PublicPhoto: req.Update,
-				})
-				if err != nil {
-					log.Printf("Error at UpdatePhotoOptionAdmin photo %v\n", err.Error())
-				}
-				break
-			}
-		}
-	}
-
-	res := UserResponseMsg{
-		Success: true,
-	}
-	ctx.JSON(http.StatusOK, res)
-}
-
-func (server *Server) UpdatePhotoCheckInStepAdmin(ctx *gin.Context) {
-	var req UpdateFirebasePhotoParams
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("error at UpdateCheckInStep in ShouldBindJSON: %v \n", err)
-		err = fmt.Errorf("there was an error while processing your inputs please try again later")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	checkInSteps, err := server.store.ListCheckInStepByAdmin(ctx)
-	if err == nil && len(checkInSteps) > 0 {
-		for _, optionStep := range checkInSteps {
-			if optionStep.Photo == req.Actual && optionStep.PublicPhoto != req.Update {
-				_, err = server.store.UpdateCheckInStepPublicPhoto(ctx, db.UpdateCheckInStepPublicPhotoParams{
-					ID:          optionStep.ID,
-					PublicPhoto: req.Update,
-				})
-				if err != nil {
-					log.Printf("Error at UpdatePhotoOptionAdmin photo %v\n", err.Error())
-				}
-				break
-			}
-		}
-	}
-
-	res := UserResponseMsg{
-		Success: true,
-	}
-	ctx.JSON(http.StatusOK, res)
 }

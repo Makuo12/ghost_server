@@ -43,3 +43,7 @@ FROM main_refunds m_r
     JOIN users u on u.user_id = c_e_r.user_id
     JOIN users us on o_i.host_id = us.id
 WHERE m_r.is_payed = sqlc.arg(refund_complete) AND m_r.charge_type = 'charge_ticket_reference';
+
+
+-- name: RemoveMainRefunds :exec
+DELETE FROM main_refunds WHERE charge_id = $1;

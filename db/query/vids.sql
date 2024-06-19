@@ -25,3 +25,7 @@ OFFSET $2;
 SELECT Count(*)
 FROM vids
 WHERE is_active = true; 
+
+-- name: RemoveVid :exec
+DELETE FROM vids
+WHERE option_user_id = $1;

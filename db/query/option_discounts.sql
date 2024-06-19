@@ -59,3 +59,8 @@ WHERE option_id = $1 AND main_type = $2;
 DELETE FROM option_discounts
 WHERE id = $1;
 
+
+
+-- name: RemoveOptionDiscountByOptionID :exec
+DELETE FROM option_discounts
+WHERE option_id = $1;

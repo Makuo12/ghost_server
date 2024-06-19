@@ -309,6 +309,55 @@ func (q *Queries) GetHostOptionInfo(ctx context.Context, arg GetHostOptionInfoPa
 	return i, err
 }
 
+const getHostOptionInfoByHost = `-- name: GetHostOptionInfoByHost :many
+SELECT id, co_host_id, option_user_id, host_id, deep_link_id, primary_user_id, is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, currency, option_img, option_type, main_option_type, created_at, completed, updated_at
+FROM options_infos
+WHERE host_id = $1
+`
+
+func (q *Queries) GetHostOptionInfoByHost(ctx context.Context, hostID uuid.UUID) ([]OptionsInfo, error) {
+	rows, err := q.db.Query(ctx, getHostOptionInfoByHost, hostID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []OptionsInfo{}
+	for rows.Next() {
+		var i OptionsInfo
+		if err := rows.Scan(
+			&i.ID,
+			&i.CoHostID,
+			&i.OptionUserID,
+			&i.HostID,
+			&i.DeepLinkID,
+			&i.PrimaryUserID,
+			&i.IsActive,
+			&i.IsComplete,
+			&i.IsVerified,
+			&i.Category,
+			&i.CategoryTwo,
+			&i.CategoryThree,
+			&i.CategoryFour,
+			&i.IsTopSeller,
+			&i.TimeZone,
+			&i.Currency,
+			&i.OptionImg,
+			&i.OptionType,
+			&i.MainOptionType,
+			&i.CreatedAt,
+			&i.Completed,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOptionAndUser = `-- name: GetOptionAndUser :one
 SELECT u.first_name, od.host_name_option, oi.co_host_id, oi.main_option_type, op.cover_image
 FROM options_infos oi

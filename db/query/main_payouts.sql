@@ -89,3 +89,7 @@ FROM main_payouts mp
     WHERE och.co_user_id = $1 AND och.accepted = true
 ) AS och_subquery ON oi.id = och_subquery.option_id
 WHERE (oi.host_id = $2 OR och_subquery.option_id IS NOT NULL) AND (oi.host_id = $2 OR och_subquery.insights = true) AND co.is_complete= true AND CAST(EXTRACT(YEAR FROM start_date) AS INTEGER) = CAST(sqlc.arg(year) AS INTEGER) AND mp.type = 'charge_option_reference';
+
+
+-- name: RemoveMainPayout :exec
+DELETE FROM main_payouts WHERE charge_id = $1;

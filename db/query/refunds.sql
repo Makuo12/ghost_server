@@ -69,3 +69,7 @@ LEFT JOIN options_infos AS oi
 LEFT JOIN options_info_details AS od ON oi.id = od.option_id
 LEFT JOIN users AS u ON oi.host_id = u.id
 WHERE re.is_complete = sqlc.arg(refund_complete) AND re.user_id = sqlc.arg(u_id);
+
+
+-- name: RemoveRefund :exec
+DELETE FROM refunds WHERE charge_id = $1;

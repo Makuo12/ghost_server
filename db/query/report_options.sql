@@ -8,3 +8,5 @@ INSERT INTO report_options (
     description
 ) VALUES ($1, $2, $3, $4, $5, $6);
 
+-- name: RemoveAllReportOption :exec
+DELETE FROM report_options WHERE option_user_id = $1;

@@ -134,6 +134,11 @@ SELECT start_date, end_date
 FROM charge_option_references
 WHERE option_user_id = $1 AND is_complete=$2 AND cancelled=$3;
 
+-- name: ListAllIDChargeOptionReference :many
+SELECT id
+FROM charge_option_references
+WHERE option_user_id = $1;
+
 -- name: ListChargeOptionReferenceDatesMore :many
 SELECT start_date, end_date
 FROM charge_option_references
@@ -346,7 +351,7 @@ WHERE co.user_id = $1 AND co.cancelled = $2 AND co.is_complete = $3 AND (NOW() <
 
 
 -- name: ListChargeOptionReferenceCurrent :many
-SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.cover_image, o_p_p.photo, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone,
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.cover_image, o_p_p.photo, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone, o_p_p.public_cover_image, o_p_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo,
 CASE
     WHEN NOW() > co.end_date + INTERVAL '4 hours' AND NOT EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = co.id) THEN 'started'
     WHEN NOW() > co.end_date + INTERVAL '4 hours' AND EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = co.id) THEN cr.status
@@ -387,7 +392,7 @@ FROM charge_option_references co
 WHERE co.user_id = $1 AND co.cancelled = $2 AND co.is_complete = $3 AND (NOW() > co.end_date + INTERVAL '8 hours' AND EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = co.id AND cr.is_published = TRUE) OR NOW() > co.end_date + INTERVAL '13 days');
 
 -- name: ListChargeOptionReferenceVisited :many
-SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.cover_image, o_p_p.photo, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.cover_image, o_p_p.photo, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone, o_p_p.public_cover_image, o_p_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id
@@ -401,3 +406,8 @@ WHERE co.user_id = $1 AND co.cancelled = $2 AND co.is_complete = $3 AND (NOW() >
 ORDER BY co.end_date DESC
 LIMIT $4
 OFFSET $5;
+
+
+-- name: RemoveChargeOptionReference :exec
+DELETE FROM charge_option_references
+WHERE id = $1;

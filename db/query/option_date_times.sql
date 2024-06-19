@@ -87,9 +87,6 @@ FROM option_date_times o_d_t
    JOIN users u on u.id = o_i.host_id
 WHERE o_d_t.id = $1 AND u.id = $2 AND o_i.id = $3 AND o_i.is_complete = $4;
 
-
-
-
 -- name: RemoveOptionDateTime :exec
 DELETE FROM option_date_times
 WHERE id = $1 AND option_id = $2;

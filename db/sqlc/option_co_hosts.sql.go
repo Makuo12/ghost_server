@@ -740,6 +740,16 @@ func (q *Queries) RemoveAllOptionCOHost(ctx context.Context, optionID uuid.UUID)
 	return err
 }
 
+const removeAllOptionCOHostOptionID = `-- name: RemoveAllOptionCOHostOptionID :exec
+DELETE FROM option_co_hosts
+WHERE option_id = $1
+`
+
+func (q *Queries) RemoveAllOptionCOHostOptionID(ctx context.Context, optionID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeAllOptionCOHostOptionID, optionID)
+	return err
+}
+
 const removeOptionCOHost = `-- name: RemoveOptionCOHost :exec
 DELETE FROM option_co_hosts
 WHERE is_active = true AND option_id = $1 AND id = $2

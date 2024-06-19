@@ -65,6 +65,45 @@ func (q *Queries) CreatePayout(ctx context.Context, arg CreatePayoutParams) (Pay
 	return i, err
 }
 
+const listPayout = `-- name: ListPayout :many
+SELECT id, payout_ids, user_id, send_medium, parent_type, amount, amount_payed, account_number, time_paid, transfer_code, is_complete, created_at, updated_at
+FROM payouts
+`
+
+func (q *Queries) ListPayout(ctx context.Context) ([]Payout, error) {
+	rows, err := q.db.Query(ctx, listPayout)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Payout{}
+	for rows.Next() {
+		var i Payout
+		if err := rows.Scan(
+			&i.ID,
+			&i.PayoutIds,
+			&i.UserID,
+			&i.SendMedium,
+			&i.ParentType,
+			&i.Amount,
+			&i.AmountPayed,
+			&i.AccountNumber,
+			&i.TimePaid,
+			&i.TransferCode,
+			&i.IsComplete,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updatePayout = `-- name: UpdatePayout :one
 UPDATE payouts
 SET 

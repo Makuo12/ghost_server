@@ -218,6 +218,10 @@ FROM option_co_hosts o_c_h
 WHERE is_active = true AND o_c_h.co_user_id = $1 AND o_c_h.reservations = $2 AND o_i.main_option_type = $3 AND o_i.is_complete = $4;
 
 
+-- name: RemoveAllOptionCOHostOptionID :exec
+DELETE FROM option_co_hosts
+WHERE option_id = $1;
+
 
 -- name: RemoveAllOptionCOHost :exec
 DELETE FROM option_co_hosts

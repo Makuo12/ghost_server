@@ -42,3 +42,12 @@ func (q *Queries) CreateReportOption(ctx context.Context, arg CreateReportOption
 	)
 	return err
 }
+
+const removeAllReportOption = `-- name: RemoveAllReportOption :exec
+DELETE FROM report_options WHERE option_user_id = $1
+`
+
+func (q *Queries) RemoveAllReportOption(ctx context.Context, optionUserID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeAllReportOption, optionUserID)
+	return err
+}

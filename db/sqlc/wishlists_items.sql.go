@@ -257,3 +257,13 @@ func (q *Queries) RemoveWishlistItem(ctx context.Context, id uuid.UUID) error {
 	_, err := q.db.Exec(ctx, removeWishlistItem, id)
 	return err
 }
+
+const removeWishlistItemByOptionUserID = `-- name: RemoveWishlistItemByOptionUserID :exec
+DELETE FROM wishlists_items
+WHERE option_user_id = $1
+`
+
+func (q *Queries) RemoveWishlistItemByOptionUserID(ctx context.Context, optionUserID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeWishlistItemByOptionUserID, optionUserID)
+	return err
+}

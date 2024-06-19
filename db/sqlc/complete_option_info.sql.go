@@ -166,6 +166,24 @@ func (q *Queries) RemoveCompleteOptionInfo(ctx context.Context, optionID uuid.UU
 	return err
 }
 
+const removeCompleteOptionInfoByID = `-- name: RemoveCompleteOptionInfoByID :exec
+
+DELETE
+FROM complete_option_info
+WHERE option_id = $1
+`
+
+// -- name: RemoveCompleteOptionInfo :exec
+// DELETE
+// FROM complete_option_info
+// USING complete_option_info
+// JOIN options_infos on complete_option_info.option_id = options_infos.id
+// WHERE complete_option_info.option_id = $1 AND options_infos.host_id = $2;
+func (q *Queries) RemoveCompleteOptionInfoByID(ctx context.Context, optionID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeCompleteOptionInfoByID, optionID)
+	return err
+}
+
 const updateCompleteOptionInfo = `-- name: UpdateCompleteOptionInfo :one
 UPDATE complete_option_info
 SET current_state = $2,

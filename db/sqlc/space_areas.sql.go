@@ -277,6 +277,17 @@ func (q *Queries) ListSpaceAreaType(ctx context.Context, optionID uuid.UUID) ([]
 	return items, nil
 }
 
+const removeAllSpaceAreas = `-- name: RemoveAllSpaceAreas :exec
+DELETE 
+FROM space_areas 
+WHERE option_id = $1
+`
+
+func (q *Queries) RemoveAllSpaceAreas(ctx context.Context, optionID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeAllSpaceAreas, optionID)
+	return err
+}
+
 const removeSpaceArea = `-- name: RemoveSpaceArea :exec
 DELETE FROM space_areas
 WHERE id = $1 AND option_id = $2

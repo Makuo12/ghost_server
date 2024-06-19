@@ -133,3 +133,13 @@ func (q *Queries) ListVid(ctx context.Context, arg ListVidParams) ([]Vid, error)
 	}
 	return items, nil
 }
+
+const removeVid = `-- name: RemoveVid :exec
+DELETE FROM vids
+WHERE option_user_id = $1
+`
+
+func (q *Queries) RemoveVid(ctx context.Context, optionUserID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeVid, optionUserID)
+	return err
+}

@@ -49,3 +49,6 @@ WHERE option_id = $1 AND type = $2;
 DELETE FROM option_add_charges
 WHERE id = $1;
 
+-- name: RemoveOptionRemoveChargeByOptionID :exec
+DELETE FROM option_add_charges
+WHERE option_id = $1;

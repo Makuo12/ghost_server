@@ -17,10 +17,6 @@ SELECT *
 FROM options_extra_infos
 WHERE id = $1;
 
--- name: RemoveOptionExtraInfo :exec
-DELETE FROM options_extra_infos 
-WHERE option_id = $1;
-
 -- name: UpdateOptionExtraInfo :one
 UPDATE options_extra_infos
 SET 
@@ -28,3 +24,7 @@ SET
     updated_at = NOW()
 WHERE option_id = $2 AND type = $3
 RETURNING *;
+
+-- name: RemoveOptionExtraInfo :exec
+DELETE FROM options_extra_infos 
+WHERE option_id = $1;

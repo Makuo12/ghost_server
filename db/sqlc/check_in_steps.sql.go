@@ -67,6 +67,24 @@ func (q *Queries) GetCheckInStep(ctx context.Context, arg GetCheckInStepParams) 
 	return i, err
 }
 
+const getCheckInStepByOptionID = `-- name: GetCheckInStepByOptionID :one
+SELECT des, photo
+FROM check_in_steps
+WHERE option_id=$1
+`
+
+type GetCheckInStepByOptionIDRow struct {
+	Des   string `json:"des"`
+	Photo string `json:"photo"`
+}
+
+func (q *Queries) GetCheckInStepByOptionID(ctx context.Context, optionID uuid.UUID) (GetCheckInStepByOptionIDRow, error) {
+	row := q.db.QueryRow(ctx, getCheckInStepByOptionID, optionID)
+	var i GetCheckInStepByOptionIDRow
+	err := row.Scan(&i.Des, &i.Photo)
+	return i, err
+}
+
 const listCheckInStepByAdmin = `-- name: ListCheckInStepByAdmin :many
 SELECT id, option_id, photo, public_photo, des, created_at, updated_at
 FROM check_in_steps
@@ -152,6 +170,16 @@ type RemoveCheckInStepParams struct {
 
 func (q *Queries) RemoveCheckInStep(ctx context.Context, arg RemoveCheckInStepParams) error {
 	_, err := q.db.Exec(ctx, removeCheckInStep, arg.OptionID, arg.ID)
+	return err
+}
+
+const removeCheckInStepByOptionID = `-- name: RemoveCheckInStepByOptionID :exec
+DELETE FROM check_in_steps 
+WHERE option_id = $1
+`
+
+func (q *Queries) RemoveCheckInStepByOptionID(ctx context.Context, optionID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeCheckInStepByOptionID, optionID)
 	return err
 }
 

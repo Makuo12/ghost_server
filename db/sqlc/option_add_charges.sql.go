@@ -156,6 +156,16 @@ func (q *Queries) RemoveOptionAddChargeByType(ctx context.Context, arg RemoveOpt
 	return err
 }
 
+const removeOptionRemoveChargeByOptionID = `-- name: RemoveOptionRemoveChargeByOptionID :exec
+DELETE FROM option_add_charges
+WHERE option_id = $1
+`
+
+func (q *Queries) RemoveOptionRemoveChargeByOptionID(ctx context.Context, optionID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, removeOptionRemoveChargeByOptionID, optionID)
+	return err
+}
+
 const updateOptionAddCharge = `-- name: UpdateOptionAddCharge :one
 UPDATE option_add_charges 
 SET

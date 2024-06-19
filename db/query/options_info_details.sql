@@ -98,3 +98,8 @@ FROM options_infos oi
 ) AS och_subquery ON oi.id = och_subquery.option_id
 WHERE (oi.host_id = $1 OR och_subquery.option_id IS NOT NULL) AND oi.is_active = $3 AND LOWER(od.host_name_option) LIKE $4
 ORDER BY oi.created_at DESC;
+
+
+-- name: RemoveOptionInfoDetails :exec
+DELETE FROM options_info_details
+WHERE option_id = $1;

@@ -144,6 +144,48 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 	return i, err
 }
 
+const getUserByFirstName = `-- name: GetUserByFirstName :one
+SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, password_changed_at, created_at, updated_at
+FROM users
+WHERE first_name = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByFirstName(ctx context.Context, firstName string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByFirstName, firstName)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.FirebaseID,
+		&i.PublicID,
+		&i.HashedPassword,
+		&i.DeepLinkID,
+		&i.FirebasePassword,
+		&i.Email,
+		&i.PhoneNumber,
+		&i.FirstName,
+		&i.Username,
+		&i.LastName,
+		&i.DateOfBirth,
+		&i.DialCode,
+		&i.DialCountry,
+		&i.CurrentOptionID,
+		&i.Currency,
+		&i.DefaultCard,
+		&i.DefaultPayoutCard,
+		&i.DefaultAccountID,
+		&i.IsActive,
+		&i.IsDeleted,
+		&i.Photo,
+		&i.PublicPhoto,
+		&i.PasswordChangedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getUserByPD = `-- name: GetUserByPD :one
 SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, password_changed_at, created_at, updated_at
 FROM users

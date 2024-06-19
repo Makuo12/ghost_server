@@ -44,3 +44,7 @@ RETURNING *;
 --JOIN options_infos on complete_option_info.option_id = options_infos.id 
 --WHERE complete_option_info.option_id = $1 AND options_infos.host_id = $2;
 
+-- name: RemoveCompleteOptionInfoByID :exec
+DELETE
+FROM complete_option_info
+WHERE option_id = $1;
