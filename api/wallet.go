@@ -41,7 +41,7 @@ func (server *Server) GetWallet(ctx *gin.Context) {
 			log.Printf("There was an error at GetWallet in ListCard %v \n", err.Error())
 		}
 		hasCard = false
-		cardDetail = []payment.CardDetailResponse{{"none", "none", "none", "none", "none", "none"}}
+		cardDetail = []payment.CardDetailResponse{{CardID: "none", CardLast4: "none", CardType: "none", ExpMonth: "none", ExpYear: "none", Currency: "none"}}
 	} else {
 		hasCard = true
 		for _, c := range cards {
