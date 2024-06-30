@@ -8,6 +8,7 @@
         "FIRSTNAME",
         "Flexr",
         "Flizzup",
+        "Flutterwave",
         "gangan",
         "gapi",
         "geolocation",
@@ -40,6 +41,7 @@
         "timetz",
         "ToTsquery",
         "unlist",
-        "upgrader"
+        "upgrader",
+        "USSD"
     ]
 }

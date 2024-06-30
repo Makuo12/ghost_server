@@ -1,6 +1,9 @@
 package api
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+	"github.com/makuo12/ghost_server/payment"
+)
 
 type GetTicketByIDAndOptionIDRow struct {
 	StartDate    string    `json:"start_date"`
@@ -86,11 +89,11 @@ type EventDateReserve struct {
 }
 
 type CreateEventReserveDetailRes struct {
-	ReserveData    EventDateReserve   `json:"reserve_data"`
-	EventReference string             `json:"event_reference"`
-	DefaultCardID  string             `json:"default_card_id"`
-	HasCard        bool               `json:"has_card"`
-	CardDetail     CardDetailResponse `json:"card_detail"`
+	ReserveData    EventDateReserve           `json:"reserve_data"`
+	EventReference string                     `json:"event_reference"`
+	DefaultCardID  string                     `json:"default_card_id"`
+	HasCard        bool                       `json:"has_card"`
+	CardDetail     payment.CardDetailResponse `json:"card_detail"`
 }
 
 type ReserveEventParams struct {

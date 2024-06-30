@@ -25,7 +25,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
-	"github.com/robfig/cron/v3"
+	//"github.com/robfig/cron/v3"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
@@ -219,14 +219,14 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 			log.Printf("Error at server setup in, validHostEventCancel Register Validation %v", err.Error())
 		}
 	}
-	ctx := context.Background()
+	//ctx := context.Background()
 
-	job := cron.New()
+	//job := cron.New()
 
-	_, err = job.AddFunc("@every 2m", RemoveOptionInfoAdmin(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyDeactivateCoHost  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", RemoveOptionInfoAdmin(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyDeactivateCoHost  %v", err.Error())
+	//}
 	// Schedule the daily function to run at 5 hours
 	//_, err = job.AddFunc("@every 2m", DailyRemoveOptionReserveUser)
 	//if err != nil {
@@ -308,15 +308,15 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	//HandleOptionExperienceToRedis(ctx, server)
 	//HandleEventExperienceToRedis(ctx, server)
 
-	_, err = job.AddFunc("@every 2m", HandleOptionExperienceToRedis(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for HandleOptionExperienceToRedis  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", HandleOptionExperienceToRedis(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for HandleOptionExperienceToRedis  %v", err.Error())
+	//}
 
-	_, err = job.AddFunc("@every 2m", HandleEventExperienceToRedis(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for HandleEventExperienceToRedis  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", HandleEventExperienceToRedis(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for HandleEventExperienceToRedis  %v", err.Error())
+	//}
 
 	//_, err = job.AddFunc("@every 2m", HandleImageMetaData(ctx, server))
 	//if err != nil {
@@ -324,7 +324,7 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	//}
 
 	// Start the cron scheduler
-	job.Start()
+	//job.Start()
 
 	server.setupRouter()
 
@@ -461,6 +461,8 @@ func (server *Server) setupRouter() {
 
 	authRoutes.POST("/users/option-photo/create", server.CreateOptionPhoto)
 	authRoutes.DELETE("/users/option-photo/remove", server.RemoveOptionPhoto)
+	authRoutes.POST("/users/option-photo/upload", server.UploadOptionPhoto)
+	authRoutes.DELETE("/users/option-photo/upload/delete", server.DeleteOptionPhoto)
 
 	authRoutes.POST("/users/option-question/create", server.CreateOptionQuestion)
 	authRoutes.DELETE("/users/option-question/remove", server.RemoveOptionQuestion)
@@ -717,16 +719,14 @@ func (server *Server) setupRouter() {
 	//
 
 	// Payments
-
-	authRoutes.POST("/users/init/add/reference", server.VerifyAddCardChargeReference)
-	authRoutes.POST("/users/user/init/add", server.InitAddCard)
+	authRoutes.POST("/users/user/init/card-charge", server.InitCardCharge)
 	authRoutes.DELETE("/users/user/init/remove", server.InitRemoveCard)
 	authRoutes.PUT("/users/user/init/default/update", server.SetDefaultCard)
 	authRoutes.GET("/users/user/init/wall/get", server.GetWallet)
 
-	// Direct Payments
-	authRoutes.POST("/users/init/direct/payment", server.InitPayment)
-	authRoutes.POST("/users/init/direct/payment/reference", server.VerifyPaymentReference)
+	// Payments Methods
+	authRoutes.POST("/users/init/payment/method", server.InitMethodPayment)
+	authRoutes.POST("/users/init/verify/payment/reference", server.VerifyPaymentReference)
 
 	// Reservation
 	////-> Option
@@ -763,6 +763,9 @@ func (server *Server) setupRouter() {
 	authRoutes.POST("/users/user/account-number/create", server.CreateAccountNumber)
 	authRoutes.DELETE("/users/user/account-number/remove", server.RemoveAccountNumber)
 	authRoutes.PUT("/users/user/account-number/set-default", server.SetDefaultAccountNumber)
+
+	// USSD
+	authRoutes.GET("/users/user/ussd/list", server.ListUSSD)
 
 	// Wishlist
 	authRoutes.POST("/users/user/wishlist/create", server.CreateWishlist)

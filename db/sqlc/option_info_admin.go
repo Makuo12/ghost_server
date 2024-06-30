@@ -20,6 +20,25 @@ type DeleteOptionParams struct {
 	ChargeID     []uuid.UUID `json:"charge_id"`
 }
 
+type DeleteOptionInfoPhotoParams struct {
+	UserOptionID string `json:"user_option_id"`
+	OptionID     string `json:"option_id"`
+	Photo        string `json:"photo"`
+	PhotoUrl     string `json:"photo_url"`
+	IsCover      bool   `json:"is_cover"`
+}
+
+type DeleteOptionInfoPhotoRes struct {
+	Photo        string `json:"photo"`
+	PhotoUrl     string `json:"photo_url"`
+	IsCover      bool   `json:"is_cover"`
+}
+
+
+
+
+
+
 func (store *SQLStore) DeleteOption(ctx context.Context, arg DeleteOptionParams, bucket *storage.BucketHandle) (DeleteOptionResult, error) {
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
@@ -304,4 +323,60 @@ func RemoveFirebasePhoto(ctx context.Context, bucket *storage.BucketHandle, obje
 	}
 	log.Printf("Object %v was deleted", object)
 	return nil
+}
+
+func (store *SQLStore) DeleteOptionPhoto(ctx context.Context, arg DeleteOptionInfoPhotoParams, optionPhoto OptionsInfoPhoto, bucket *storage.BucketHandle) (DeleteOptionInfoPhotoRes, error) {
+	err := store.execTx(ctx, func(q *Queries) error {
+		var err error
+		if arg.IsCover {
+			_, err = store.UpdateOptionInfoAllPhotoCover(ctx, UpdateOptionInfoAllPhotoCoverParams{
+				PublicCoverImage: "none",
+				CoverImage:       "none",
+				OptionID: optionPhoto.OptionID,
+			})
+			if err != nil {
+				return err
+			}
+		} else {
+			var photos []string
+			var photoUrls []string
+			for _, photo := range optionPhoto.Photo {
+				if photo != arg.Photo {
+					photos = append(photos, photo)
+				}
+			}
+			if len(photos) == 0 {
+				photos = []string{"none"}
+			}
+			for _, photoUrl := range optionPhoto.PublicPhoto {
+				if photoUrl != arg.PhotoUrl {
+					photoUrls = append(photoUrls, photoUrl)
+				}
+			}
+			if len(photoUrls) == 0 {
+				photoUrls = []string{"none"}
+			}
+			_, err = store.UpdateOptionInfoAllPhotoOnly(ctx, UpdateOptionInfoAllPhotoOnlyParams{
+				OptionID: optionPhoto.OptionID,
+				PublicPhoto: photoUrls,
+				Photo: photos,
+			})
+			if err != nil {
+				return err
+			}
+		}
+		err = RemoveFirebasePhoto(ctx, bucket, arg.Photo)
+		if err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return DeleteOptionInfoPhotoRes{}, err
+	}
+	return DeleteOptionInfoPhotoRes{
+		Photo: arg.Photo,
+		PhotoUrl: arg.PhotoUrl,
+		IsCover: arg.IsCover,
+	}, err
 }

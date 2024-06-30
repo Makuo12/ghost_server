@@ -372,16 +372,32 @@ type OptionInfo struct {
 }
 
 type CreateOptionInfoPhotoParams struct {
-	UserOptionID string `json:"user_option_id"`
-	OptionID     string `json:"option_id"`
-
-	CoverImage         string   `json:"cover_image"`
-	Photo              []string `json:"photo"`
+	UserOptionID       string   `json:"user_option_id"`
+	OptionID           string   `json:"option_id"`
+	MainCoverImage     string   `json:"main_cover_image"`
+	MainPhoto          []string `json:"main_photo"`
+	PublicCoverImage   string   `json:"public_cover_image"`
+	PublicPhoto        []string `json:"public_photo"`
 	CurrentServerView  string   `json:"current_server_view"`
 	PreviousServerView string   `json:"previous_server_view"`
 	MainOptionType     string   `json:"main_option_type" binding:"required"`
 	OptionType         string   `json:"option_type" binding:"required"`
 	Currency           string   `json:"currency" binding:"required,currency"`
+}
+
+
+
+type UploadOptionInfoPhotoParams struct {
+	OptionID string `json:"option_id"`
+	Photo    string `json:"photo"`
+	PhotoUrl string `json:"photo_url"`
+	IsCover  bool   `json:"is_cover"`
+}
+
+type UploadOptionInfoPhotoRes struct {
+	Photo    string `json:"photo"`
+	PhotoUrl string `json:"photo_url"`
+	IsCover  bool   `json:"is_cover"`
 }
 
 type UpdatedOptionInfoFieldResponse struct {

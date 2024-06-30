@@ -1,17 +1,20 @@
-package api
+package payment
 
-import (
-	"time"
-)
+import "time"
 
 type ReferencePayment struct {
 	Reference string `json:"reference"`
 	Type      string `json:"type"`
+	AddCard   bool   `json:"add_card"`
+	Message   string `json:"message"`
 }
 
 type ReferencePaymentResponse struct {
-	Verified bool `json:"verified"`
+	Verified bool            `json:"verified"`
+	Card     CardAddResponse `json:"card"`
 }
+
+
 
 type PaystackVerifyResponse struct {
 	Status  bool   `json:"status"`
@@ -113,9 +116,10 @@ type Data struct {
 	Subaccount      Subaccount    `json:"subaccount"`
 }
 
-type InitAddCardParams struct {
-	Currency  string `json:"currency"`
-	CardLast4 string `json:"card_last4"`
+type InitCardChargeParams struct {
+	Currency        string `json:"currency"`
+	CardLast4       string `json:"card_last4"`
+	ObjectReference string `json:"object_reference"`
 }
 
 type InitRemoveCardParams struct {
@@ -138,7 +142,7 @@ type SetDefaultCardRes struct {
 	Type    string `json:"type"`
 }
 
-type InitAddCardRes struct {
+type InitCardChargeRes struct {
 	Reference string `json:"reference"`
 	Reason    string `json:"reason"`
 	Charge    int    `json:"charge"`
@@ -221,8 +225,6 @@ type DataCharge struct {
 	Plan            any                 `json:"plan"` // Use any for handling null
 	ID              int                 `json:"id"`
 }
-
-
 
 type AuthorizationCharge struct {
 	AuthorizationCode string `json:"authorization_code"`

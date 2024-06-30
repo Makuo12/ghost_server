@@ -1,5 +1,7 @@
 package api
 
+import "github.com/makuo12/ghost_server/payment"
+
 type NotificationItem struct {
 	ID        string `json:"id"`
 	Type      string `json:"type"`
@@ -32,17 +34,15 @@ type NotificationOptionReserveDetailParams struct {
 }
 
 type NotificationOptionReserveDetailRes struct {
-	ReserveData   ExperienceReserveOModel   `json:"reserve_data"`
-	DefaultCardID string                    `json:"default_card_id"`
-	HasCard       bool                      `json:"has_card"`
-	CardDetail    CardDetailResponse        `json:"card_detail"`
-	OptionDetail  ExperienceOptionDetailRes `json:"option_detail"`
-	Option        ExperienceOptionData      `json:"option"`
+	ReserveData   ExperienceReserveOModel    `json:"reserve_data"`
+	DefaultCardID string                     `json:"default_card_id"`
+	HasCard       bool                       `json:"has_card"`
+	CardDetail    payment.CardDetailResponse `json:"card_detail"`
+	OptionDetail  ExperienceOptionDetailRes  `json:"option_detail"`
+	Option        ExperienceOptionData       `json:"option"`
 }
 
 type ListNotificationListenRes struct {
 	List        []NotificationItem `json:"list"`
 	CurrentTime string             `json:"current_time"`
 }
-
-

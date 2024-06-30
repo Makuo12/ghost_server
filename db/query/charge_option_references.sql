@@ -112,6 +112,11 @@ SELECT *
 FROM charge_option_references
 WHERE reference = sqlc.arg(reference) AND user_id = sqlc.arg(user_id);
 
+-- name: GetChargeOptionReferenceByID :one
+SELECT *
+FROM charge_option_references
+WHERE id = sqlc.arg(charge_id) AND user_id = sqlc.arg(user_id);
+
 -- name: GetChargeOptionReference :one
 SELECT *
 FROM charge_option_references

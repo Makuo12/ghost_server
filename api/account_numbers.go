@@ -12,6 +12,8 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+// Account Number and USSD
+
 func (server *Server) ListBank(ctx *gin.Context) {
 	var req ListBankParams
 	if err := ctx.ShouldBindJSON(&req); err != nil {
@@ -224,4 +226,17 @@ func (server *Server) RemoveAccountNumber(ctx *gin.Context) {
 	log.Printf("RemoveAccountNumberRes sent successfully (%v) id: %v\n", user.Email, user.ID)
 	ctx.JSON(http.StatusOK, res)
 
+}
+
+
+func (server *Server) ListUSSD(ctx *gin.Context) {
+	_, err := HandleGetUser(ctx, server)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	res := ListUSSDRes {
+		List: tools.USSDNames,
+	}
+	ctx.JSON(http.StatusOK, res)
 }

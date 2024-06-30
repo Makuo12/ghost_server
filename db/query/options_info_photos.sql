@@ -2,9 +2,11 @@
 INSERT INTO options_info_photos (
     option_id,
     cover_image,
-    photo
+    photo,
+    public_cover_image,
+    public_photo
 )
-VALUES ($1, $2, $3)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
 -- name: GetOptionInfoPhoto :one
@@ -74,4 +76,23 @@ SET
     public_photo = $1,
     updated_at = NOW()
 WHERE option_id = $2
+RETURNING cover_image, photo;
+
+
+-- name: UpdateOptionInfoAllPhotoCover :one
+UPDATE options_info_photos
+SET 
+    public_cover_image = $1,
+    cover_image = $2,
+    updated_at = NOW()
+WHERE option_id = $3
+RETURNING cover_image, photo;
+
+-- name: UpdateOptionInfoAllPhotoOnly :one 
+UPDATE options_info_photos
+SET
+    public_photo = $1,
+    photo = $2,
+    updated_at = NOW()
+WHERE option_id = $3
 RETURNING cover_image, photo;

@@ -2,6 +2,8 @@ package constants
 
 const ADD_CARD_REASON = "add_card_reason"
 
+const PAY_CARD_REASON = "pay_card_reason"
+
 // this stores data in redis in the format date_id
 const PAYOUT_CHARGE_DATE_IDS = "payout_charge_date_ids"
 
@@ -45,3 +47,20 @@ const USER_OPTION_INVALID_PAYMENT_AMOUNT = "USER_OPTION_INVALID_PAYMENT_AMOUNT"
 const USER_EVENT_INVALID_PAYMENT_AMOUNT = "USER_EVENT_INVALID_PAYMENT_AMOUNT"
 
 const USER_PAYMENT_INVALID = "user_payment_invalid"
+
+
+const PAYSTACK = "paystack"
+const FLUTTERWAVE = "flutterwave"
+
+const PAYSTACK_BANK_ACCOUNT = "paystack_bank_account"
+
+const PAYSTACK_PWT = "paystack_pwt"
+
+const PAYSTACK_CARD = "paystack_card"
+
+const PAYSTACK_USSD = "paystack_ussd"
+
+const PAYMENT_METHOD_FOR_RESERVATION = "payment_method_for_reservation"
+
+
+

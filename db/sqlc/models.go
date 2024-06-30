@@ -181,15 +181,20 @@ type ChargeOptionReference struct {
 }
 
 type ChargeReference struct {
-	ID         uuid.UUID `json:"id"`
-	UserID     uuid.UUID `json:"user_id"`
-	Reference  uuid.UUID `json:"reference"`
-	Reason     string    `json:"reason"`
-	IsComplete bool      `json:"is_complete"`
-	Charge     int64     `json:"charge"`
-	Currency   string    `json:"currency"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID                 uuid.UUID `json:"id"`
+	UserID             uuid.UUID `json:"user_id"`
+	Reference          string    `json:"reference"`
+	ObjectReference    uuid.UUID `json:"object_reference"`
+	HasObjectReference bool      `json:"has_object_reference"`
+	MainObjectType     string    `json:"main_object_type"`
+	PaymentMedium      string    `json:"payment_medium"`
+	PaymentChannel     string    `json:"payment_channel"`
+	Reason             string    `json:"reason"`
+	IsComplete         bool      `json:"is_complete"`
+	Charge             int64     `json:"charge"`
+	Currency           string    `json:"currency"`
+	CreatedAt          time.Time `json:"created_at"`
+	UpdatedAt          time.Time `json:"updated_at"`
 }
 
 type ChargeReview struct {

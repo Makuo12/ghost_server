@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"strings"
@@ -217,7 +218,7 @@ func HandleReserveEventData(user db.User, ticketData map[string][]TicketItem, ti
 
 // We want to save a recept in the database
 // We also want to store a snap shot of what the event looks like
-func HandleEventReserveComplete(server *Server, ctx *gin.Context, reserveData EventDateReserve, paystackReference string, user db.User, msg string, reference string) (err error) {
+func HandleEventReserveComplete(server *Server, ctx context.Context, reserveData EventDateReserve, paystackReference string, user db.User, msg string, reference string) (err error) {
 	// First we store the receipt
 	optionUserID, chargeID, err := HandleEventReserveReceipt(server, ctx, reserveData, paystackReference, user, true, reference, "HandleEventReserveComplete")
 	if err != nil {
@@ -233,7 +234,7 @@ func HandleEventReserveComplete(server *Server, ctx *gin.Context, reserveData Ev
 	return
 }
 
-func HandleEventReserveReceipt(server *Server, ctx *gin.Context, reserveData EventDateReserve, paystackReference string, user db.User, isComplete bool, reference string, functionName string) (optionUserID uuid.UUID, chargeID uuid.UUID, err error) {
+func HandleEventReserveReceipt(server *Server, ctx context.Context, reserveData EventDateReserve, paystackReference string, user db.User, isComplete bool, reference string, functionName string) (optionUserID uuid.UUID, chargeID uuid.UUID, err error) {
 	dollarToNaira := server.config.DollarToNaira
 	dollarToCAD := server.config.DollarToCAD
 	optionUserID, err = tools.StringToUuid(reserveData.ID)
@@ -358,7 +359,7 @@ func HandleEventReserveReceipt(server *Server, ctx *gin.Context, reserveData Eve
 	return
 }
 
-func HandleEventSnapShot(server *Server, ctx *gin.Context, optionUserID uuid.UUID, reference string, paystackReference string, chargeID uuid.UUID) (err error) {
+func HandleEventSnapShot(server *Server, ctx context.Context, optionUserID uuid.UUID, reference string, paystackReference string, chargeID uuid.UUID) (err error) {
 	var eventDetailString string
 	var eventInfoString string
 	var eventDateTimeString string

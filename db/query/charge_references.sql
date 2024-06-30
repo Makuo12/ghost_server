@@ -1,13 +1,23 @@
 -- name: CreateChargeReference :one
 INSERT INTO charge_references (
     user_id,
+    reference,
+    object_reference,
+    has_object_reference,
+    main_object_type,
+    payment_medium,
+    payment_channel,
     reason,
     charge,
     currency,
-    is_complete,
-    reference
-) VALUES ($1, $2, $3, $4, $5, $6)
+    is_complete
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING *;
+
+-- name: GetChargeReference :one
+SELECT * 
+FROM charge_references
+WHERE user_id = $1 AND reference = $2;
 
 
 -- name: UpdateChargeReferenceComplete :one

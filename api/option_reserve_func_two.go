@@ -9,6 +9,7 @@ import (
 
 	"github.com/makuo12/ghost_server/constants"
 	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/payment"
 	"github.com/makuo12/ghost_server/tools"
 	"github.com/makuo12/ghost_server/utils"
 
@@ -82,7 +83,6 @@ func HandleFinalOptionReserveDetail(server *Server, ctx context.Context, referen
 		return
 	}
 	totalFee = reserveData.TotalFee
-
 	refRes = reserveData.Reference
 	return
 
@@ -266,6 +266,8 @@ func HandleChargeDatesAvailable(ctx context.Context, server *Server, option db.G
 // Firstname is the host name
 // mid is the request_notify mid
 func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, senderID string, receiverID string, firstName string, reference string) {
+	successUrl := server.config.PaymentSuccessUrl
+	failureUrl := server.config.PaymentFailUrl
 	senderUUID, err := tools.StringToUuid(senderID)
 	if err != nil {
 		log.Printf("Error at HandleURApproved senderID in tools.StringToUuid: %v, MsgID: %v senderID: %v \n", err.Error(), mid, senderID)
@@ -331,7 +333,7 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, sender
 		return
 	}
 	// Next we want to make the payment
-	resData, _, resChallenged, err := HandlePaystackChargeAuthorization(server, ctx, card, tools.IntToMoneyString(charge.TotalFee))
+	resData, _, resChallenged, err := payment.HandlePaystackChargeAuthorization(ctx, successUrl, failureUrl, server.config.PaystackSecretLiveKey, card, tools.IntToMoneyString(charge.TotalFee))
 	if err != nil {
 		log.Printf("Error at HandleURApproved senderID in HandlePaystackChargeAuthorization: %v, MsgID: %v senderID: %v \n", err.Error(), mid, senderID)
 		CreateTypeNotification(ctx, server, mid, senderUUID, constants.OPTION_BOOKING_PAYMENT_UNSUCCESSFUL, msgString, false, header)
@@ -362,9 +364,9 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, sender
 	}
 }
 
-func HandleReserveCard(ctx context.Context, server *Server, user db.User, funcName string) (string, CardDetailResponse, bool) {
+func HandleReserveCard(ctx context.Context, server *Server, user db.User, funcName string) (string, payment.CardDetailResponse, bool) {
 
-	cardDetail := CardDetailResponse{"none", "none", "none", "none", "none", "none"}
+	cardDetail := payment.CardDetailResponse{CardID: "none", CardLast4: "none", CardType: "none", ExpMonth: "none", ExpYear: "none", Currency: "none"}
 	if tools.ServerStringEmpty(user.DefaultCard) {
 		// If default card is empty we get any card to make the payment
 		card, exist := HandleGetAnyCard(ctx, server, user, funcName)
@@ -399,8 +401,8 @@ func HandleReserveCard(ctx context.Context, server *Server, user db.User, funcNa
 	return tools.UuidToString(defaultCard.ID), HandleConvertCardToResponse(defaultCard), true
 }
 
-func HandleConvertCardToResponse(card db.Card) CardDetailResponse {
-	res := CardDetailResponse{
+func HandleConvertCardToResponse(card db.Card) payment.CardDetailResponse {
+	res := payment.CardDetailResponse{
 		CardID:    tools.UuidToString(card.ID),
 		CardLast4: card.Last4,
 		CardType:  utils.MatchCardType(card.CardType),

@@ -341,6 +341,53 @@ func (q *Queries) GetChargeOptionReferenceByHostID(ctx context.Context, arg GetC
 	return i, err
 }
 
+const getChargeOptionReferenceByID = `-- name: GetChargeOptionReferenceByID :one
+SELECT id, user_id, option_user_id, discount, main_price, service_fee, total_fee, date_price, guests, date_booked, currency, start_date, end_date, guest_fee, pet_fee, clean_fee, nightly_pet_fee, nightly_guest_fee, can_instant_book, require_request, request_type, reference, payment_reference, request_approved, is_complete, cancelled, created_at, updated_at
+FROM charge_option_references
+WHERE id = $1 AND user_id = $2
+`
+
+type GetChargeOptionReferenceByIDParams struct {
+	ChargeID uuid.UUID `json:"charge_id"`
+	UserID   uuid.UUID `json:"user_id"`
+}
+
+func (q *Queries) GetChargeOptionReferenceByID(ctx context.Context, arg GetChargeOptionReferenceByIDParams) (ChargeOptionReference, error) {
+	row := q.db.QueryRow(ctx, getChargeOptionReferenceByID, arg.ChargeID, arg.UserID)
+	var i ChargeOptionReference
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.OptionUserID,
+		&i.Discount,
+		&i.MainPrice,
+		&i.ServiceFee,
+		&i.TotalFee,
+		&i.DatePrice,
+		&i.Guests,
+		&i.DateBooked,
+		&i.Currency,
+		&i.StartDate,
+		&i.EndDate,
+		&i.GuestFee,
+		&i.PetFee,
+		&i.CleanFee,
+		&i.NightlyPetFee,
+		&i.NightlyGuestFee,
+		&i.CanInstantBook,
+		&i.RequireRequest,
+		&i.RequestType,
+		&i.Reference,
+		&i.PaymentReference,
+		&i.RequestApproved,
+		&i.IsComplete,
+		&i.Cancelled,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getChargeOptionReferenceByMsg = `-- name: GetChargeOptionReferenceByMsg :one
 SELECT od.host_name_option, oi_p.cover_image, u_s.first_name, co.guests, co.start_date, co.end_date, co.total_fee, co.service_fee, u_s.email, u_s.phone_number, u_s.photo, i_d.is_verified, co.currency
 FROM charge_option_references co

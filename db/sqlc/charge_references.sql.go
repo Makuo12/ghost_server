@@ -14,38 +14,91 @@ import (
 const createChargeReference = `-- name: CreateChargeReference :one
 INSERT INTO charge_references (
     user_id,
+    reference,
+    object_reference,
+    has_object_reference,
+    main_object_type,
+    payment_medium,
+    payment_channel,
     reason,
     charge,
     currency,
-    is_complete,
-    reference
-) VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, user_id, reference, reason, is_complete, charge, currency, created_at, updated_at
+    is_complete
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+RETURNING id, user_id, reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at
 `
 
 type CreateChargeReferenceParams struct {
-	UserID     uuid.UUID `json:"user_id"`
-	Reason     string    `json:"reason"`
-	Charge     int64     `json:"charge"`
-	Currency   string    `json:"currency"`
-	IsComplete bool      `json:"is_complete"`
-	Reference  uuid.UUID `json:"reference"`
+	UserID             uuid.UUID `json:"user_id"`
+	Reference          string    `json:"reference"`
+	ObjectReference    uuid.UUID `json:"object_reference"`
+	HasObjectReference bool      `json:"has_object_reference"`
+	MainObjectType     string    `json:"main_object_type"`
+	PaymentMedium      string    `json:"payment_medium"`
+	PaymentChannel     string    `json:"payment_channel"`
+	Reason             string    `json:"reason"`
+	Charge             int64     `json:"charge"`
+	Currency           string    `json:"currency"`
+	IsComplete         bool      `json:"is_complete"`
 }
 
 func (q *Queries) CreateChargeReference(ctx context.Context, arg CreateChargeReferenceParams) (ChargeReference, error) {
 	row := q.db.QueryRow(ctx, createChargeReference,
 		arg.UserID,
+		arg.Reference,
+		arg.ObjectReference,
+		arg.HasObjectReference,
+		arg.MainObjectType,
+		arg.PaymentMedium,
+		arg.PaymentChannel,
 		arg.Reason,
 		arg.Charge,
 		arg.Currency,
 		arg.IsComplete,
-		arg.Reference,
 	)
 	var i ChargeReference
 	err := row.Scan(
 		&i.ID,
 		&i.UserID,
 		&i.Reference,
+		&i.ObjectReference,
+		&i.HasObjectReference,
+		&i.MainObjectType,
+		&i.PaymentMedium,
+		&i.PaymentChannel,
+		&i.Reason,
+		&i.IsComplete,
+		&i.Charge,
+		&i.Currency,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getChargeReference = `-- name: GetChargeReference :one
+SELECT id, user_id, reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at 
+FROM charge_references
+WHERE user_id = $1 AND reference = $2
+`
+
+type GetChargeReferenceParams struct {
+	UserID    uuid.UUID `json:"user_id"`
+	Reference string    `json:"reference"`
+}
+
+func (q *Queries) GetChargeReference(ctx context.Context, arg GetChargeReferenceParams) (ChargeReference, error) {
+	row := q.db.QueryRow(ctx, getChargeReference, arg.UserID, arg.Reference)
+	var i ChargeReference
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Reference,
+		&i.ObjectReference,
+		&i.HasObjectReference,
+		&i.MainObjectType,
+		&i.PaymentMedium,
+		&i.PaymentChannel,
 		&i.Reason,
 		&i.IsComplete,
 		&i.Charge,
@@ -62,13 +115,13 @@ SET
     is_complete = $1,
     updated_at = NOW()
 WHERE user_id = $2 AND reference = $3
-RETURNING id, user_id, reference, reason, is_complete, charge, currency, created_at, updated_at
+RETURNING id, user_id, reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at
 `
 
 type UpdateChargeReferenceCompleteParams struct {
 	IsComplete bool      `json:"is_complete"`
 	UserID     uuid.UUID `json:"user_id"`
-	Reference  uuid.UUID `json:"reference"`
+	Reference  string    `json:"reference"`
 }
 
 func (q *Queries) UpdateChargeReferenceComplete(ctx context.Context, arg UpdateChargeReferenceCompleteParams) (ChargeReference, error) {
@@ -78,6 +131,11 @@ func (q *Queries) UpdateChargeReferenceComplete(ctx context.Context, arg UpdateC
 		&i.ID,
 		&i.UserID,
 		&i.Reference,
+		&i.ObjectReference,
+		&i.HasObjectReference,
+		&i.MainObjectType,
+		&i.PaymentMedium,
+		&i.PaymentChannel,
 		&i.Reason,
 		&i.IsComplete,
 		&i.Charge,

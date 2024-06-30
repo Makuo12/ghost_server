@@ -64,7 +64,7 @@ func SendSmsOtp(server *Server, toPhone string, usernameString string, dial_numb
 	data := fmt.Sprintf("%v&%v&%v&%v&%v&%v&%v", "phone", code, toPhone, usernameString, dial_code_number, dial_country, "false")
 	split := strings.Split(toPhone, "_")
 	if len(split) != 2 {
-		err = fmt.Errorf("phone in wrong format")
+		log.Println("phone in wrong format")
 	}
 	sendNumber := fmt.Sprintf("%v%v", split[0], split[1])
 	err = sender.SendSmsOtp(funcName, server.config.Msg91Key, server.config.SmsOtpTemplate, sendNumber, code)

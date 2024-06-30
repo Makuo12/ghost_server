@@ -60,7 +60,7 @@ WHERE m_r.is_payed = $1 AND m_r.charge_type = 'charge_reference'
 type ListMainRefundWithChargeRow struct {
 	Currency    string    `json:"currency"`
 	ChargeID    uuid.UUID `json:"charge_id"`
-	Reference   uuid.UUID `json:"reference"`
+	Reference   string    `json:"reference"`
 	UserPercent int32     `json:"user_percent"`
 	UID         uuid.UUID `json:"u_id"`
 	HostPercent int32     `json:"host_percent"`

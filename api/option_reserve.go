@@ -1,15 +1,18 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
-	db "github.com/makuo12/ghost_server/db/sqlc"
-	"github.com/makuo12/ghost_server/tools"
-
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/payment"
+	"github.com/makuo12/ghost_server/tools"
 )
 
 func (server *Server) CreateOptionReserveDetail(ctx *gin.Context) {
@@ -146,7 +149,7 @@ func (server *Server) FinalOptionReserveDetail(ctx *gin.Context) {
 			return
 		}
 	}
-	resData, resChallengeData, resChallenged, err := HandlePaystackChargeAuthorization(server, ctx, card, totalFee)
+	resData, resChallengeData, resChallenged, err := payment.HandlePaystackChargeAuthorization(ctx, successUrl, failureUrl, server.config.PaystackSecretLiveKey, card, totalFee)
 	if err != nil {
 		log.Printf("Error at FinalOptionReserveDetail in HandlePaystackChargeAuthorization: %v, cardID: %v, userID: %v \n", err.Error(), cardID, user.ID)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -264,4 +267,100 @@ func (server *Server) FinalOptionReserveVerificationDetail(ctx *gin.Context) {
 	}
 	log.Printf("FinalOptionReserveVerificationDetail sent successfully (%v) id: %v\n", user.Email, user.ID)
 	ctx.JSON(http.StatusOK, res)
+}
+
+func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPaymentParams, user db.User) (paystackBankCharge payment.PaystackBankAccountMainRes, paystackPWT payment.PaystackPWTMainRes, paystackUSSD payment.PaystackUSSDRes, paystackCard payment.InitCardChargeRes, detailRes FinalOptionReserveRequestDetailRes, hasReqData bool, reason string, err error) {
+	var objectReference = uuid.New()
+	var hasObjectReference = false
+	var currency string
+	var fee string
+	var reference string
+	switch arg.MainOptionType {
+	case "options":
+		detailDataRes, hasResData, totalFee, resRef, resData, fromCharge, chargeData, errData := HandleFinalOptionReserveDetail(server, ctx, arg.Reference, user, arg.Reference, arg.Message)
+		if errData != nil {
+			err = errData
+			return
+		}
+		if hasResData {
+			detailRes = detailDataRes
+			// This means we are meant to send a reservation request response
+			hasReqData = hasResData
+			return
+		}
+		if fromCharge {
+			objectReference = chargeData.ID
+			hasObjectReference = true
+		}
+		reason = constants.USER_OPTION_PAYMENT
+		currency = resData.Currency
+		fee = totalFee
+		reference = resRef
+	case "events":
+		resData, errData := HandleEventReserveRedisData(tools.UuidToString(user.ID), arg.Reference)
+		if errData != nil {
+			err = errData
+			return
+		}
+		reason = constants.USER_EVENT_PAYMENT
+		currency = resData.Currency
+		fee = resData.TotalFee
+		reference = arg.Reference
+	}
+	if err != nil {
+		return
+	}
+	_, err = CreateChargeReference(ctx, server, user.UserID, reference, objectReference, hasObjectReference, reason, currency, arg.MainOptionType, fee, "ReservePaymentMethod")
+	if err != nil {
+		return
+	}
+	paystackBankCharge, paystackPWT, paystackUSSD, paystackCard, err = ReservePaymentChannel(ctx, server, arg, user, fee, reference, reason)
+	return
+}
+
+func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPaymentParams, user db.User, charge string, reference string, reason string) (paystackBankCharge payment.PaystackBankAccountMainRes, paystackPWT payment.PaystackPWTMainRes, paystackUSSD payment.PaystackUSSDRes, paystackCard payment.InitCardChargeRes, err error) {
+	switch arg.PaymentChannel {
+	case constants.PAYSTACK_BANK_ACCOUNT:
+		res, errData := payment.HandlePaystackBankAccount(ctx, server.config.PaystackSecretLiveKey, charge, reference, arg.PaystackBankAccount, user.Email)
+		if errData != nil {
+			err = errData
+		} else {
+			paystackBankCharge = payment.PaystackBankAccountMainRes{
+				Reference:   res.Data.Reference,
+				DisplayText: res.Data.DisplayText,
+			}
+		}
+	case constants.PAYSTACK_PWT:
+		res, errData := payment.HandlePaystackPWT(ctx, server.config.PaystackSecretLiveKey, charge, reference, user.Email)
+		if errData != nil {
+			err = errData
+		} else {
+			paystackPWT = payment.PaystackPWTMainRes{
+				Reference:     res.Data.Reference,
+				Slug:          res.Data.Bank.Slug,
+				AccountName:   res.Data.AccountName,
+				AccountNumber: res.Data.AccountNumber,
+				ExpiresAt:     res.Data.AccountExpiresAt,
+			}
+		}
+	case constants.PAYSTACK_CARD:
+		res, errData := payment.HandlePaystackCard(ctx, server.config.PaystackSecretLiveKey, charge, reference, arg.Currency, user.Email, reason)
+		if errData != nil {
+			err = errData
+		} else {
+			paystackCard = res
+		}
+	case constants.PAYSTACK_USSD:
+		res, errData := payment.HandlePaystackUSSD(ctx, server.config.PaystackSecretLiveKey, charge, reference, arg.PaystackUSSD, user.Email, user.FirstName)
+		if errData != nil {
+			err = errData
+		} else {
+			paystackUSSD = payment.PaystackUSSDRes{
+				Reference:   res.Data.Reference,
+				DisplayText: res.Data.DisplayText,
+				USSDCode:    res.Data.UssdCode,
+			}
+		}
+	}
+	return
 }

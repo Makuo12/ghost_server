@@ -6,6 +6,19 @@ import (
 	"strconv"
 )
 
+type USSDItem struct {
+	Name string `json:"name"`
+	Code string `json:"code"`
+}
+
+
+
+var USSDNames []USSDItem = []USSDItem{
+	{"Guaranty Trust Bank", "737"}, 
+	{"United Bank of Africa", "919"},
+	{"Sterling Bank", "822"},
+	{"Zenith Bank", "966"},
+}
 func GetBalanceFrom(balance string, amount string) (string, error) {
 	bal, err := strconv.ParseFloat(balance, 64)
 	if err != nil {
@@ -107,3 +120,5 @@ func AccountNumberToFour(a string) (s string) {
 	}
 	return
 }
+
+

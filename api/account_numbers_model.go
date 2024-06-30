@@ -1,5 +1,7 @@
 package api
 
+import "github.com/makuo12/ghost_server/tools"
+
 type Bank struct {
 	ID          int         `json:"id"`
 	Name        string      `json:"name"`
@@ -74,6 +76,12 @@ type BankItem struct {
 	Type     string `json:"type"`
 	Currency string `json:"currency"`
 }
+
+type ListUSSDRes struct {
+	List []tools.USSDItem `json:"list"`
+}
+
+
 
 type ListBankRes struct {
 	List    []BankItem `json:"list"`

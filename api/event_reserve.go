@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/payment"
 	"github.com/makuo12/ghost_server/tools"
 
 	"github.com/gin-gonic/gin"
@@ -116,7 +117,7 @@ func (server *Server) FinalEventReserveDetail(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	resData, resChallengeData, resChallenged, err := HandlePaystackChargeAuthorization(server, ctx, card, reserveData.TotalFee)
+	resData, resChallengeData, resChallenged, err := payment.HandlePaystackChargeAuthorization(ctx, successUrl, failureUrl, server.config.PaystackSecretLiveKey, card, reserveData.TotalFee)
 	if err != nil {
 		log.Printf("Error at FinalEventReserveDetail in HandlePaystackChargeAuthorization: %v, cardID: %v, userID: %v \n", err.Error(), cardID, user.ID)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

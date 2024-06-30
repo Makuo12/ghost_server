@@ -760,7 +760,12 @@ CREATE TABLE "report_options" (
 CREATE TABLE "charge_references" (
   "id" uuid UNIQUE PRIMARY KEY DEFAULT (uuid_generate_v4()),
   "user_id" uuid NOT NULL,
-  "reference" uuid NOT NULL DEFAULT (uuid_generate_v4()),
+  "reference" varchar NOT NULL DEFAULT 'none',
+  "object_reference" uuid NOT NULL DEFAULT (uuid_generate_v4()),
+  "has_object_reference" boolean NOT NULL DEFAULT false,
+  "main_object_type" varchar NOT NULL DEFAULT 'none',
+  "payment_medium" varchar NOT NULL DEFAULT 'none',
+  "payment_channel" varchar NOT NULL DEFAULT 'none',
   "reason" varchar NOT NULL,
   "is_complete" boolean NOT NULL DEFAULT false,
   "charge" bigint NOT NULL,

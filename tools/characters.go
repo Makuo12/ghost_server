@@ -146,3 +146,17 @@ func ConvertAnyToString(metadata any) (string, error) {
 
 	return string(metadataJSON), nil
 }
+
+func RemoveDuplicates(slice []string) []string {
+	seen := make(map[string]struct{})
+	result := []string{}
+
+	for _, item := range slice {
+		if _, found := seen[item]; !found {
+			seen[item] = struct{}{}
+			result = append(result, item)
+		}
+	}
+	return result
+}
+

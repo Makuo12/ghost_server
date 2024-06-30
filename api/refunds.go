@@ -18,6 +18,25 @@ import (
 	"github.com/google/uuid"
 )
 
+func HandleInitRefund(ctx context.Context, server *Server, user db.User, referenceString string, objectReference uuid.UUID, hasObjectReference bool, mainOption string, reason string, amount string, currency string, funcName string) {
+	charge, err := CreateChargeReference(ctx, server, user.UserID, referenceString, objectReference, hasObjectReference, reason, currency, mainOption, amount, "HandleInitRefund")
+	if err != nil {
+		log.Printf("Error at FuncName: %v HandleInitRefund in CreateChargeReference: %v, reference: %v, userID: %v \n", funcName, err.Error(), referenceString, user.ID)
+		return
+	}
+	_, err = server.store.CreateMainRefund(ctx, db.CreateMainRefundParams{
+		ChargeID:    charge.ID,
+		UserPercent: 100,
+		HostPercent: 0,
+		ChargeType:  constants.CHARGE_REFERENCE,
+		Type:        reason,
+	})
+	if err != nil {
+		log.Printf("Error at FuncName: %v HandleInitRefund in CreateMainRefund: %v, reference: %v, userID: %v \n", funcName, err.Error(), referenceString, user.ID)
+	}
+	return
+}
+
 func DailyHandleRefund(ctx context.Context, server *Server) func() {
 	return func() {
 		redisRefundDateIDs, err := RedisClient.SMembers(RedisContext, constants.REFUND_CHARGE_DATE_IDS).Result()
@@ -40,7 +59,7 @@ func HandleAddCardRefund(ctx context.Context, server *Server, redisRefunds []str
 		url := "https://api.paystack.co/refund"
 		bearer := "Bearer " + server.config.PaystackSecretLiveKey
 		for _, r := range refunds {
-			err := HandleMainRefund(ctx, server, r.ChargeID, uuid.New(), r.UID, "0", "0", tools.UuidToString(r.Reference), url, bearer, int(r.UserPercent), int(r.HostPercent), r.Currency, redisRefunds)
+			err := HandleMainRefund(ctx, server, r.ChargeID, uuid.New(), r.UID, "0", "0", r.Reference, url, bearer, int(r.UserPercent), int(r.HostPercent), r.Currency, redisRefunds)
 			if err != nil {
 				log.Printf("HandleAddCardRefund in HandleMainRefund err:%v\n", err.Error())
 			}

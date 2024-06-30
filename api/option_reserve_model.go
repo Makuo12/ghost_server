@@ -1,5 +1,7 @@
 package api
 
+import "github.com/makuo12/ghost_server/payment"
+
 type DatePrice struct {
 	Price      string `json:"price"`
 	Date       string `json:"date"`
@@ -48,15 +50,11 @@ type ExperienceReserveOModel struct {
 }
 
 type CreateOptionReserveDetailRes struct {
-	ReserveData   ExperienceReserveOModel `json:"reserve_data"`
-	DefaultCardID string                  `json:"default_card_id"`
-	HasCard       bool                    `json:"has_card"`
-	CardDetail    CardDetailResponse      `json:"card_detail"`
+	ReserveData   ExperienceReserveOModel    `json:"reserve_data"`
+	DefaultCardID string                     `json:"default_card_id"`
+	HasCard       bool                       `json:"has_card"`
+	CardDetail    payment.CardDetailResponse `json:"card_detail"`
 }
-
-
-
-
 
 type FinalOptionReserveDetailParams struct {
 	Reference string `json:"reference" binding:"required"`
@@ -96,4 +94,28 @@ type MsgRequestResponseParams struct {
 	Message  string `json:"message"`
 }
 
+type InitMethodPaymentParams struct {
+	Reference           string                               `json:"reference"`
+	PaymentType         string                               `json:"payment_type" binding:"required"`
+	MainOptionType      string                               `json:"main_option_type" binding:"required"`
+	PaymentMethod       string                               `json:"payment_method"`
+	PaymentChannel      string                               `json:"payment_channel"`
+	Message             string                               `json:"message"`
+	Type                string                               `json:"type"`
+	Currency            string                               `json:"currency"`
+	CardLast4           string                               `json:"card_last4"`
+	PaystackBankAccount payment.PaystackGetBankAccountParams `json:"paystack_bank_account"`
+	PaystackUSSD        string                               `json:"paystack_ussd"`
+}
 
+type InitMethodPaymentRes struct {
+	Reference          string                             `json:"reference" binding:"required"`
+	PaymentType        string                             `json:"payment_type" binding:"required"`
+	MainOptionType     string                             `json:"main_option_type" binding:"required"`
+	PaymentMethod      string                             `json:"payment_method"`
+	PaymentChannel     string                             `json:"payment_channel"`
+	PaystackBankCharge payment.PaystackBankAccountMainRes `json:"payment_bank_charge"`
+	PaystackPWT        payment.PaystackPWTMainRes         `json:"payment_pwt"`
+	PaystackCard       payment.InitCardChargeRes          `json:"payment_card"`
+	PaystackUSSD       payment.PaystackUSSDRes            `json:"payment_usd"`
+}

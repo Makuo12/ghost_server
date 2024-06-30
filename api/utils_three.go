@@ -358,8 +358,10 @@ func PublishHandlePhoto(server *Server, ctx *gin.Context, option db.OptionsInfo,
 	if err != nil {
 		res = CreateOptionInfoPhotoParams{
 			OptionID:           tools.UuidToString(option.ID),
-			CoverImage:         "",
-			Photo:              []string{""},
+			MainCoverImage:     "",
+			MainPhoto:          []string{""},
+			PublicPhoto:        []string{""},
+			PublicCoverImage:   "",
 			UserOptionID:       tools.UuidToString(option.OptionUserID),
 			CurrentServerView:  completeOption.CurrentState,
 			PreviousServerView: completeOption.PreviousState,
@@ -371,8 +373,10 @@ func PublishHandlePhoto(server *Server, ctx *gin.Context, option db.OptionsInfo,
 	}
 	res = CreateOptionInfoPhotoParams{
 		OptionID:           tools.UuidToString(option.ID),
-		CoverImage:         optionPhoto.CoverImage,
-		Photo:              optionPhoto.Photo,
+		MainCoverImage:     optionPhoto.CoverImage,
+		MainPhoto:          optionPhoto.Photo,
+		PublicPhoto:        optionPhoto.PublicPhoto,
+		PublicCoverImage:   optionPhoto.PublicCoverImage,
 		UserOptionID:       tools.UuidToString(option.OptionUserID),
 		CurrentServerView:  completeOption.CurrentState,
 		PreviousServerView: completeOption.PreviousState,
@@ -422,8 +426,10 @@ func ReversePublishToPhoto(server *Server, ctx *gin.Context, option db.OptionsIn
 			MainOptionType:     option.MainOptionType,
 			OptionType:         option.OptionType,
 			Currency:           option.Currency,
-			Photo:              []string{},
-			CoverImage:         "",
+			MainPhoto:          []string{},
+			MainCoverImage:     "",
+			PublicPhoto:        []string{},
+			PublicCoverImage:   "",
 		}
 	} else {
 		if len(photoData.Photo) == 0 {
@@ -437,8 +443,10 @@ func ReversePublishToPhoto(server *Server, ctx *gin.Context, option db.OptionsIn
 			MainOptionType:     option.MainOptionType,
 			OptionType:         option.OptionType,
 			Currency:           option.Currency,
-			Photo:              photoData.Photo,
-			CoverImage:         photoData.CoverImage,
+			MainPhoto:          photoData.PublicPhoto,
+			MainCoverImage:     photoData.PublicCoverImage,
+			PublicPhoto:        photoData.PublicPhoto,
+			PublicCoverImage:   photoData.PublicCoverImage,
 		}
 	}
 	return

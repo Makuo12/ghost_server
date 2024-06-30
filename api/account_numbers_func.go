@@ -177,6 +177,29 @@ func HandleListBank(server *Server, ctx *gin.Context, country string) (res ListB
 	return
 }
 
+
+func HandleListUSSD(server *Server, ctx *gin.Context, country string) (res ListBankRes, err error) {
+	
+	banks, err := GetBankList(server, country)
+	if err != nil {
+		return
+	}
+	var resData []BankItem
+	for _, b := range banks.Data {
+		data := BankItem{
+			Name:     b.Name,
+			Code:     b.Code,
+			Type:     b.Type,
+			Currency: b.Currency,
+		}
+		resData = append(resData, data)
+	}
+	res = ListBankRes{
+		List: resData,
+	}
+	return
+}
+
 func HandleVerifyBankCode(server *Server, ctx *gin.Context, country string, code string) (bank Bank, err error) {
 	banks, err := GetBankList(server, country)
 	if err != nil {
