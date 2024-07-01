@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -124,6 +125,97 @@ func (q *Queries) ListAllPhoto(ctx context.Context) ([]OptionsInfoPhoto, error) 
 			&i.Photo,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAllUserPhoto = `-- name: ListAllUserPhoto :many
+SELECT id, co_host_id, option_user_id, host_id, deep_link_id, primary_user_id, is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, currency, option_img, option_type, main_option_type, oi.created_at, completed, oi.updated_at, option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, oip.created_at, oip.updated_at
+FROM options_infos oi
+JOIN options_info_photos oip on oip.option_id = oi.id
+WHERE oi.host_id = $1
+`
+
+type ListAllUserPhotoRow struct {
+	ID               uuid.UUID `json:"id"`
+	CoHostID         uuid.UUID `json:"co_host_id"`
+	OptionUserID     uuid.UUID `json:"option_user_id"`
+	HostID           uuid.UUID `json:"host_id"`
+	DeepLinkID       uuid.UUID `json:"deep_link_id"`
+	PrimaryUserID    uuid.UUID `json:"primary_user_id"`
+	IsActive         bool      `json:"is_active"`
+	IsComplete       bool      `json:"is_complete"`
+	IsVerified       bool      `json:"is_verified"`
+	Category         string    `json:"category"`
+	CategoryTwo      string    `json:"category_two"`
+	CategoryThree    string    `json:"category_three"`
+	CategoryFour     string    `json:"category_four"`
+	IsTopSeller      bool      `json:"is_top_seller"`
+	TimeZone         string    `json:"time_zone"`
+	Currency         string    `json:"currency"`
+	OptionImg        string    `json:"option_img"`
+	OptionType       string    `json:"option_type"`
+	MainOptionType   string    `json:"main_option_type"`
+	CreatedAt        time.Time `json:"created_at"`
+	Completed        time.Time `json:"completed"`
+	UpdatedAt        time.Time `json:"updated_at"`
+	OptionID         uuid.UUID `json:"option_id"`
+	CoverImage       string    `json:"cover_image"`
+	HasMetaData      bool      `json:"has_meta_data"`
+	PublicCoverImage string    `json:"public_cover_image"`
+	PublicPhoto      []string  `json:"public_photo"`
+	Photo            []string  `json:"photo"`
+	CreatedAt_2      time.Time `json:"created_at_2"`
+	UpdatedAt_2      time.Time `json:"updated_at_2"`
+}
+
+func (q *Queries) ListAllUserPhoto(ctx context.Context, hostID uuid.UUID) ([]ListAllUserPhotoRow, error) {
+	rows, err := q.db.Query(ctx, listAllUserPhoto, hostID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAllUserPhotoRow{}
+	for rows.Next() {
+		var i ListAllUserPhotoRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CoHostID,
+			&i.OptionUserID,
+			&i.HostID,
+			&i.DeepLinkID,
+			&i.PrimaryUserID,
+			&i.IsActive,
+			&i.IsComplete,
+			&i.IsVerified,
+			&i.Category,
+			&i.CategoryTwo,
+			&i.CategoryThree,
+			&i.CategoryFour,
+			&i.IsTopSeller,
+			&i.TimeZone,
+			&i.Currency,
+			&i.OptionImg,
+			&i.OptionType,
+			&i.MainOptionType,
+			&i.CreatedAt,
+			&i.Completed,
+			&i.UpdatedAt,
+			&i.OptionID,
+			&i.CoverImage,
+			&i.HasMetaData,
+			&i.PublicCoverImage,
+			&i.PublicPhoto,
+			&i.Photo,
+			&i.CreatedAt_2,
+			&i.UpdatedAt_2,
 		); err != nil {
 			return nil, err
 		}

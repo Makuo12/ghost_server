@@ -385,8 +385,6 @@ type CreateOptionInfoPhotoParams struct {
 	Currency           string   `json:"currency" binding:"required,currency"`
 }
 
-
-
 type UploadOptionInfoPhotoParams struct {
 	OptionID string `json:"option_id"`
 	Photo    string `json:"photo"`
@@ -490,3 +488,12 @@ var optionQuestionNote = []OptionQuestionNote{
 		Type: "property_info",
 	},
 }
+
+type DeleteOptionUserInfoPhotoParams struct {
+	Path string `json:"path"`
+}
+
+type DeleteOptionUserInfoPhotoRes struct {
+	Success bool `json:"success"`
+}
+

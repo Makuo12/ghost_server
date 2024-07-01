@@ -883,6 +883,108 @@ func (server *Server) UploadOptionPhoto(ctx *gin.Context) {
 
 }
 
+func (server *Server) DeleteOptionUserPhotoNotStored(ctx *gin.Context) {
+	var photoStored bool
+	var req DeleteOptionUserInfoPhotoParams
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Printf("Error at DeleteOptionUserPhoto in ShouldBindJSON: %v, Path: %v \n", err.Error(), req.Path)
+		err = fmt.Errorf("error occurred while taking you back")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	_, err := HandleGetUser(ctx, server)
+	if err != nil {
+		log.Println("error something went wrong 3, ", err)
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	optionPhotos, err := server.store.ListAllPhoto(ctx)
+	if err != nil && err != db.ErrorRecordNotFound {
+		err = fmt.Errorf("something went wrong while deleting photo")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	for _, optionPhoto := range optionPhotos {
+		// We want to ensure that none of the photo is not store in the database
+		if optionPhoto.CoverImage == req.Path {
+			photoStored = true
+		}
+		for _, photo := range optionPhoto.Photo {
+			if photo == req.Path {
+				photoStored = true
+			}
+		}
+	}
+	if photoStored {
+		// if stored we want to send back an error because it should not be stored in the database
+		err = fmt.Errorf("cannot delete this photo has you don't have permissions")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	// We want to delete the photo from firebase
+	err = RemoveFirebasePhoto(server, ctx, req.Path)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	res := DeleteOptionUserInfoPhotoRes {
+		Success: true,
+	}
+	ctx.JSON(http.StatusOK, res)
+
+}
+
+func (server *Server) DeleteOptionUserPhotoStored(ctx *gin.Context) {
+	var photoStored bool
+	var req DeleteOptionUserInfoPhotoParams
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Printf("Error at DeleteOptionUserPhoto in ShouldBindJSON: %v, Path: %v \n", err.Error(), req.Path)
+		err = fmt.Errorf("error occurred while taking you back")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	user, err := HandleGetUser(ctx, server)
+	if err != nil {
+		log.Println("error something went wrong 3, ", err)
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	optionPhotos, err := server.store.ListAllUserPhoto(ctx, user.ID)
+	if err != nil && err != db.ErrorRecordNotFound {
+		err = fmt.Errorf("something went wrong while deleting photo")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	for _, optionPhoto := range optionPhotos {
+		// We want to ensure that photo is one of the photos the user owns
+		if optionPhoto.CoverImage == req.Path {
+			photoStored = true
+		}
+		for _, photo := range optionPhoto.Photo {
+			if photo == req.Path {
+				photoStored = true
+			}
+		}
+	}
+	if !photoStored {
+		// if not found we send an error
+		err = fmt.Errorf("cannot delete this photo has you don't have permissions")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	// We want to delete the photo from firebase
+	err = RemoveFirebasePhoto(server, ctx, req.Path)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	res := DeleteOptionUserInfoPhotoRes {
+		Success: true,
+	}
+	ctx.JSON(http.StatusOK, res)
+
+}
+
 func (server *Server) DeleteOptionPhoto(ctx *gin.Context) {
 	var req db.DeleteOptionInfoPhotoParams
 	if err := ctx.ShouldBindJSON(&req); err != nil {

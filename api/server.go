@@ -864,6 +864,10 @@ func (server *Server) setupRouter() {
 	authRoutes.PUT("/users/options/option-question/get", server.GetOptionQuestion)
 	authRoutes.PUT("/users/options/option-question/update", server.UpdateOptionQuestion)
 
+	// Delete firebase photos
+	authRoutes.DELETE("/users/photo/delete/not-stored", server.DeleteOptionUserPhotoNotStored)
+	authRoutes.DELETE("/users/photo/delete/stored", server.DeleteOptionUserPhotoStored)
+
 	// Websocket
 	authRoutes.GET("/ws/main-user/:app/:room_type", func(ctx *gin.Context) {
 		roomType := ctx.Param("room_type")

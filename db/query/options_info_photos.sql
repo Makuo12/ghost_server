@@ -18,6 +18,12 @@ WHERE option_id = $1;
 SELECT *
 FROM options_info_photos;
 
+-- name: ListAllUserPhoto :many
+SELECT *
+FROM options_infos oi
+JOIN options_info_photos oip on oip.option_id = oi.id
+WHERE oi.host_id = $1;
+
 -- name: ListOptionPhotoByAdmin :many
 SELECT *
 FROM options_info_photos;
