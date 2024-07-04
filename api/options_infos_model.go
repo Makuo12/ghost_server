@@ -403,19 +403,25 @@ type UpdatedOptionInfoFieldResponse struct {
 }
 
 type ListOptionInfoNotCompleteRow struct {
-	ID                 string `json:"id"`
-	IsComplete         bool   `json:"is_complete"`
-	MainOptionType     string `json:"main_option_type"`
-	OptionType         string `json:"option_type"`
-	HostNameOption     string `json:"host_name_option"`
-	CreatedAt          string `json:"created_at"`
-	CurrentServerView  string `json:"current_server_view"`
-	PreviousServerView string `json:"previous_server_view"`
-	Currency           string `json:"currency"`
-	ExtraInfo          string `json:"extra_info"`
+	ID                 string   `json:"id"`
+	IsComplete         bool     `json:"is_complete"`
+	MainOptionType     string   `json:"main_option_type"`
+	OptionType         string   `json:"option_type"`
+	HostNameOption     string   `json:"host_name_option"`
+	CreatedAt          string   `json:"created_at"`
+	CurrentServerView  string   `json:"current_server_view"`
+	PreviousServerView string   `json:"previous_server_view"`
+	Currency           string   `json:"currency"`
+	ExtraInfo          string   `json:"extra_info"`
+	CoverImage         string   `json:"cover_image"`
+	PublicCoverImage   string   `json:"public_cover_image"`
+	Photo              []string `json:"photo"`
+	PublicPhoto        []string `json:"public_photo"`
 	//// option_main_type is would be main_event_type for events and main_shortlet_type for shortlets
 	//OptionMainType string `json:"option_main_type" binding:"required"`
 }
+
+
 
 type GetOptionInfoNotComplete struct {
 	ID                 string `json:"id"`
@@ -496,4 +502,3 @@ type DeleteOptionUserInfoPhotoParams struct {
 type DeleteOptionUserInfoPhotoRes struct {
 	Success bool `json:"success"`
 }
-

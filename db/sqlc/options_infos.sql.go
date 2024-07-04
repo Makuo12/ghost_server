@@ -1636,7 +1636,7 @@ func (q *Queries) GetUserOptionInfo(ctx context.Context, hostID uuid.UUID) (Opti
 }
 
 const listOptionInfo = `-- name: ListOptionInfo :many
-SELECT oi.id AS option_id, oi.co_host_id, oi.option_user_id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.cover_image, ois.status AS option_status, s.type_of_shortlet, ei.event_type, s.space_type, 
+SELECT oi.id AS option_id, oi.co_host_id, oi.option_user_id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.cover_image, op.public_cover_image, op.photo, op.public_photo, ois.status AS option_status, s.type_of_shortlet, ei.event_type, s.space_type, 
 CASE
    WHEN och_subquery.option_id IS NOT NULL THEN 'co_host'
    WHEN oi.host_id = $1 THEN 'main_host'
@@ -1672,23 +1672,26 @@ type ListOptionInfoParams struct {
 }
 
 type ListOptionInfoRow struct {
-	OptionID       uuid.UUID   `json:"option_id"`
-	CoHostID       uuid.UUID   `json:"co_host_id"`
-	OptionUserID   uuid.UUID   `json:"option_user_id"`
-	IsComplete     bool        `json:"is_complete"`
-	Currency       string      `json:"currency"`
-	MainOptionType string      `json:"main_option_type"`
-	CreatedAt      time.Time   `json:"created_at"`
-	OptionType     string      `json:"option_type"`
-	HostNameOption string      `json:"host_name_option"`
-	CurrentState   string      `json:"current_state"`
-	PreviousState  string      `json:"previous_state"`
-	CoverImage     pgtype.Text `json:"cover_image"`
-	OptionStatus   string      `json:"option_status"`
-	TypeOfShortlet pgtype.Text `json:"type_of_shortlet"`
-	EventType      pgtype.Text `json:"event_type"`
-	SpaceType      pgtype.Text `json:"space_type"`
-	HostType       string      `json:"host_type"`
+	OptionID         uuid.UUID   `json:"option_id"`
+	CoHostID         uuid.UUID   `json:"co_host_id"`
+	OptionUserID     uuid.UUID   `json:"option_user_id"`
+	IsComplete       bool        `json:"is_complete"`
+	Currency         string      `json:"currency"`
+	MainOptionType   string      `json:"main_option_type"`
+	CreatedAt        time.Time   `json:"created_at"`
+	OptionType       string      `json:"option_type"`
+	HostNameOption   string      `json:"host_name_option"`
+	CurrentState     string      `json:"current_state"`
+	PreviousState    string      `json:"previous_state"`
+	CoverImage       pgtype.Text `json:"cover_image"`
+	PublicCoverImage pgtype.Text `json:"public_cover_image"`
+	Photo            []string    `json:"photo"`
+	PublicPhoto      []string    `json:"public_photo"`
+	OptionStatus     string      `json:"option_status"`
+	TypeOfShortlet   pgtype.Text `json:"type_of_shortlet"`
+	EventType        pgtype.Text `json:"event_type"`
+	SpaceType        pgtype.Text `json:"space_type"`
+	HostType         string      `json:"host_type"`
 }
 
 func (q *Queries) ListOptionInfo(ctx context.Context, arg ListOptionInfoParams) ([]ListOptionInfoRow, error) {
@@ -1722,6 +1725,9 @@ func (q *Queries) ListOptionInfo(ctx context.Context, arg ListOptionInfoParams) 
 			&i.CurrentState,
 			&i.PreviousState,
 			&i.CoverImage,
+			&i.PublicCoverImage,
+			&i.Photo,
+			&i.PublicPhoto,
 			&i.OptionStatus,
 			&i.TypeOfShortlet,
 			&i.EventType,

@@ -204,7 +204,7 @@ WHERE (oi.host_id = $1 OR och_subquery.option_id IS NOT NULL) AND oi.is_complete
 
 
 -- name: ListOptionInfo :many
-SELECT oi.id AS option_id, oi.co_host_id, oi.option_user_id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.cover_image, ois.status AS option_status, s.type_of_shortlet, ei.event_type, s.space_type, 
+SELECT oi.id AS option_id, oi.co_host_id, oi.option_user_id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.cover_image, op.public_cover_image, op.photo, op.public_photo, ois.status AS option_status, s.type_of_shortlet, ei.event_type, s.space_type, 
 CASE
    WHEN och_subquery.option_id IS NOT NULL THEN 'co_host'
    WHEN oi.host_id = $1 THEN 'main_host'
