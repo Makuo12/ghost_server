@@ -187,7 +187,7 @@ func (server *Server) UpdatePhotoOptionAdmin(ctx *gin.Context) {
 					image := fmt.Sprintf("%v*%v", req.Actual, req.Update)
 					if !tools.IsInList(op.Images, image) {
 						optionImages := tools.HandleListReq(op.Images)
-						newPhoto := []string{req.Update}
+						newPhoto := []string{image}
 						newPhoto = append(newPhoto, optionImages...)
 						_, err = server.store.UpdateOptionInfoImages(ctx, db.UpdateOptionInfoImagesParams{
 							OptionID: op.OptionID,
