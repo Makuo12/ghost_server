@@ -16,6 +16,9 @@ func (server *Server) ListPhotoUserAdmin(ctx *gin.Context) {
 	users, err := server.store.ListUserByAdmin(ctx)
 	if err == nil && len(users) > 0 {
 		for _, u := range users {
+			if tools.ServerStringEmpty(u.Photo) {
+				continue
+			}
 			allPhotos = append(allPhotos, u.Photo)
 		}
 	}
