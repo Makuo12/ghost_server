@@ -21,7 +21,7 @@ INSERT INTO options_info_photos (
     public_photo
 )
 VALUES ($1, $2, $3, $4, $5)
-RETURNING option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, created_at, updated_at
+RETURNING option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, main_image, images, created_at, updated_at
 `
 
 type CreateOptionInfoPhotoParams struct {
@@ -48,6 +48,8 @@ func (q *Queries) CreateOptionInfoPhoto(ctx context.Context, arg CreateOptionInf
 		&i.PublicCoverImage,
 		&i.PublicPhoto,
 		&i.Photo,
+		&i.MainImage,
+		&i.Images,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -55,7 +57,7 @@ func (q *Queries) CreateOptionInfoPhoto(ctx context.Context, arg CreateOptionInf
 }
 
 const getOptionInfoPhoto = `-- name: GetOptionInfoPhoto :one
-SELECT option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, created_at, updated_at 
+SELECT option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, main_image, images, created_at, updated_at 
 FROM options_info_photos
 WHERE option_id = $1
 `
@@ -70,6 +72,8 @@ func (q *Queries) GetOptionInfoPhoto(ctx context.Context, optionID uuid.UUID) (O
 		&i.PublicCoverImage,
 		&i.PublicPhoto,
 		&i.Photo,
+		&i.MainImage,
+		&i.Images,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -103,7 +107,7 @@ func (q *Queries) GetOptionInfoPhotoOnly(ctx context.Context, optionID uuid.UUID
 }
 
 const listAllPhoto = `-- name: ListAllPhoto :many
-SELECT option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, created_at, updated_at
+SELECT option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, main_image, images, created_at, updated_at
 FROM options_info_photos
 `
 
@@ -123,6 +127,8 @@ func (q *Queries) ListAllPhoto(ctx context.Context) ([]OptionsInfoPhoto, error) 
 			&i.PublicCoverImage,
 			&i.PublicPhoto,
 			&i.Photo,
+			&i.MainImage,
+			&i.Images,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -137,7 +143,7 @@ func (q *Queries) ListAllPhoto(ctx context.Context) ([]OptionsInfoPhoto, error) 
 }
 
 const listAllUserPhoto = `-- name: ListAllUserPhoto :many
-SELECT id, co_host_id, option_user_id, host_id, deep_link_id, primary_user_id, is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, currency, option_img, option_type, main_option_type, oi.created_at, completed, oi.updated_at, option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, oip.created_at, oip.updated_at
+SELECT id, co_host_id, option_user_id, host_id, deep_link_id, primary_user_id, is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, currency, option_img, option_type, main_option_type, oi.created_at, completed, oi.updated_at, option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, main_image, images, oip.created_at, oip.updated_at
 FROM options_infos oi
 JOIN options_info_photos oip on oip.option_id = oi.id
 WHERE oi.host_id = $1
@@ -172,6 +178,8 @@ type ListAllUserPhotoRow struct {
 	PublicCoverImage string    `json:"public_cover_image"`
 	PublicPhoto      []string  `json:"public_photo"`
 	Photo            []string  `json:"photo"`
+	MainImage        string    `json:"main_image"`
+	Images           []string  `json:"images"`
 	CreatedAt_2      time.Time `json:"created_at_2"`
 	UpdatedAt_2      time.Time `json:"updated_at_2"`
 }
@@ -214,6 +222,8 @@ func (q *Queries) ListAllUserPhoto(ctx context.Context, hostID uuid.UUID) ([]Lis
 			&i.PublicCoverImage,
 			&i.PublicPhoto,
 			&i.Photo,
+			&i.MainImage,
+			&i.Images,
 			&i.CreatedAt_2,
 			&i.UpdatedAt_2,
 		); err != nil {
@@ -228,7 +238,7 @@ func (q *Queries) ListAllUserPhoto(ctx context.Context, hostID uuid.UUID) ([]Lis
 }
 
 const listOptionPhotoByAdmin = `-- name: ListOptionPhotoByAdmin :many
-SELECT option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, created_at, updated_at
+SELECT option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, main_image, images, created_at, updated_at
 FROM options_info_photos
 `
 
@@ -248,6 +258,8 @@ func (q *Queries) ListOptionPhotoByAdmin(ctx context.Context) ([]OptionsInfoPhot
 			&i.PublicCoverImage,
 			&i.PublicPhoto,
 			&i.Photo,
+			&i.MainImage,
+			&i.Images,
 			&i.CreatedAt,
 			&i.UpdatedAt,
 		); err != nil {
@@ -323,6 +335,58 @@ type UpdateOptionInfoAllPhotoOnlyRow struct {
 func (q *Queries) UpdateOptionInfoAllPhotoOnly(ctx context.Context, arg UpdateOptionInfoAllPhotoOnlyParams) (UpdateOptionInfoAllPhotoOnlyRow, error) {
 	row := q.db.QueryRow(ctx, updateOptionInfoAllPhotoOnly, arg.PublicPhoto, arg.Photo, arg.OptionID)
 	var i UpdateOptionInfoAllPhotoOnlyRow
+	err := row.Scan(&i.CoverImage, &i.Photo)
+	return i, err
+}
+
+const updateOptionInfoImages = `-- name: UpdateOptionInfoImages :one
+UPDATE options_info_photos
+SET
+    images = $1,
+    updated_at = NOW()
+WHERE option_id = $2
+RETURNING cover_image, photo
+`
+
+type UpdateOptionInfoImagesParams struct {
+	Images   []string  `json:"images"`
+	OptionID uuid.UUID `json:"option_id"`
+}
+
+type UpdateOptionInfoImagesRow struct {
+	CoverImage string   `json:"cover_image"`
+	Photo      []string `json:"photo"`
+}
+
+func (q *Queries) UpdateOptionInfoImages(ctx context.Context, arg UpdateOptionInfoImagesParams) (UpdateOptionInfoImagesRow, error) {
+	row := q.db.QueryRow(ctx, updateOptionInfoImages, arg.Images, arg.OptionID)
+	var i UpdateOptionInfoImagesRow
+	err := row.Scan(&i.CoverImage, &i.Photo)
+	return i, err
+}
+
+const updateOptionInfoMainImage = `-- name: UpdateOptionInfoMainImage :one
+UPDATE options_info_photos
+SET 
+    main_image = $1,
+    updated_at = NOW()
+WHERE option_id = $2 
+RETURNING cover_image, photo
+`
+
+type UpdateOptionInfoMainImageParams struct {
+	MainImage string    `json:"main_image"`
+	OptionID  uuid.UUID `json:"option_id"`
+}
+
+type UpdateOptionInfoMainImageRow struct {
+	CoverImage string   `json:"cover_image"`
+	Photo      []string `json:"photo"`
+}
+
+func (q *Queries) UpdateOptionInfoMainImage(ctx context.Context, arg UpdateOptionInfoMainImageParams) (UpdateOptionInfoMainImageRow, error) {
+	row := q.db.QueryRow(ctx, updateOptionInfoMainImage, arg.MainImage, arg.OptionID)
+	var i UpdateOptionInfoMainImageRow
 	err := row.Scan(&i.CoverImage, &i.Photo)
 	return i, err
 }

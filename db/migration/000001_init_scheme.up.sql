@@ -28,6 +28,7 @@ CREATE TABLE "users" (
   "is_deleted" boolean NOT NULL DEFAULT false,
   "photo" varchar NOT NULL DEFAULT 'none',
   "public_photo" varchar NOT NULL DEFAULT 'none',
+  "image" varchar NOT NULL DEFAULT 'none',
   "password_changed_at" timestamptz NOT NULL DEFAULT (now()),
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
@@ -366,6 +367,8 @@ CREATE TABLE "options_info_photos" (
   "public_cover_image" varchar NOT NULL DEFAULT 'none',
   "public_photo" varchar[] NOT NULL,
   "photo" varchar[] NOT NULL,
+  "main_image" varchar NOT NULL,
+  "images" varchar[] NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -583,6 +586,7 @@ CREATE TABLE "check_in_steps" (
   "option_id" uuid NOT NULL,
   "photo" varchar NOT NULL DEFAULT 'none',
   "public_photo" varchar NOT NULL DEFAULT 'none',
+  "image" varchar NOT NULL DEFAULT 'none',
   "des" text NOT NULL DEFAULT 'none',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())

@@ -679,6 +679,8 @@ type Querier interface {
 	UpdateOptionInfoCurrency(ctx context.Context, arg UpdateOptionInfoCurrencyParams) (string, error)
 	UpdateOptionInfoDetail(ctx context.Context, arg UpdateOptionInfoDetailParams) (OptionsInfoDetail, error)
 	UpdateOptionInfoDetailHighlight(ctx context.Context, arg UpdateOptionInfoDetailHighlightParams) ([]string, error)
+	UpdateOptionInfoImages(ctx context.Context, arg UpdateOptionInfoImagesParams) (UpdateOptionInfoImagesRow, error)
+	UpdateOptionInfoMainImage(ctx context.Context, arg UpdateOptionInfoMainImageParams) (UpdateOptionInfoMainImageRow, error)
 	UpdateOptionInfoPhoto(ctx context.Context, arg UpdateOptionInfoPhotoParams) (UpdateOptionInfoPhotoRow, error)
 	UpdateOptionInfoPhotoCover(ctx context.Context, arg UpdateOptionInfoPhotoCoverParams) (UpdateOptionInfoPhotoCoverRow, error)
 	UpdateOptionInfoPhotoCoverUrl(ctx context.Context, arg UpdateOptionInfoPhotoCoverUrlParams) (UpdateOptionInfoPhotoCoverUrlRow, error)

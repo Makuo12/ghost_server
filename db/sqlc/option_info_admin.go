@@ -380,3 +380,4 @@ func (store *SQLStore) DeleteOptionPhoto(ctx context.Context, arg DeleteOptionIn
 		IsCover: arg.IsCover,
 	}, err
 }
+

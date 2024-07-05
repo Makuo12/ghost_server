@@ -102,3 +102,20 @@ SET
     updated_at = NOW()
 WHERE option_id = $3
 RETURNING cover_image, photo;
+
+
+-- name: UpdateOptionInfoMainImage :one
+UPDATE options_info_photos
+SET 
+    main_image = $1,
+    updated_at = NOW()
+WHERE option_id = $2 
+RETURNING cover_image, photo;
+
+-- name: UpdateOptionInfoImages :one 
+UPDATE options_info_photos
+SET
+    images = $1,
+    updated_at = NOW()
+WHERE option_id = $2
+RETURNING cover_image, photo;

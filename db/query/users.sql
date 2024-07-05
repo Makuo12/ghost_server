@@ -81,6 +81,7 @@ SET
    default_payout_card = COALESCE(sqlc.narg(default_payout_card), default_payout_card),
    default_account_id = COALESCE(sqlc.narg(default_account_id), default_account_id),
    hashed_password = COALESCE(sqlc.narg(hashed_password), hashed_password),
+   image = COALESCE(sqlc.narg(image), image),
    updated_at = NOW()
 WHERE id = sqlc.arg(id) 
 RETURNING *;

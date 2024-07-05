@@ -20,7 +20,7 @@ INSERT INTO check_in_steps (
 VALUES (
         $1, $2, $3
     )
-RETURNING id, option_id, photo, public_photo, des, created_at, updated_at
+RETURNING id, option_id, photo, public_photo, image, des, created_at, updated_at
 `
 
 type CreateCheckInStepParams struct {
@@ -37,6 +37,7 @@ func (q *Queries) CreateCheckInStep(ctx context.Context, arg CreateCheckInStepPa
 		&i.OptionID,
 		&i.Photo,
 		&i.PublicPhoto,
+		&i.Image,
 		&i.Des,
 		&i.CreatedAt,
 		&i.UpdatedAt,
@@ -86,7 +87,7 @@ func (q *Queries) GetCheckInStepByOptionID(ctx context.Context, optionID uuid.UU
 }
 
 const listCheckInStepByAdmin = `-- name: ListCheckInStepByAdmin :many
-SELECT id, option_id, photo, public_photo, des, created_at, updated_at
+SELECT id, option_id, photo, public_photo, image, des, created_at, updated_at
 FROM check_in_steps
 `
 
@@ -104,6 +105,7 @@ func (q *Queries) ListCheckInStepByAdmin(ctx context.Context) ([]CheckInStep, er
 			&i.OptionID,
 			&i.Photo,
 			&i.PublicPhoto,
+			&i.Image,
 			&i.Des,
 			&i.CreatedAt,
 			&i.UpdatedAt,

@@ -108,9 +108,10 @@ func (server *Server) UpdatePhotoUserAdmin(ctx *gin.Context) {
 	if err == nil && len(users) > 0 {
 		for _, u := range users {
 			if u.Photo == req.Actual {
+				image := fmt.Sprintf("%v*%v", req.Actual, req.Update)
 				_, err := server.store.UpdateUser(ctx, db.UpdateUserParams{
-					PublicPhoto: pgtype.Text{
-						String: req.Update,
+					Image: pgtype.Text{
+						String: image,
 						Valid:  true,
 					},
 					ID: u.ID,
@@ -168,9 +169,10 @@ func (server *Server) UpdatePhotoOptionAdmin(ctx *gin.Context) {
 	if err == nil && len(optionPhotos) > 0 {
 		for _, op := range optionPhotos {
 			if op.CoverImage == req.Actual {
-				_, err = server.store.UpdateOptionInfoPhotoCoverUrl(ctx, db.UpdateOptionInfoPhotoCoverUrlParams{
-					OptionID:         op.OptionID,
-					PublicCoverImage: req.Update,
+				image := fmt.Sprintf("%v*%v", req.Actual, req.Update)
+				_, err = server.store.UpdateOptionInfoMainImage(ctx, db.UpdateOptionInfoMainImageParams{
+					OptionID:  op.OptionID,
+					MainImage: image,
 				})
 				if err != nil {
 					log.Printf("Error at UpdatePhotoOptionAdmin cover %v\n", err.Error())
@@ -179,12 +181,13 @@ func (server *Server) UpdatePhotoOptionAdmin(ctx *gin.Context) {
 			}
 			for _, basicPhotos := range op.Photo {
 				if basicPhotos == req.Actual {
-					if !tools.IsInList(op.PublicPhoto, req.Update) {
+					image := fmt.Sprintf("%v*%v", req.Actual, req.Update)
+					if !tools.IsInList(op.Images, image) {
 						newPhoto := []string{req.Update}
-						newPhoto = append(newPhoto, op.PublicPhoto...)
-						_, err = server.store.UpdateOptionInfoPhotoOnlyUrl(ctx, db.UpdateOptionInfoPhotoOnlyUrlParams{
+						newPhoto = append(newPhoto, op.Images...)
+						_, err = server.store.UpdateOptionInfoImages(ctx, db.UpdateOptionInfoImagesParams{
 							OptionID:    op.OptionID,
-							PublicPhoto: newPhoto,
+							Images: newPhoto,
 						})
 						if err != nil {
 							log.Printf("Error at UpdatePhotoOptionAdmin photo %v\n", err.Error())

@@ -254,6 +254,7 @@ type CheckInStep struct {
 	OptionID    uuid.UUID `json:"option_id"`
 	Photo       string    `json:"photo"`
 	PublicPhoto string    `json:"public_photo"`
+	Image       string    `json:"image"`
 	Des         string    `json:"des"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -757,6 +758,8 @@ type OptionsInfoPhoto struct {
 	PublicCoverImage string    `json:"public_cover_image"`
 	PublicPhoto      []string  `json:"public_photo"`
 	Photo            []string  `json:"photo"`
+	MainImage        string    `json:"main_image"`
+	Images           []string  `json:"images"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 }
@@ -993,6 +996,7 @@ type User struct {
 	IsDeleted         bool      `json:"is_deleted"`
 	Photo             string    `json:"photo"`
 	PublicPhoto       string    `json:"public_photo"`
+	Image             string    `json:"image"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
