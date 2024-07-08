@@ -334,6 +334,7 @@ func (store *SQLStore) DeleteOptionPhoto(ctx context.Context, arg DeleteOptionIn
 				OptionID: optionPhoto.OptionID,
 			})
 			if err != nil {
+				log.Printf("Error DeleteOptionPhoto at UpdateOptionInfoMainImage: %v\n", err.Error())
 				return err
 			}
 		} else {
@@ -351,22 +352,25 @@ func (store *SQLStore) DeleteOptionPhoto(ctx context.Context, arg DeleteOptionIn
 				Images: images,
 			})
 			if err != nil {
+				log.Printf("Error DeleteOptionPhoto at UpdateOptionInfoImages: %v\n", err.Error())
 				return err
 			}
 		}
 		path, _ := tools.GetImageItem(arg.Image)
 		err = RemoveFirebasePhoto(ctx, bucket, path)
 		if err != nil {
+			log.Printf("Error DeleteOptionPhoto at RemoveFirebasePhoto: %v\n", err.Error())
 			return err
 		}
 		return nil
 	})
 	if err != nil {
+		log.Printf("Error DeleteOptionPhoto at RemoveFirebasePhoto 11: %v\n", err.Error())
 		return DeleteOptionInfoPhotoRes{}, err
 	}
 	return DeleteOptionInfoPhotoRes{
 		Image: arg.Image,
 		IsCover: arg.IsCover,
-	}, err
+	}, nil
 }
 
