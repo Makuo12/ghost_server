@@ -9,8 +9,8 @@ type GetUHMDataOptionRes struct {
 	CategoryThree  string   `json:"category_three"`
 	CategoryFour   string   `json:"category_four"`
 	NumOfGuest     int      `json:"num_of_guest"`
-	CoverPhoto     string   `json:"cover_photo"`
-	Photos         []string `json:"photos"`
+	MainImage      string   `json:"main_photo"`
+	Images         []string `json:"images"`
 	Price          string   `json:"price"`
 	//OptionUserID automatic id we generate when creating a option because we want normal users to use this id
 	OptionUserID  string `json:"option_user_id"`
@@ -35,7 +35,7 @@ type SpaceAreas struct {
 	OptionID    string   `json:"option_id"`
 	SharedSpace bool     `json:"shared_space"`
 	SpaceType   string   `json:"space_type"`
-	Photos      []string `json:"photos"`
+	Image      []string `json:"images"`
 	Beds        []string `json:"beds"`
 	IsSuite     bool     `json:"is_suite"`
 	Name        string   `json:"name"`
@@ -117,7 +117,6 @@ type GetOptionParams struct {
 	OptionID string `json:"option_id" binding:"required"`
 }
 
-
 type GetOptionDesRes struct {
 	SpaceDes              string `json:"space_des"`
 	GuestAccessDes        string `json:"guest_access_des"`
@@ -131,14 +130,14 @@ type GetOptionDesRes struct {
 
 type UpdateOptionPhotoParams struct {
 	OptionID        string   `json:"option_id" binding:"required"`
-	CreatePaths     []string `json:"create_paths"`
-	DeletePath      string   `json:"delete_path"`
-	ChangeCoverPath string   `json:"change_cover_path"`
+	CreateImages    []string `json:"create_images"`
+	DeleteImage     string   `json:"delete_image"`
+	ChangeMainImage string   `json:"change_main_image"`
 }
 
 type UpdateOptionPhotoRes struct {
-	CoverImage string   `json:"cover_image"`
-	Photos     []string `json:"photos"`
+	MainImage string   `json:"main_image"`
+	Images    []string `json:"images"`
 }
 
 type CreateUpdateOptionPhotoCaptionParams struct {

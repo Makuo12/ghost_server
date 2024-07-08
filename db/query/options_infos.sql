@@ -25,7 +25,7 @@ FROM options_infos
 WHERE id = $1 AND host_id = $2 AND is_complete = $3;
 
 -- name: GetOptionAndUser :one
-SELECT u.first_name, od.host_name_option, oi.co_host_id, oi.main_option_type, op.cover_image
+SELECT u.first_name, od.host_name_option, oi.co_host_id, oi.main_option_type, op.main_image, u.image AS host_image
 FROM options_infos oi
    JOIN users u on u.id = oi.host_id
    JOIN options_info_details od on od.option_id = oi.id
@@ -40,7 +40,7 @@ FROM options_infos o_i
 WHERE o_i.id = $1;
 
 -- name: GetOptionInfoPhotoByOptionUserID :one
-SELECT o_i.id, o_i_p.cover_image, o_i_p.photo
+SELECT o_i.id, o_i_p.main_image, o_i_p.images
 FROM options_infos o_i
    JOIN options_info_photos o_i_p on o_i_p.option_id = o_i.id
 WHERE o_i.option_user_id = $1;
@@ -127,7 +127,7 @@ SELECT o_i.id,
    s.type_of_shortlet,
    o_i_d.host_name_option,
    o_i_d.des,
-   o_i_p.cover_image
+   o_i_p.main_image
 FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN shortlets s on o_i.id = s.option_id
@@ -140,7 +140,7 @@ SELECT o_i.id,
    e_i.event_type,
    o_i_d.host_name_option,
    o_i_d.des,
-   o_i_p.cover_image
+   o_i_p.main_image
 FROM options_infos o_i
    JOIN event_infos e_i on o_i.id = e_i.option_id
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
@@ -155,7 +155,7 @@ SELECT o_i.id,
    o_i.main_option_type,
    o_i.currency,
    o_i_d.host_name_option,
-   o_i_p.cover_image
+   o_i_p.main_image
 FROM options_infos o_i
    JOIN event_infos e_i on o_i.id = e_i.option_id
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
@@ -171,7 +171,7 @@ SELECT o_i.id,
    o_i.option_type,
    s.type_of_shortlet,
    o_i_d.host_name_option,
-   o_i_p.cover_image
+   o_i_p.main_image
 FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN shortlets s on o_i.id = s.option_id
@@ -204,7 +204,7 @@ WHERE (oi.host_id = $1 OR och_subquery.option_id IS NOT NULL) AND oi.is_complete
 
 
 -- name: ListOptionInfo :many
-SELECT oi.id AS option_id, oi.co_host_id, oi.option_user_id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.cover_image, op.public_cover_image, op.photo, op.public_photo, ois.status AS option_status, s.type_of_shortlet, ei.event_type, s.space_type, 
+SELECT oi.id AS option_id, oi.co_host_id, oi.option_user_id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.main_image, op.images, ois.status AS option_status, s.type_of_shortlet, ei.event_type, s.space_type, 
 CASE
    WHEN och_subquery.option_id IS NOT NULL THEN 'co_host'
    WHEN oi.host_id = $1 THEN 'main_host'
@@ -245,7 +245,7 @@ WHERE o_i.option_user_id = $1 AND o_i.is_complete = $2 AND o_i.is_active = $3 AN
 
 
 -- name: ListOptionInfoEvent :many
-SELECT o_i.id, o_i.is_complete, o_i.currency, o_i.main_option_type, o_i.created_at, o_i.option_type, o_i_d.host_name_option, c_o_i.current_state, c_o_i.previous_state, o_i_s.status AS option_status, o_i_p.cover_image, e_i.event_type, e_i.sub_category_type
+SELECT o_i.id, o_i.is_complete, o_i.currency, o_i.main_option_type, o_i.created_at, o_i.option_type, o_i_d.host_name_option, c_o_i.current_state, c_o_i.previous_state, o_i_s.status AS option_status, o_i_p.main_image, e_i.event_type, e_i.sub_category_type
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_infos_status o_i_s on o_i_s.option_id = o_i_d.option_id
@@ -258,7 +258,7 @@ LIMIT $4
 OFFSET $5;
 
 -- name: ListOptionInfoShortlet :many
-SELECT o_i.id, o_i.is_complete, o_i.currency, o_i.main_option_type, o_i.created_at, o_i.option_type, o_i_d.host_name_option, c_o_i.current_state, c_o_i.previous_state, o_i_p.cover_image, s.space_type, s.type_of_shortlet, o_i_s.status AS option_status
+SELECT o_i.id, o_i.is_complete, o_i.currency, o_i.main_option_type, o_i.created_at, o_i.option_type, o_i_d.host_name_option, c_o_i.current_state, c_o_i.previous_state, o_i_p.main_image, s.space_type, s.type_of_shortlet, o_i_s.status AS option_status
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN complete_option_info c_o_i on o_i.id = c_o_i.option_id
@@ -292,7 +292,7 @@ WHERE id = $1 AND host_id = $2
 LIMIT 1;
 
 -- name: GetOptionShortletUHMData :one
-SELECT o_i.id, o_i.currency, o_i.main_option_type, o_i_d.host_name_option, s.type_of_shortlet, s.check_in_method, o_i_p.photo, o_i_p.cover_image, s.space_type, s.guest_welcomed, o_p.price, o_i.option_user_id, l.state, l.city, l.street, l.country, l.postcode, o_i_s.status AS option_status, o_i.category, o_i.category_two, o_i.category_three, o_i.category_four
+SELECT o_i.id, o_i.currency, o_i.main_option_type, o_i_d.host_name_option, s.type_of_shortlet, s.check_in_method, o_i_p.images, o_i_p.main_image, s.space_type, s.guest_welcomed, o_p.price, o_i.option_user_id, l.state, l.city, l.street, l.country, l.postcode, o_i_s.status AS option_status, o_i.category, o_i.category_two, o_i.category_three, o_i.category_four
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_infos_status o_i_s on o_i_s.option_id = o_i.id
@@ -304,7 +304,7 @@ WHERE o_i.id = $1;
 
 
 -- name: GetOptionEventUHMData :one
-SELECT o_i.id, o_i.currency, o_i.main_option_type, o_i_d.host_name_option, o_i_p.photo, o_i_p.cover_image, o_i.option_user_id, e_i.event_type, e_i.sub_category_type, o_i_s.status AS option_status, o_i.category, o_i.category_two, o_i.category_three, o_i.category_four
+SELECT o_i.id, o_i.currency, o_i.main_option_type, o_i_d.host_name_option, o_i_p.images, o_i_p.main_image, o_i.option_user_id, e_i.event_type, e_i.sub_category_type, o_i_s.status AS option_status, o_i.category, o_i.category_two, o_i.category_three, o_i.category_four
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_infos_status o_i_s on o_i_s.option_id = o_i.id

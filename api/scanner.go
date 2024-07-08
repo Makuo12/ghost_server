@@ -30,7 +30,7 @@ func (server *Server) GetChargeCode(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	chargeID, optionUserID, scanned, grade, _, scannedTime, scannedByName, scannedByProfilePhoto, ticketType, err := GetChargeForScanned(ctx, server, req, user, "GetChargeCode")
+	chargeID, optionUserID, scanned, grade, _, scannedTime, scannedByName, scannedUserImage, ticketType, err := GetChargeForScanned(ctx, server, req, user, "GetChargeCode")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -49,7 +49,7 @@ func (server *Server) GetChargeCode(ctx *gin.Context) {
 			ID:                    req.ID,
 			ScannedByName:         scannedByName,
 			ScannedTime:           tools.ConvertTimeToString(scannedTime),
-			ScannedByProfilePhoto: scannedByProfilePhoto,
+			ScannedUserImage: scannedUserImage,
 		}
 
 		ctx.JSON(http.StatusAlreadyReported, res)

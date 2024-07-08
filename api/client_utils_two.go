@@ -98,28 +98,28 @@ func EventExSearchText(ctx *connection, payload []byte) (data []byte, hasData bo
 			priceFloat = 0.0
 			log.Printf("Error at  HandleListEventExperience in ConvertPrice err: %v, user: %v\n", err, ctx.ctx.ClientIP())
 		}
+		_, mainUrl := tools.GetImageItem(e.MainImage)
+		_, userUrl := tools.GetImageItem(e.HostImage)
+		_, urls := tools.GetImageListItem(e.Images)
 		newData := ExperienceEventData{
-			UserOptionID:       tools.UuidToString(e.OptionUserID),
-			Name:               e.HostNameOption,
-			IsVerified:         e.IsVerified,
-			CoverImage:         e.CoverImage,
-			Photos:             e.Photo,
-			TicketAvailable:    ticketAvailable,
-			SubEventType:       e.SubCategoryType,
-			TicketLowestPrice:  tools.ConvertFloatToString(priceFloat),
-			EventStartDate:     startDateData,
-			EventEndDate:       endDateData,
-			Location:           locationList,
-			ProfilePhoto:       e.Photo_2,
-			HostAsIndividual:   e.HostAsIndividual,
-			HostName:           e.FirstName,
-			HostJoined:         tools.ConvertDateOnlyToString(e.CreatedAt),
-			HostVerified:       e.IsVerified_2,
-			Category:           e.Category,
-			HasFreeTicket:      hasFreeTicket,
-			PublicCoverImage:   e.PublicCoverImage,
-			PublicPhotos:       e.OptionPublicPhoto,
-			PublicProfilePhoto: e.HostPublicPhoto,
+			UserOptionID:      tools.UuidToString(e.OptionUserID),
+			Name:              e.HostNameOption,
+			IsVerified:        e.IsVerified,
+			TicketAvailable:   ticketAvailable,
+			SubEventType:      e.SubCategoryType,
+			TicketLowestPrice: tools.ConvertFloatToString(priceFloat),
+			EventStartDate:    startDateData,
+			EventEndDate:      endDateData,
+			Location:          locationList,
+			HostAsIndividual:  e.HostAsIndividual,
+			HostName:          e.FirstName,
+			HostJoined:        tools.ConvertDateOnlyToString(e.CreatedAt),
+			HostVerified:      e.IsVerified_2,
+			Category:          e.Category,
+			HasFreeTicket:     hasFreeTicket,
+			MainUrl:           mainUrl,
+			HostUrl:           userUrl,
+			Urls:              urls,
 		}
 		resData = append(resData, newData)
 	}

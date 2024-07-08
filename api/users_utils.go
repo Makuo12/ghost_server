@@ -65,7 +65,7 @@ func HandleWishlist(ctx *gin.Context, server *Server, user db.User) (list ListWi
 				WishlistID:     tools.UuidToString(item.WishlistID),
 				WishlistItemID: tools.UuidToString(item.ID),
 				OptionUserID:   tools.UuidToString(item.OptionUserID),
-				CoverImage:     item.CoverImage,
+				MainImage:     item.MainImage,
 			}
 			resData = append(resData, data)
 		}

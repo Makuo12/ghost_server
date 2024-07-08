@@ -272,7 +272,7 @@ type PublishShortletOptionParams struct {
 	PopularAm            []string `json:"popular_am" binding:"required"`
 	HomeSafetyAm         []string `json:"home_safety_am" binding:"required"`
 	Street               string   `json:"street"`
-	CoverImage           string   `json:"cover_image"`
+	MainImage            string   `json:"main_image"`
 	City                 string   `json:"city"`
 	State                string   `json:"state"`
 	Country              string   `json:"country"`
@@ -287,7 +287,7 @@ type HostCurrentOptionParams struct {
 	OptionType     string `json:"option_type" binding:"required"`
 	Currency       string `json:"currency" binding:"required,currency"`
 	HostNameOption string `json:"host_name_option" binding:"required"`
-	CoverImage     string `json:"cover_image"`
+	MainImage      string `json:"main_image"`
 	State          string `json:"state"`
 	Country        string `json:"country"`
 	// option_main_type is would be main_event_type for events and main_shortlet_type for shortlets
@@ -306,7 +306,7 @@ type PublishEventOptionParams struct {
 	// option_main_type is would be main_event_type for events and main_shortlet_type for shortlets
 	OptionMainType string `json:"option_main_type" binding:"required"`
 	Description    string `json:"description" binding:"required"`
-	CoverImage     string `json:"cover_image"`
+	MainImage      string `json:"main_image"`
 	FirstName      string `json:"first_name"`
 }
 
@@ -374,10 +374,8 @@ type OptionInfo struct {
 type CreateOptionInfoPhotoParams struct {
 	UserOptionID       string   `json:"user_option_id"`
 	OptionID           string   `json:"option_id"`
-	MainCoverImage     string   `json:"main_cover_image"`
-	MainPhoto          []string `json:"main_photo"`
-	PublicCoverImage   string   `json:"public_cover_image"`
-	PublicPhoto        []string `json:"public_photo"`
+	MainImage          string   `json:"main_image"`
+	Images             []string `json:"images"`
 	CurrentServerView  string   `json:"current_server_view"`
 	PreviousServerView string   `json:"previous_server_view"`
 	MainOptionType     string   `json:"main_option_type" binding:"required"`
@@ -387,15 +385,13 @@ type CreateOptionInfoPhotoParams struct {
 
 type UploadOptionInfoPhotoParams struct {
 	OptionID string `json:"option_id"`
-	Photo    string `json:"photo"`
-	PhotoUrl string `json:"photo_url"`
+	Image    string `json:"image"`
 	IsCover  bool   `json:"is_cover"`
 }
 
 type UploadOptionInfoPhotoRes struct {
-	Photo    string `json:"photo"`
-	PhotoUrl string `json:"photo_url"`
-	IsCover  bool   `json:"is_cover"`
+	Image   string `json:"image"`
+	IsCover bool   `json:"is_cover"`
 }
 
 type UpdatedOptionInfoFieldResponse struct {
@@ -413,15 +409,11 @@ type ListOptionInfoNotCompleteRow struct {
 	PreviousServerView string   `json:"previous_server_view"`
 	Currency           string   `json:"currency"`
 	ExtraInfo          string   `json:"extra_info"`
-	CoverImage         string   `json:"cover_image"`
-	PublicCoverImage   string   `json:"public_cover_image"`
-	Photo              []string `json:"photo"`
-	PublicPhoto        []string `json:"public_photo"`
+	MainImage          string   `json:"main_image"`
+	Images             []string `json:"images"`
 	//// option_main_type is would be main_event_type for events and main_shortlet_type for shortlets
 	//OptionMainType string `json:"option_main_type" binding:"required"`
 }
-
-
 
 type GetOptionInfoNotComplete struct {
 	ID                 string `json:"id"`
@@ -472,7 +464,7 @@ type UserEventSearchItem struct {
 	HostNameOption string `json:"host_name_option"`
 	OptionUserID   string `json:"option_user_id"`
 	IsVerified     bool   `json:"is_verified"`
-	CoverImage     string `json:"cover_image"`
+	MainImage      string `json:"main_image"`
 }
 
 type OptionQuestionNote struct {
@@ -496,7 +488,7 @@ var optionQuestionNote = []OptionQuestionNote{
 }
 
 type DeleteOptionUserInfoPhotoParams struct {
-	Path string `json:"path"`
+	Image string `json:"image"`
 }
 
 type DeleteOptionUserInfoPhotoRes struct {

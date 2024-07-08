@@ -1,7 +1,7 @@
 -- name: CreateEventCheckInStep :one
 INSERT INTO event_check_in_steps (
         event_date_time_id,
-        photo,
+        image,
         des
     )
 VALUES (
@@ -10,7 +10,7 @@ VALUES (
 RETURNING *;
 
 -- name: GetEventCheckInStep :one
-SELECT des, photo
+SELECT des, image
 FROM event_check_in_steps
 WHERE id = $1 AND event_date_time_id=$2;
 
@@ -19,13 +19,13 @@ SELECT *
 FROM event_check_in_steps;
 
 -- name: ListEventCheckInStepOrdered :many
-SELECT des, photo, id
+SELECT des, image, id
 FROM event_check_in_steps
 WHERE event_date_time_id = $1
 ORDER BY created_at;
 
--- name: ListEventCheckInStepPhotos :many
-SELECT photo
+-- name: ListEventCheckInStepImage :many
+SELECT image
 FROM event_check_in_steps
 WHERE event_date_time_id = $1
 ORDER BY created_at;
@@ -35,21 +35,21 @@ UPDATE event_check_in_steps
     SET des = $1, 
     updated_at = NOW()
 WHERE id = $2 AND event_date_time_id = $3
-RETURNING des, photo, id;
+RETURNING des, image, id;
 
--- name: UpdateEventCheckInStepPhoto :one
+-- name: UpdateEventCheckInStepImage :one
 UPDATE event_check_in_steps
-    SET photo = $1, 
+    SET image = $1, 
     updated_at = NOW()
 WHERE id = $2 AND event_date_time_id = $3
-RETURNING des, photo, id;
+RETURNING des, image, id;
 
--- name: UpdateEventCheckInStepPublicPhoto :one
+-- name: UpdateEventCheckInStepPublicImage :one
 UPDATE event_check_in_steps
-    SET public_photo = $1, 
+    SET image = $1, 
     updated_at = NOW()
 WHERE id = $2
-RETURNING des, photo, id;
+RETURNING des, image, id;
 
 -- name: RemoveEventCheckInStep :exec
 DELETE FROM event_check_in_steps 

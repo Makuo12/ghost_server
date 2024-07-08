@@ -9,7 +9,7 @@ type MessageContactItem struct {
 	MsgID                      string `json:"msg_id"`
 	ConnectedUserID            string `json:"connected_user_id"`
 	FirstName                  string `json:"first_name"`
-	Photo                      string `json:"photo"`
+	MainImage                  string `json:"main_image"`
 	LastMessage                string `json:"last_message"`
 	LastMessageTime            string `json:"last_message_time"`
 	UnreadMessageCount         int    `json:"unread_message_count"`
@@ -63,7 +63,7 @@ type RequestNotifyDetailParams struct {
 type OUserRequestNotifyDetailRes struct {
 	StartDate        string   `json:"start_date" binding:"required"`
 	EndDate          string   `json:"end_date" binding:"required"`
-	CoverImage       string   `json:"cover_image" binding:"required"`
+	MainImage        string   `json:"main_image" binding:"required"`
 	Guests           []string `json:"guests" binding:"required"`
 	Price            string   `json:"price" binding:"required"`
 	EmailVerified    bool     `json:"email_verified" binding:"required"`
@@ -93,7 +93,7 @@ type MessageItem struct {
 	Message    string `json:"message"`
 	Type       string `json:"type"`
 	Read       bool   `json:"read"`
-	Photo      string `json:"photo"`
+	Image      string `json:"image"`
 	ParentID   string `json:"parent_id"`
 	Reference  string `json:"reference"`
 	CreatedAt  string `json:"created_at"`

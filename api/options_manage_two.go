@@ -610,7 +610,7 @@ func (server *Server) ListCheckInStep(ctx *gin.Context) {
 		data := CheckInStepRes{
 			ID:    tools.UuidToString(steps[i].ID),
 			Des:   tools.HandleString(steps[i].Des),
-			Photo: steps[i].Photo,
+			Image: steps[i].Image,
 		}
 		resData = append(resData, data)
 	}
@@ -666,14 +666,15 @@ func (server *Server) RemoveCheckInStepPhoto(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	err = RemoveFirebasePhoto(server, ctx, stepDetail.Photo)
+	path, _ := tools.GetImageItem(stepDetail.Image)
+	err = RemoveFirebasePhoto(server, ctx, path)
 	if err != nil {
 		log.Printf("There an error at RemoveCheckInStepPhoto at RemoveFirebasePhoto: %v, optionID: %v, userID: %v, stepID: %v \n", err.Error(), option.ID, user.ID, stepID)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	step, err := server.store.UpdateCheckInStepPhoto(ctx, db.UpdateCheckInStepPhotoParams{
-		Photo:    "none",
+	step, err := server.store.UpdateCheckInStepImage(ctx, db.UpdateCheckInStepImageParams{
+		Image:    "none",
 		OptionID: option.ID,
 		ID:       stepID,
 	})
@@ -686,7 +687,7 @@ func (server *Server) RemoveCheckInStepPhoto(ctx *gin.Context) {
 	res := CheckInStepRes{
 		ID:    tools.UuidToString(step.ID),
 		Des:   step.Des,
-		Photo: step.Photo,
+		Image: step.Image,
 	}
 	if isCoHost {
 		HandleCoHostUpdateMsg(ctx, server, userCoHost, user, option, "RemoveCheckInStepPhoto", "listing check in step photo", "remove listing check in step photo")
@@ -733,8 +734,9 @@ func (server *Server) RemoveCheckInStep(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	if len(stepDetail.Photo) != 0 && stepDetail.Photo != "none" {
-		err = RemoveFirebasePhoto(server, ctx, stepDetail.Photo)
+	if len(stepDetail.Image) != 0 && stepDetail.Image != "none" {
+		path, _ := tools.GetImageItem(stepDetail.Image)
+		err = RemoveFirebasePhoto(server, ctx, path)
 		if err != nil {
 			log.Printf("There an error at RemoveCheckInStep at RemoveFirebasePhoto: %v, optionID: %v, userID: %v, stepID: %v \n", err.Error(), option.ID, user.ID, stepID)
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -767,7 +769,7 @@ func (server *Server) RemoveCheckInStep(ctx *gin.Context) {
 		data := CheckInStepRes{
 			ID:    tools.UuidToString(steps[i].ID),
 			Des:   steps[i].Des,
-			Photo: steps[i].Photo,
+			Image: steps[i].Image,
 		}
 		resData = append(resData, data)
 	}
@@ -811,13 +813,13 @@ func (server *Server) UpdateCheckInStep(ctx *gin.Context) {
 	var res CheckInStepRes
 	switch req.Type {
 	case "photo":
-		step, err := server.store.UpdateCheckInStepPhoto(ctx, db.UpdateCheckInStepPhotoParams{
-			Photo:    req.Photo,
+		step, err := server.store.UpdateCheckInStepImage(ctx, db.UpdateCheckInStepImageParams{
+			Image:    req.Image,
 			OptionID: option.ID,
 			ID:       stepID,
 		})
 		if err != nil {
-			log.Printf("There an error at UpdateCheckInStep at UpdateCheckInStepPhoto: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+			log.Printf("There an error at UpdateCheckInStep at UpdateCheckInStepImage: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
 			err = fmt.Errorf("could not update your photo in server")
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
@@ -825,7 +827,7 @@ func (server *Server) UpdateCheckInStep(ctx *gin.Context) {
 			res = CheckInStepRes{
 				ID:    tools.UuidToString(step.ID),
 				Des:   step.Des,
-				Photo: step.Photo,
+				Image: step.Image,
 			}
 		}
 	case "des":
@@ -843,7 +845,7 @@ func (server *Server) UpdateCheckInStep(ctx *gin.Context) {
 			res = CheckInStepRes{
 				ID:    tools.UuidToString(step.ID),
 				Des:   step.Des,
-				Photo: step.Photo,
+				Image: step.Image,
 			}
 		}
 	default:
@@ -884,7 +886,7 @@ func (server *Server) CreateCheckInStep(ctx *gin.Context) {
 	case "photo":
 		step, err := server.store.CreateCheckInStep(ctx, db.CreateCheckInStepParams{
 			OptionID: option.ID,
-			Photo:    req.Photo,
+			Image:    req.Image,
 			Des:      "none",
 		})
 		if err != nil {
@@ -896,13 +898,13 @@ func (server *Server) CreateCheckInStep(ctx *gin.Context) {
 			res = CheckInStepRes{
 				ID:    tools.UuidToString(step.ID),
 				Des:   step.Des,
-				Photo: step.Photo,
+				Image: step.Image,
 			}
 		}
 	case "des":
 		step, err := server.store.CreateCheckInStep(ctx, db.CreateCheckInStepParams{
 			OptionID: option.ID,
-			Photo:    "none",
+			Image:    "none",
 			Des:      req.Des,
 		})
 		if err != nil {
@@ -914,7 +916,7 @@ func (server *Server) CreateCheckInStep(ctx *gin.Context) {
 			res = CheckInStepRes{
 				ID:    tools.UuidToString(step.ID),
 				Des:   step.Des,
-				Photo: step.Photo,
+				Image: step.Image,
 			}
 		}
 	default:

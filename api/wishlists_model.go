@@ -10,7 +10,7 @@ type WishlistItem struct {
 	WishlistID     string `json:"wishlist_id"`
 	WishlistItemID string `json:"wishlist_item_id"`
 	OptionUserID   string `json:"option_user_id"`
-	CoverImage     string `json:"cover_image"`
+	MainImage     string `json:"main_image"`
 }
 
 type ListWishlistRes struct {

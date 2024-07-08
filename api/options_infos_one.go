@@ -720,61 +720,61 @@ func (server *Server) CreateOptionName(ctx *gin.Context) {
 
 //}
 
-func (server *Server) CreateOptionPhoto(ctx *gin.Context) {
-	var req CreateOptionInfoPhotoParams
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("Error at CreateOptionPhoto in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.OptionID)
-		err = fmt.Errorf("error occurred while taking you back")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	log.Println(req)
-	requestID, err := tools.StringToUuid(req.OptionID)
-	if err != nil {
-		log.Printf("Error at tools.StringToUuid: %v, optionID: %v \n", err.Error(), req.OptionID)
-		err = fmt.Errorf("error occurred while processing your request")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	user, option, err := HandleGetOptionIncomplete(requestID, ctx, server, false)
-	if err != nil {
-		log.Println("error something went wrong 3, ", err)
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	optionData, err := server.store.GetOptionInfoPhoto(ctx, option.ID)
-	if err != nil {
-		// We expect that it should already exist
-		log.Println("error something went wrong, ", err)
-		err = fmt.Errorf("you must have a cover image with additional photos")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	if tools.ServerStringEmpty(optionData.CoverImage) || tools.ServerListIsEmpty(optionData.Photo) {
-		err = fmt.Errorf("you must have a cover image with additional photos")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+//func (server *Server) CreateOptionPhoto(ctx *gin.Context) {
+//	var req CreateOptionInfoPhotoParams
+//	if err := ctx.ShouldBindJSON(&req); err != nil {
+//		log.Printf("Error at CreateOptionPhoto in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.OptionID)
+//		err = fmt.Errorf("error occurred while taking you back")
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//	log.Println(req)
+//	requestID, err := tools.StringToUuid(req.OptionID)
+//	if err != nil {
+//		log.Printf("Error at tools.StringToUuid: %v, optionID: %v \n", err.Error(), req.OptionID)
+//		err = fmt.Errorf("error occurred while processing your request")
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//	user, option, err := HandleGetOptionIncomplete(requestID, ctx, server, false)
+//	if err != nil {
+//		log.Println("error something went wrong 3, ", err)
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//	optionData, err := server.store.GetOptionInfoPhoto(ctx, option.ID)
+//	if err != nil {
+//		// We expect that it should already exist
+//		log.Println("error something went wrong, ", err)
+//		err = fmt.Errorf("you must have a cover image with additional photos")
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//	if tools.ServerStringEmpty(optionData.CoverImage) || tools.ServerListIsEmpty(optionData.Photo) {
+//		err = fmt.Errorf("you must have a cover image with additional photos")
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
 
-	currentState, previousState := utils.PhotoViewState(option.OptionType)
-	completeOption, err := HandleCompleteOption(currentState, previousState, server, ctx, option, user.ID)
-	if err != nil {
-		log.Printf("Error at CreateOptionPhoto in HandleCompleteOption: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
-	}
-	res := OptionInfoResponse{
-		OptionItemType:     "",
-		Success:            true,
-		OptionID:           tools.UuidToString(option.ID),
-		UserOptionID:       tools.UuidToString(option.OptionUserID),
-		CurrentServerView:  completeOption.CurrentState,
-		PreviousServerView: completeOption.PreviousState,
-		MainOptionType:     option.MainOptionType,
-		OptionType:         option.OptionType,
-		Currency:           option.Currency,
-	}
-	ctx.JSON(http.StatusOK, res)
+//	currentState, previousState := utils.PhotoViewState(option.OptionType)
+//	completeOption, err := HandleCompleteOption(currentState, previousState, server, ctx, option, user.ID)
+//	if err != nil {
+//		log.Printf("Error at CreateOptionPhoto in HandleCompleteOption: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+//	}
+//	res := OptionInfoResponse{
+//		OptionItemType:     "",
+//		Success:            true,
+//		OptionID:           tools.UuidToString(option.ID),
+//		UserOptionID:       tools.UuidToString(option.OptionUserID),
+//		CurrentServerView:  completeOption.CurrentState,
+//		PreviousServerView: completeOption.PreviousState,
+//		MainOptionType:     option.MainOptionType,
+//		OptionType:         option.OptionType,
+//		Currency:           option.Currency,
+//	}
+//	ctx.JSON(http.StatusOK, res)
 
-}
+//}
 
 func (server *Server) UploadOptionPhoto(ctx *gin.Context) {
 	var req UploadOptionInfoPhotoParams
@@ -814,10 +814,9 @@ func (server *Server) UploadOptionPhoto(ctx *gin.Context) {
 	if optionPhotoExist {
 		// If option photo exist we want to check if that particular photo exists
 		if req.IsCover {
-			_, err = server.store.UpdateOptionInfoAllPhotoCover(ctx, db.UpdateOptionInfoAllPhotoCoverParams{
-				OptionID:         option.ID,
-				CoverImage:       req.Photo,
-				PublicCoverImage: req.PhotoUrl,
+			_, err = server.store.UpdateOptionInfoMainImage(ctx, db.UpdateOptionInfoMainImageParams{
+				OptionID:  option.ID,
+				MainImage: req.Image,
 			})
 			if err != nil {
 				log.Println("error something went wrong, ", err)
@@ -826,14 +825,11 @@ func (server *Server) UploadOptionPhoto(ctx *gin.Context) {
 				return
 			}
 		} else {
-			photos := append(optionPhoto.Photo, req.Photo)
-			photos = tools.HandleListReq(tools.RemoveDuplicates(photos))
-			photoUrls := append(optionPhoto.PublicPhoto, req.PhotoUrl)
-			photoUrls = tools.HandleListReq(tools.RemoveDuplicates(photoUrls))
-			_, err = server.store.UpdateOptionInfoAllPhotoOnly(ctx, db.UpdateOptionInfoAllPhotoOnlyParams{
-				OptionID:    option.ID,
-				Photo:       photos,
-				PublicPhoto: photoUrls,
+			images := append(optionPhoto.Images, req.Image)
+			images = tools.HandleListReq(tools.RemoveDuplicates(images))
+			_, err = server.store.UpdateOptionInfoImages(ctx, db.UpdateOptionInfoImagesParams{
+				OptionID: option.ID,
+				Images:   images,
 			})
 			if err != nil {
 				log.Println("error something went wrong, ", err)
@@ -846,11 +842,9 @@ func (server *Server) UploadOptionPhoto(ctx *gin.Context) {
 		// We want to create the photo object
 		if req.IsCover {
 			_, err = server.store.CreateOptionInfoPhoto(ctx, db.CreateOptionInfoPhotoParams{
-				OptionID:         option.ID,
-				CoverImage:       req.Photo,
-				PublicCoverImage: req.PhotoUrl,
-				Photo:            []string{"none"},
-				PublicPhoto:      []string{"none"},
+				OptionID:  option.ID,
+				MainImage: req.Image,
+				Images:    []string{"none"},
 			})
 			if err != nil {
 				log.Println("error something went wrong, ", err)
@@ -860,11 +854,9 @@ func (server *Server) UploadOptionPhoto(ctx *gin.Context) {
 			}
 		} else {
 			_, err = server.store.CreateOptionInfoPhoto(ctx, db.CreateOptionInfoPhotoParams{
-				OptionID:         option.ID,
-				CoverImage:       "none",
-				PublicCoverImage: "none",
-				Photo:            []string{req.Photo},
-				PublicPhoto:      []string{req.PhotoUrl},
+				OptionID:  option.ID,
+				MainImage: "none",
+				Images:    []string{req.Image},
 			})
 			if err != nil {
 				log.Println("error something went wrong, ", err)
@@ -875,19 +867,20 @@ func (server *Server) UploadOptionPhoto(ctx *gin.Context) {
 		}
 	}
 	res := UploadOptionInfoPhotoRes{
-		Photo:    req.Photo,
-		PhotoUrl: req.PhotoUrl,
+		Image: req.Image,
 		IsCover:  req.IsCover,
 	}
 	ctx.JSON(http.StatusOK, res)
 
 }
 
+
+// This function the image is just the path
 func (server *Server) DeleteOptionUserPhotoNotStored(ctx *gin.Context) {
 	var photoStored bool
 	var req DeleteOptionUserInfoPhotoParams
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("Error at DeleteOptionUserPhoto in ShouldBindJSON: %v, Path: %v \n", err.Error(), req.Path)
+		log.Printf("Error at DeleteOptionUserPhoto in ShouldBindJSON: %v, Image: %v \n", err.Error(), req.Image)
 		err = fmt.Errorf("error occurred while taking you back")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -906,11 +899,11 @@ func (server *Server) DeleteOptionUserPhotoNotStored(ctx *gin.Context) {
 	}
 	for _, optionPhoto := range optionPhotos {
 		// We want to ensure that none of the photo is not store in the database
-		if optionPhoto.CoverImage == req.Path {
+		if optionPhoto.MainImage == req.Image {
 			photoStored = true
 		}
-		for _, photo := range optionPhoto.Photo {
-			if photo == req.Path {
+		for _, photo := range optionPhoto.Images {
+			if photo == req.Image {
 				photoStored = true
 			}
 		}
@@ -922,12 +915,13 @@ func (server *Server) DeleteOptionUserPhotoNotStored(ctx *gin.Context) {
 		return
 	}
 	// We want to delete the photo from firebase
-	err = RemoveFirebasePhoto(server, ctx, req.Path)
+	// The image is the same as the path only in this particular function
+	err = RemoveFirebasePhoto(server, ctx, req.Image)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	res := DeleteOptionUserInfoPhotoRes {
+	res := DeleteOptionUserInfoPhotoRes{
 		Success: true,
 	}
 	ctx.JSON(http.StatusOK, res)
@@ -938,7 +932,7 @@ func (server *Server) DeleteOptionUserPhotoStored(ctx *gin.Context) {
 	var photoStored bool
 	var req DeleteOptionUserInfoPhotoParams
 	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("Error at DeleteOptionUserPhoto in ShouldBindJSON: %v, Path: %v \n", err.Error(), req.Path)
+		log.Printf("Error at DeleteOptionUserPhoto in ShouldBindJSON: %v, Path: %v \n", err.Error(), req.Image)
 		err = fmt.Errorf("error occurred while taking you back")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -957,11 +951,11 @@ func (server *Server) DeleteOptionUserPhotoStored(ctx *gin.Context) {
 	}
 	for _, optionPhoto := range optionPhotos {
 		// We want to ensure that photo is one of the photos the user owns
-		if optionPhoto.CoverImage == req.Path {
+		if optionPhoto.MainImage == req.Image {
 			photoStored = true
 		}
-		for _, photo := range optionPhoto.Photo {
-			if photo == req.Path {
+		for _, photo := range optionPhoto.Images {
+			if photo == req.Image {
 				photoStored = true
 			}
 		}
@@ -973,12 +967,13 @@ func (server *Server) DeleteOptionUserPhotoStored(ctx *gin.Context) {
 		return
 	}
 	// We want to delete the photo from firebase
-	err = RemoveFirebasePhoto(server, ctx, req.Path)
+	path, _ := tools.GetImageItem(req.Image)
+	err = RemoveFirebasePhoto(server, ctx, path)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	res := DeleteOptionUserInfoPhotoRes {
+	res := DeleteOptionUserInfoPhotoRes{
 		Success: true,
 	}
 	ctx.JSON(http.StatusOK, res)

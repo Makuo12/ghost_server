@@ -89,7 +89,7 @@ func GetCodeDetails(code string, funcName string) (guestID uuid.UUID, chargeID u
 }
 
 // GetChargeForScanned Is to know if code has been scanned
-// chargeID uuid.UUID, optionUserID uuid.UUID, scanned bool, grade string, scannedBy uuid.UUID, scannedTime time, scannedByName string, scannedByProfilePhoto, err error
+// chargeID uuid.UUID, optionUserID uuid.UUID, scanned bool, grade string, scannedBy uuid.UUID, scannedTime time, scannedByName string, ScannedUserImage, err error
 func GetChargeForScanned(ctx context.Context, server *Server, req GetChargeCodeParams, user db.User, funcName string) (uuid.UUID, uuid.UUID, bool, string, uuid.UUID, time.Time, string, string, string, error) {
 	reqChargeID, err := tools.StringToUuid(req.ID)
 	if err != nil {
@@ -110,7 +110,7 @@ func GetChargeForScanned(ctx context.Context, server *Server, req GetChargeCodeP
 			err = errors.New("could not find your booking, try again later. Or try contacting us")
 			return uuid.UUID{}, uuid.UUID{}, false, "none", uuid.UUID{}, time.Time{}, "none", "none", "none", err
 		} else {
-			return charge.ChargeID, charge.OptionUserID, HandleSqlNullBool(charge.Scanned), "none", HandleSqlNullUUID(charge.ScannedBy), HandleSqlNullTimestamp(charge.ScannedTime), HandleSqlNullString(charge.ScannedByName), HandleSqlNullString(charge.ScannedByProfilePhoto), "none", nil
+			return charge.ChargeID, charge.OptionUserID, HandleSqlNullBool(charge.Scanned), "none", HandleSqlNullUUID(charge.ScannedBy), HandleSqlNullTimestamp(charge.ScannedTime), HandleSqlNullString(charge.ScannedByName), HandleSqlNullString(charge.ScannedUserImage), "none", nil
 		}
 	case "events":
 		charge, err := server.store.GetScannedChargeTicket(ctx, db.GetScannedChargeTicketParams{
@@ -128,7 +128,7 @@ func GetChargeForScanned(ctx context.Context, server *Server, req GetChargeCodeP
 			}
 			return uuid.UUID{}, uuid.UUID{}, false, "none", uuid.UUID{}, time.Time{}, "none", "none", "none", err
 		} else {
-			return charge.ChargeID, charge.OptionUserID, HandleSqlNullBool(charge.Scanned), charge.Grade, HandleSqlNullUUID(charge.ScannedBy), HandleSqlNullTimestamp(charge.ScannedTime), HandleSqlNullString(charge.ScannedByName), HandleSqlNullString(charge.ScannedByProfilePhoto), charge.TicketType, nil
+			return charge.ChargeID, charge.OptionUserID, HandleSqlNullBool(charge.Scanned), charge.Grade, HandleSqlNullUUID(charge.ScannedBy), HandleSqlNullTimestamp(charge.ScannedTime), HandleSqlNullString(charge.ScannedByName), HandleSqlNullString(charge.ScannedUserImage), charge.TicketType, nil
 		}
 	default:
 		err = errors.New("unsure whether this is an event or listing, try sending the right info")

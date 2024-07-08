@@ -10,7 +10,7 @@ type ReserveHostItem struct {
 	HostMethod     string `json:"host_method"`
 	FirstName      string `json:"first_name"`
 	HostNameOption string `json:"host_name_option"`
-	UserPhoto      string `json:"user_photo"`
+	HostImage      string `json:"host_image"`
 	ArriveAfter    string `json:"arrive_after"`
 	ArriveBefore   string `json:"arrive_before"`
 	LeaveBefore    string `json:"leave_before"`
@@ -19,7 +19,7 @@ type ReserveHostItem struct {
 	CanScanCode    bool   `json:"can_scan_code"`
 	StartTimeType  string `json:"start_time_type"`
 	OptionStatus   string `json:"option_status"`
-	CoverImage     string `json:"cover_image"`
+	MainImage      string `json:"main_image"`
 	RoomID         string `json:"room_id"`
 }
 
@@ -71,7 +71,7 @@ type DateHostItem struct {
 	CanReserve        bool             `json:"can_reserve"`
 	CanScanCode       bool             `json:"can_scan_code"`
 	OptionStatus      string           `json:"option_status"`
-	CoverImage        string           `json:"cover_image"`
+	MainImage        string           `json:"main_image"`
 }
 
 type ReserveEventHostItem struct {

@@ -5,9 +5,9 @@ package api
 // "github.com/google/uuid"
 
 type CreateUserRequest struct {
-	Password    string `json:"password" binding:"required,password"`
-	Email       string `json:"email" binding:"required,email"`
-	Username    string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required,password"`
+	Email    string `json:"email" binding:"required,email"`
+	Username string `json:"username" binding:"required"`
 	// remember to add it later to first name and last name binding:"required,person_name"
 	FirstName   string `json:"first_name"`
 	Currency    string `json:"currency" binding:"required,currency"`
@@ -57,7 +57,7 @@ type LoginUserResponse struct {
 	LastName             string `json:"last_name"`
 	AccessToken          string `json:"access_token"`
 	Currency             string `json:"currency"`
-	ProfilePhoto         string `json:"profile_photo"`
+	HostImage            string `json:"host_image"`
 	PublicID             string `json:"public_id"`
 	AccessTokenExpiresAt string `json:"access_token_expires_at"`
 	RefreshToken         string `json:"refresh_token"`
@@ -68,7 +68,7 @@ type UpdateUserResponse struct {
 	FireFight     string `json:"fire_fight"`
 	FirstName     string `json:"first_name"`
 	LastName      string `json:"last_name"`
-	ProfilePhoto  string `json:"profile_photo"`
+	HostImage     string `json:"host_image"`
 	Currency      string `json:"currency"`
 	IsHost        bool   `json:"is_host"`
 	HasIncomplete bool   `json:"has_incomplete"`
@@ -76,22 +76,22 @@ type UpdateUserResponse struct {
 }
 
 type GetFireEmailAndPasswordRes struct {
-	Email        string `json:"email"`
-	FireFight    string `json:"fire_fight"`
-	ProfilePhoto string `json:"profile_photo"`
+	Email     string `json:"email"`
+	FireFight string `json:"fire_fight"`
+	HostImage string `json:"host_image"`
 }
 
 type ProfileUserResponse struct {
-	Email        string `json:"email"`
-	FirstName    string `json:"first_name"`
-	LastName     string `json:"last_name"`
-	ProfilePhoto string `json:"profile_photo"`
-	DateOfBirth  string `json:"date_of_birth"`
-	IsHost       bool   `json:"is_host"`
-	Rating       string `json:"rating"`
-	DialCode     string `json:"dial_code"`
-	DialCountry  string `json:"dial_country"`
-	PhoneNumber  string `json:"phone_number"`
+	Email       string `json:"email"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	HostImage   string `json:"host_image"`
+	DateOfBirth string `json:"date_of_birth"`
+	IsHost      bool   `json:"is_host"`
+	Rating      string `json:"rating"`
+	DialCode    string `json:"dial_code"`
+	DialCountry string `json:"dial_country"`
+	PhoneNumber string `json:"phone_number"`
 }
 
 type ProfileHostResponse struct {
@@ -188,15 +188,11 @@ type JoinWithPhoneParams struct {
 }
 
 type ConfirmCodeJoinParams struct {
-	Currency  string `json:"currency"`
-	Type      string `json:"type"`
-	Code      string `json:"code" binding:"required,len=6"`
-	Username  string `json:"username" binding:"required"`
+	Currency string `json:"currency"`
+	Type     string `json:"type"`
+	Code     string `json:"code" binding:"required,len=6"`
+	Username string `json:"username" binding:"required"`
 }
-
-
-
-
 
 type ConfirmJoinSignUpParams struct {
 	Type      string `json:"type"`
@@ -205,16 +201,12 @@ type ConfirmJoinSignUpParams struct {
 	Username  string `json:"username" binding:"required"`
 }
 
-
-
 type ConfirmJoinSignUpRes struct {
 	Type        string `json:"type"`
 	CodeSent    bool   `json:"code_sent"`
 	Username    string `json:"username"`
 	PhoneNumber string `json:"phone_number" binding:"required"`
 }
-
-
 
 type JoinWithPhoneRes struct {
 	Type        string `json:"type"`
@@ -284,7 +276,7 @@ type GetUserParams struct {
 	FirstName     string          `json:"first_name"`
 	LastName      string          `json:"last_name"`
 	Currency      string          `json:"currency"`
-	ProfilePhoto  string          `json:"profile_photo"`
+	HostImage     string          `json:"host_image"`
 	IsHost        bool            `json:"is_host"`
 	WishlistList  ListWishlistRes `json:"wishlist_list"`
 	HasIncomplete bool            `json:"has_incomplete"`

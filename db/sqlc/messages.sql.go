@@ -20,7 +20,7 @@ INSERT INTO messages (
     receiver_id,
     message,
     type,
-    photo,
+    main_image,
     read,
     parent_id,
     reference,
@@ -36,7 +36,7 @@ type CreateMessageParams struct {
 	ReceiverID uuid.UUID `json:"receiver_id"`
 	Message    string    `json:"message"`
 	Type       string    `json:"type"`
-	Photo      string    `json:"photo"`
+	MainImage  string    `json:"main_image"`
 	Read       bool      `json:"read"`
 	ParentID   string    `json:"parent_id"`
 	Reference  string    `json:"reference"`
@@ -56,7 +56,7 @@ func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (C
 		arg.ReceiverID,
 		arg.Message,
 		arg.Type,
-		arg.Photo,
+		arg.MainImage,
 		arg.Read,
 		arg.ParentID,
 		arg.Reference,
@@ -77,7 +77,7 @@ SELECT
     m.message,
     m.type,
     m.read,
-    m.photo,
+    m.main_image,
     m.parent_id,
     m.reference,
     m.created_at,
@@ -89,7 +89,7 @@ SELECT
     p.message AS parent_message,
     p.type AS parent_type,
     p.read AS parent_read,
-    p.photo AS parent_photo,
+    p.main_image AS parent_main_image,
     p.parent_id AS parent_parent_id,
     p.reference AS parent_reference,
     p.created_at AS parent_created_at,
@@ -107,7 +107,7 @@ type GetMessageRow struct {
 	Message          string             `json:"message"`
 	Type             string             `json:"type"`
 	Read             bool               `json:"read"`
-	Photo            string             `json:"photo"`
+	MainImage        string             `json:"main_image"`
 	ParentID         string             `json:"parent_id"`
 	Reference        string             `json:"reference"`
 	CreatedAt        time.Time          `json:"created_at"`
@@ -119,7 +119,7 @@ type GetMessageRow struct {
 	ParentMessage    pgtype.Text        `json:"parent_message"`
 	ParentType       pgtype.Text        `json:"parent_type"`
 	ParentRead       pgtype.Bool        `json:"parent_read"`
-	ParentPhoto      pgtype.Text        `json:"parent_photo"`
+	ParentMainImage  pgtype.Text        `json:"parent_main_image"`
 	ParentParentID   pgtype.Text        `json:"parent_parent_id"`
 	ParentReference  pgtype.Text        `json:"parent_reference"`
 	ParentCreatedAt  pgtype.Timestamptz `json:"parent_created_at"`
@@ -137,7 +137,7 @@ func (q *Queries) GetMessage(ctx context.Context, id uuid.UUID) (GetMessageRow, 
 		&i.Message,
 		&i.Type,
 		&i.Read,
-		&i.Photo,
+		&i.MainImage,
 		&i.ParentID,
 		&i.Reference,
 		&i.CreatedAt,
@@ -149,7 +149,7 @@ func (q *Queries) GetMessage(ctx context.Context, id uuid.UUID) (GetMessageRow, 
 		&i.ParentMessage,
 		&i.ParentType,
 		&i.ParentRead,
-		&i.ParentPhoto,
+		&i.ParentMainImage,
 		&i.ParentParentID,
 		&i.ParentReference,
 		&i.ParentCreatedAt,
@@ -159,7 +159,7 @@ func (q *Queries) GetMessage(ctx context.Context, id uuid.UUID) (GetMessageRow, 
 }
 
 const getMessageByMsgID = `-- name: GetMessageByMsgID :one
-SELECT id, msg_id, sender_id, receiver_id, message, type, read, photo, parent_id, reference, created_at, updated_at
+SELECT id, msg_id, sender_id, receiver_id, message, type, read, main_image, parent_id, reference, created_at, updated_at
 FROM messages
 WHERE msg_id = $1 AND (sender_id = $2 OR receiver_id = $3)
 `
@@ -181,7 +181,7 @@ func (q *Queries) GetMessageByMsgID(ctx context.Context, arg GetMessageByMsgIDPa
 		&i.Message,
 		&i.Type,
 		&i.Read,
-		&i.Photo,
+		&i.MainImage,
 		&i.ParentID,
 		&i.Reference,
 		&i.CreatedAt,
@@ -191,7 +191,7 @@ func (q *Queries) GetMessageByMsgID(ctx context.Context, arg GetMessageByMsgIDPa
 }
 
 const getMessageByRef = `-- name: GetMessageByRef :one
-SELECT id, msg_id, sender_id, receiver_id, message, type, read, photo, parent_id, reference, created_at, updated_at
+SELECT id, msg_id, sender_id, receiver_id, message, type, read, main_image, parent_id, reference, created_at, updated_at
 FROM messages
 WHERE reference = $1
 `
@@ -207,7 +207,7 @@ func (q *Queries) GetMessageByRef(ctx context.Context, reference string) (Messag
 		&i.Message,
 		&i.Type,
 		&i.Read,
-		&i.Photo,
+		&i.MainImage,
 		&i.ParentID,
 		&i.Reference,
 		&i.CreatedAt,
@@ -220,7 +220,7 @@ const getMessageContact = `-- name: GetMessageContact :one
 SELECT
     connected_user_id::uuid,
     u.first_name,
-    u.photo,
+    u.image,
     last_message,
     last_message_time,
     send_id::uuid,
@@ -254,7 +254,7 @@ LEFT JOIN messages unread_messages
     ON (message_data.connected_user_id = unread_messages.sender_id AND $1 = unread_messages.receiver_id)
         OR (message_data.connected_user_id = unread_messages.receiver_id AND $1 = unread_messages.sender_id)
         AND unread_messages.read = false AND send_id != $1 -- Check if message is not read
-GROUP BY connected_user_id, u.first_name, u.photo, last_message, last_message_time, send_id, message_id
+GROUP BY connected_user_id, u.first_name, u.image, last_message, last_message_time, send_id, message_id
 `
 
 type GetMessageContactParams struct {
@@ -265,7 +265,7 @@ type GetMessageContactParams struct {
 type GetMessageContactRow struct {
 	ConnectedUserID            uuid.UUID `json:"connected_user_id"`
 	FirstName                  string    `json:"first_name"`
-	Photo                      string    `json:"photo"`
+	Image                      string    `json:"image"`
 	LastMessage                string    `json:"last_message"`
 	LastMessageTime            time.Time `json:"last_message_time"`
 	SendID                     uuid.UUID `json:"send_id"`
@@ -283,7 +283,7 @@ func (q *Queries) GetMessageContact(ctx context.Context, arg GetMessageContactPa
 	err := row.Scan(
 		&i.ConnectedUserID,
 		&i.FirstName,
-		&i.Photo,
+		&i.Image,
 		&i.LastMessage,
 		&i.LastMessageTime,
 		&i.SendID,
@@ -353,7 +353,7 @@ SELECT
     m.message,
     m.type,
     m.read,
-    m.photo,
+    m.main_image,
     m.parent_id,
     m.reference,
     m.created_at,
@@ -365,7 +365,7 @@ SELECT
     p.message AS parent_message,
     p.type AS parent_type,
     p.read AS parent_read,
-    p.photo AS parent_photo,
+    p.main_image AS parent_main_image,
     p.parent_id AS parent_parent_id,
     p.reference AS parent_reference,
     p.created_at AS parent_created_at
@@ -382,7 +382,7 @@ type GetMessageWithTimeRow struct {
 	Message          string             `json:"message"`
 	Type             string             `json:"type"`
 	Read             bool               `json:"read"`
-	Photo            string             `json:"photo"`
+	MainImage        string             `json:"main_image"`
 	ParentID         string             `json:"parent_id"`
 	Reference        string             `json:"reference"`
 	CreatedAt        time.Time          `json:"created_at"`
@@ -394,7 +394,7 @@ type GetMessageWithTimeRow struct {
 	ParentMessage    pgtype.Text        `json:"parent_message"`
 	ParentType       pgtype.Text        `json:"parent_type"`
 	ParentRead       pgtype.Bool        `json:"parent_read"`
-	ParentPhoto      pgtype.Text        `json:"parent_photo"`
+	ParentMainImage  pgtype.Text        `json:"parent_main_image"`
 	ParentParentID   pgtype.Text        `json:"parent_parent_id"`
 	ParentReference  pgtype.Text        `json:"parent_reference"`
 	ParentCreatedAt  pgtype.Timestamptz `json:"parent_created_at"`
@@ -411,7 +411,7 @@ func (q *Queries) GetMessageWithTime(ctx context.Context, id uuid.UUID) (GetMess
 		&i.Message,
 		&i.Type,
 		&i.Read,
-		&i.Photo,
+		&i.MainImage,
 		&i.ParentID,
 		&i.Reference,
 		&i.CreatedAt,
@@ -423,7 +423,7 @@ func (q *Queries) GetMessageWithTime(ctx context.Context, id uuid.UUID) (GetMess
 		&i.ParentMessage,
 		&i.ParentType,
 		&i.ParentRead,
-		&i.ParentPhoto,
+		&i.ParentMainImage,
 		&i.ParentParentID,
 		&i.ParentReference,
 		&i.ParentCreatedAt,
@@ -440,7 +440,7 @@ SELECT
     m.message,
     m.type,
     m.read,
-    m.photo,
+    m.main_image,
     m.parent_id,
     m.reference,
     m.created_at,
@@ -452,7 +452,7 @@ SELECT
     p.message AS parent_message,
     p.type AS parent_type,
     p.read AS parent_read,
-    p.photo AS parent_photo,
+    p.main_image AS parent_main_image,
     p.parent_id AS parent_parent_id,
     p.reference AS parent_reference,
     p.created_at AS parent_created_at,
@@ -482,7 +482,7 @@ type ListMessageRow struct {
 	Message          string             `json:"message"`
 	Type             string             `json:"type"`
 	Read             bool               `json:"read"`
-	Photo            string             `json:"photo"`
+	MainImage        string             `json:"main_image"`
 	ParentID         string             `json:"parent_id"`
 	Reference        string             `json:"reference"`
 	CreatedAt        time.Time          `json:"created_at"`
@@ -494,7 +494,7 @@ type ListMessageRow struct {
 	ParentMessage    pgtype.Text        `json:"parent_message"`
 	ParentType       pgtype.Text        `json:"parent_type"`
 	ParentRead       pgtype.Bool        `json:"parent_read"`
-	ParentPhoto      pgtype.Text        `json:"parent_photo"`
+	ParentMainImage  pgtype.Text        `json:"parent_main_image"`
 	ParentParentID   pgtype.Text        `json:"parent_parent_id"`
 	ParentReference  pgtype.Text        `json:"parent_reference"`
 	ParentCreatedAt  pgtype.Timestamptz `json:"parent_created_at"`
@@ -525,7 +525,7 @@ func (q *Queries) ListMessage(ctx context.Context, arg ListMessageParams) ([]Lis
 			&i.Message,
 			&i.Type,
 			&i.Read,
-			&i.Photo,
+			&i.MainImage,
 			&i.ParentID,
 			&i.Reference,
 			&i.CreatedAt,
@@ -537,7 +537,7 @@ func (q *Queries) ListMessage(ctx context.Context, arg ListMessageParams) ([]Lis
 			&i.ParentMessage,
 			&i.ParentType,
 			&i.ParentRead,
-			&i.ParentPhoto,
+			&i.ParentMainImage,
 			&i.ParentParentID,
 			&i.ParentReference,
 			&i.ParentCreatedAt,
@@ -557,7 +557,7 @@ const listMessageContact = `-- name: ListMessageContact :many
 SELECT
     connected_user_id::uuid,
     u.first_name,
-    u.photo,
+    u.image,
     last_message,
     last_message_time,
     send_id::uuid,
@@ -591,7 +591,7 @@ LEFT JOIN messages unread_messages
     ON (message_data.connected_user_id = unread_messages.sender_id AND $1 = unread_messages.receiver_id)
         OR (message_data.connected_user_id = unread_messages.receiver_id AND $1 = unread_messages.sender_id)
         AND unread_messages.read = false AND send_id != $1 -- Check if message is not read
-GROUP BY connected_user_id, u.first_name, u.photo, last_message, last_message_time, send_id, message_id
+GROUP BY connected_user_id, u.first_name, u.image, last_message, last_message_time, send_id, message_id
 ORDER BY last_message_time DESC -- Sort by last message's created_at in descending order
     LIMIT $2
     OFFSET $3
@@ -606,7 +606,7 @@ type ListMessageContactParams struct {
 type ListMessageContactRow struct {
 	ConnectedUserID            uuid.UUID `json:"connected_user_id"`
 	FirstName                  string    `json:"first_name"`
-	Photo                      string    `json:"photo"`
+	Image                      string    `json:"image"`
 	LastMessage                string    `json:"last_message"`
 	LastMessageTime            time.Time `json:"last_message_time"`
 	SendID                     uuid.UUID `json:"send_id"`
@@ -630,7 +630,7 @@ func (q *Queries) ListMessageContact(ctx context.Context, arg ListMessageContact
 		if err := rows.Scan(
 			&i.ConnectedUserID,
 			&i.FirstName,
-			&i.Photo,
+			&i.Image,
 			&i.LastMessage,
 			&i.LastMessageTime,
 			&i.SendID,
@@ -655,7 +655,7 @@ const listMessageContactByTime = `-- name: ListMessageContactByTime :many
 SELECT
     connected_user_id::uuid,
     u.first_name,
-    u.photo,
+    u.image AS host_image,
     last_message,
     last_message_time,
     send_id::uuid,
@@ -689,7 +689,7 @@ LEFT JOIN messages unread_messages
     ON (message_data.connected_user_id = unread_messages.sender_id AND $1 = unread_messages.receiver_id)
         OR (message_data.connected_user_id = unread_messages.receiver_id AND $1 = unread_messages.sender_id)
         AND unread_messages.read = false AND send_id != $1 -- Check if message is not read
-GROUP BY connected_user_id, u.first_name, u.photo, last_message, last_message_time, send_id, message_id
+GROUP BY connected_user_id, u.first_name, u.image, last_message, last_message_time, send_id, message_id
 ORDER BY last_message_time DESC -- Sort by last message's created_at in descending order
     LIMIT $3
     OFFSET $4
@@ -705,7 +705,7 @@ type ListMessageContactByTimeParams struct {
 type ListMessageContactByTimeRow struct {
 	ConnectedUserID            uuid.UUID `json:"connected_user_id"`
 	FirstName                  string    `json:"first_name"`
-	Photo                      string    `json:"photo"`
+	HostImage                  string    `json:"host_image"`
 	LastMessage                string    `json:"last_message"`
 	LastMessageTime            time.Time `json:"last_message_time"`
 	SendID                     uuid.UUID `json:"send_id"`
@@ -734,7 +734,7 @@ func (q *Queries) ListMessageContactByTime(ctx context.Context, arg ListMessageC
 		if err := rows.Scan(
 			&i.ConnectedUserID,
 			&i.FirstName,
-			&i.Photo,
+			&i.HostImage,
 			&i.LastMessage,
 			&i.LastMessageTime,
 			&i.SendID,
@@ -759,7 +759,7 @@ const listMessageContactNoLimit = `-- name: ListMessageContactNoLimit :many
 SELECT
     connected_user_id::uuid,
     u.first_name,
-    u.photo,
+    u.image,
     last_message,
     last_message_time,
     send_id::uuid,
@@ -793,7 +793,7 @@ LEFT JOIN messages unread_messages
     ON (message_data.connected_user_id = unread_messages.sender_id AND $1 = unread_messages.receiver_id)
         OR (message_data.connected_user_id = unread_messages.receiver_id AND $1 = unread_messages.sender_id)
         AND unread_messages.read = false AND send_id != $1 -- Check if message is not read
-GROUP BY connected_user_id, u.first_name, u.photo, last_message, last_message_time, send_id, message_id
+GROUP BY connected_user_id, u.first_name, u.image, last_message, last_message_time, send_id, message_id
 ORDER BY
     COUNT(CASE WHEN unread_messages.type = 'user_request' AND send_id != $1 AND unread_messages.read = false  THEN 1 END),
     COUNT(CASE WHEN unread_messages.type = 'user_cancel' AND send_id != $1 AND unread_messages.read = false THEN 1 END),
@@ -805,7 +805,7 @@ ORDER BY
 type ListMessageContactNoLimitRow struct {
 	ConnectedUserID            uuid.UUID `json:"connected_user_id"`
 	FirstName                  string    `json:"first_name"`
-	Photo                      string    `json:"photo"`
+	Image                      string    `json:"image"`
 	LastMessage                string    `json:"last_message"`
 	LastMessageTime            time.Time `json:"last_message_time"`
 	SendID                     uuid.UUID `json:"send_id"`
@@ -829,7 +829,7 @@ func (q *Queries) ListMessageContactNoLimit(ctx context.Context, senderID uuid.U
 		if err := rows.Scan(
 			&i.ConnectedUserID,
 			&i.FirstName,
-			&i.Photo,
+			&i.Image,
 			&i.LastMessage,
 			&i.LastMessageTime,
 			&i.SendID,
@@ -851,7 +851,7 @@ func (q *Queries) ListMessageContactNoLimit(ctx context.Context, senderID uuid.U
 }
 
 const listMessageReceive = `-- name: ListMessageReceive :many
-SELECT id, msg_id, sender_id, receiver_id, message, type, read, photo, parent_id, reference, created_at, updated_at
+SELECT id, msg_id, sender_id, receiver_id, message, type, read, main_image, parent_id, reference, created_at, updated_at
 FROM messages
 WHERE receiver_id = $1 AND created_at > $2
 `
@@ -878,7 +878,7 @@ func (q *Queries) ListMessageReceive(ctx context.Context, arg ListMessageReceive
 			&i.Message,
 			&i.Type,
 			&i.Read,
-			&i.Photo,
+			&i.MainImage,
 			&i.ParentID,
 			&i.Reference,
 			&i.CreatedAt,
@@ -903,7 +903,7 @@ SELECT
     m.message,
     m.type,
     m.read,
-    m.photo,
+    m.main_image,
     m.parent_id,
     m.reference,
     m.created_at,
@@ -915,7 +915,7 @@ SELECT
     p.message AS parent_message,
     p.type AS parent_type,
     p.read AS parent_read,
-    p.photo AS parent_photo,
+    p.main_image AS parent_main_image,
     p.parent_id AS parent_parent_id,
     p.reference AS parent_reference,
     p.created_at AS parent_created_at
@@ -941,7 +941,7 @@ type ListMessageWithTimeRow struct {
 	Message          string             `json:"message"`
 	Type             string             `json:"type"`
 	Read             bool               `json:"read"`
-	Photo            string             `json:"photo"`
+	MainImage        string             `json:"main_image"`
 	ParentID         string             `json:"parent_id"`
 	Reference        string             `json:"reference"`
 	CreatedAt        time.Time          `json:"created_at"`
@@ -953,7 +953,7 @@ type ListMessageWithTimeRow struct {
 	ParentMessage    pgtype.Text        `json:"parent_message"`
 	ParentType       pgtype.Text        `json:"parent_type"`
 	ParentRead       pgtype.Bool        `json:"parent_read"`
-	ParentPhoto      pgtype.Text        `json:"parent_photo"`
+	ParentMainImage  pgtype.Text        `json:"parent_main_image"`
 	ParentParentID   pgtype.Text        `json:"parent_parent_id"`
 	ParentReference  pgtype.Text        `json:"parent_reference"`
 	ParentCreatedAt  pgtype.Timestamptz `json:"parent_created_at"`
@@ -982,7 +982,7 @@ func (q *Queries) ListMessageWithTime(ctx context.Context, arg ListMessageWithTi
 			&i.Message,
 			&i.Type,
 			&i.Read,
-			&i.Photo,
+			&i.MainImage,
 			&i.ParentID,
 			&i.Reference,
 			&i.CreatedAt,
@@ -994,7 +994,7 @@ func (q *Queries) ListMessageWithTime(ctx context.Context, arg ListMessageWithTi
 			&i.ParentMessage,
 			&i.ParentType,
 			&i.ParentRead,
-			&i.ParentPhoto,
+			&i.ParentMainImage,
 			&i.ParentParentID,
 			&i.ParentReference,
 			&i.ParentCreatedAt,

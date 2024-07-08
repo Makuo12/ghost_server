@@ -3,7 +3,7 @@ INSERT INTO space_areas (
       option_id,
       shared_space,
       space_type,
-      photos,
+      images,
       beds
    )
 VALUES (
@@ -38,10 +38,10 @@ SET
 WHERE id = sqlc.arg(id) AND option_id =  sqlc.arg(option_id)
 RETURNING *;
 
--- name: UpdateSpaceAreaPhotos :one
+-- name: UpdateSpaceAreaImages :one
 UPDATE space_areas
 SET 
-   photos = $2,
+   images = $2,
    updated_at = NOW()
 WHERE id = $1 
 RETURNING *;
@@ -76,8 +76,8 @@ FROM space_areas
 WHERE option_id = $1 AND(space_type = 'bedroom' OR space_type = 'full_bathroom'); 
 
 
--- name: ListSpaceAreaPhotos :many
-SELECT photos
+-- name: ListSpaceAreaImages :many
+SELECT images
 FROM space_areas
 WHERE option_id = $1 AND id != $2; 
 

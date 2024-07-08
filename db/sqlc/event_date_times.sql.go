@@ -543,7 +543,7 @@ SELECT
     edi.start_time,
     edi.end_time,
     od.host_name_option,
-    op.cover_image,
+    op.main_image,
     CASE WHEN och_subquery.option_id IS NOT NULL THEN oi.co_host_id::uuid
         WHEN oi.host_id = $2 THEN oi.id::uuid
         ELSE oi.id::uuid -- Optional: Handle other cases if needed
@@ -610,7 +610,7 @@ type ListEventDateTimeHostRow struct {
 	StartTime           string    `json:"start_time"`
 	EndTime             string    `json:"end_time"`
 	HostNameOption      string    `json:"host_name_option"`
-	CoverImage          string    `json:"cover_image"`
+	MainImage           string    `json:"main_image"`
 	OptionID            uuid.UUID `json:"option_id"`
 	ScanCode            bool      `json:"scan_code"`
 	Reservations        bool      `json:"reservations"`
@@ -649,7 +649,7 @@ func (q *Queries) ListEventDateTimeHost(ctx context.Context, arg ListEventDateTi
 			&i.StartTime,
 			&i.EndTime,
 			&i.HostNameOption,
-			&i.CoverImage,
+			&i.MainImage,
 			&i.OptionID,
 			&i.ScanCode,
 			&i.Reservations,

@@ -39,7 +39,6 @@ func HandleSearchTextRes(ctx *connection, payload []byte) (data []byte, hasData 
 	var resData []UHMOptionSelectionRes
 	for _, item := range optionDataList {
 		// i want to check if it has a photo
-		var coverPhoto string
 		var isActive bool
 		var isCoHost bool
 		if item.OptionStatus == "unlist" || item.OptionStatus == "snooze" {
@@ -56,7 +55,7 @@ func HandleSearchTextRes(ctx *connection, payload []byte) (data []byte, hasData 
 
 		d := UHMOptionSelectionRes{
 			HostNameOption: item.HostNameOption,
-			CoverImage:     coverPhoto,
+			MainImage:      item.MainImage,
 			OptionID:       tools.UuidToString(item.ID),
 			HasName:        true,
 			MainOptionType: item.MainOptionType,
@@ -264,7 +263,7 @@ func HandleSearchEventByName(ctx *connection, payload []byte) (data []byte, hasD
 			HostNameOption: item.HostNameOption,
 			OptionUserID:   tools.UuidToString(item.OptionUserID),
 			IsVerified:     item.IsVerified,
-			CoverImage:     item.CoverImage,
+			MainImage:      item.MainImage,
 		}
 		resData = append(resData, d)
 	}
@@ -404,7 +403,7 @@ func HandleMessageListen(ctx *connection, payload []byte) (data []byte, hasData 
 			MsgID:                      tools.UuidToString(contact.MessageID),
 			ConnectedUserID:            tools.UuidToString(contact.ConnectedUserID),
 			FirstName:                  contact.FirstName,
-			Photo:                      contact.Photo,
+			MainImage:                  contact.HostImage,
 			LastMessage:                contact.LastMessage,
 			LastMessageTime:            tools.ConvertTimeToString(contact.LastMessageTime),
 			UnreadMessageCount:         int(contact.UnreadMessageCount),
@@ -562,7 +561,7 @@ func HandleMainMessage(ctx *connection, msgTimeString string, contactIDString st
 			Message:    msg.Message,
 			Type:       msg.Type,
 			Read:       msg.Read,
-			Photo:      msg.Photo,
+			Image:      msg.MainImage,
 			ParentID:   msg.ParentID,
 			Reference:  msg.Reference,
 			CreatedAt:  tools.ConvertTimeToString(msg.CreatedAt),
@@ -575,7 +574,7 @@ func HandleMainMessage(ctx *connection, msgTimeString string, contactIDString st
 				Message:    HandleSqlNullString(msg.ParentMessage),
 				Type:       HandleSqlNullString(msg.ParentType),
 				Read:       HandleSqlNullBool(msg.ParentRead),
-				Photo:      HandleSqlNullString(msg.ParentPhoto),
+				Image:      HandleSqlNullString(msg.ParentMainImage),
 				ParentID:   HandleSqlNullString(msg.ParentParentID),
 				Reference:  HandleSqlNullString(msg.ParentReference),
 				CreatedAt:  tools.ConvertTimeToString(HandleSqlNullTimestamp(msg.ParentCreatedAt)),
@@ -589,7 +588,7 @@ func HandleMainMessage(ctx *connection, msgTimeString string, contactIDString st
 				Message:    "none",
 				Type:       "none",
 				Read:       false,
-				Photo:      "none",
+				Image:      "none",
 				ParentID:   "none",
 				Reference:  "none",
 				CreatedAt:  "none",
@@ -675,7 +674,7 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 			ReceiverID: receiverID,
 			Message:    msg.Message,
 			Type:       msg.Type,
-			Photo:      msg.Photo,
+			MainImage:  msg.Image,
 			Read:       false,
 			ParentID:   msg.ParentID,
 			Reference:  msg.Reference,
@@ -701,7 +700,7 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 			Message:    msgData.Message,
 			Type:       msgData.Type,
 			Read:       msgData.Read,
-			Photo:      msgData.Photo,
+			Image:      msgData.MainImage,
 			ParentID:   msgData.ParentID,
 			Reference:  msgData.Reference,
 			CreatedAt:  tools.ConvertTimeToString(msgData.CreatedAt),
@@ -714,7 +713,7 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 				Message:    HandleSqlNullString(msgData.ParentMessage),
 				Type:       HandleSqlNullString(msgData.ParentType),
 				Read:       HandleSqlNullBool(msgData.ParentRead),
-				Photo:      HandleSqlNullString(msgData.ParentPhoto),
+				Image:      HandleSqlNullString(msgData.ParentMainImage),
 				ParentID:   HandleSqlNullString(msgData.ParentParentID),
 				Reference:  HandleSqlNullString(msgData.ParentReference),
 				CreatedAt:  tools.ConvertTimeToString(HandleSqlNullTimestamp(msgData.ParentCreatedAt)),
@@ -728,7 +727,7 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 				Message:    "none",
 				Type:       "none",
 				Read:       false,
-				Photo:      "none",
+				Image:      "none",
 				ParentID:   "none",
 				Reference:  "none",
 				CreatedAt:  "none",

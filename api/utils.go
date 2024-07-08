@@ -487,50 +487,50 @@ func RemoveAllPhoto(server *Server, ctx *gin.Context, option db.OptionsInfo) (er
 		err = fmt.Errorf("an error occurred while removing your photos")
 		return
 	}
-	photos := []string{}
-	deletedPhotos := []string{}
-	notDeletedPhotos := []string{}
-	photos = append(photos, photoData.Photo...)
+	images := []string{}
+	deletedImages := []string{}
+	notDeletedImages := []string{}
+	images = append(images, photoData.Images...)
 	// delete cover photo
-	err = RemoveFirebasePhoto(server, ctx, photoData.CoverImage)
+	err = RemoveFirebasePhoto(server, ctx, photoData.MainImage)
 	if err != nil {
 		log.Printf("An error at RemoveAllPhoto in RemoveFirebasePhoto err: %v for optionID: %q", err.Error(), option.ID)
 		err = fmt.Errorf("an error occurred while removing your photos")
 		return
 
 	}
-	argCover := db.UpdateOptionInfoPhotoCoverParams{
-		CoverImage: "none",
+	argCover := db.UpdateOptionInfoMainImageParams{
+		MainImage: "none",
 		OptionID:   option.ID,
 	}
-	_, err = server.store.UpdateOptionInfoPhotoCover(ctx, argCover)
+	_, err = server.store.UpdateOptionInfoMainImage(ctx, argCover)
 	if err != nil {
 		log.Printf("An error at RemoveAllPhoto in UpdateOptionInfoPhoto err: %v for optionID: %q", err.Error(), option.ID)
 		err = fmt.Errorf("error occurred while performing your request, please try again")
 		return
 	}
 	// delete all the photos in the array
-	for i := 0; i < len(photos); i++ {
-		object := photos[i]
-		err = RemoveFirebasePhoto(server, ctx, object)
+	for i := 0; i < len(images); i++ {
+		path, _ := tools.GetImageItem(images[i])
+		err = RemoveFirebasePhoto(server, ctx, path)
 		if err != nil {
 			log.Printf("An error at RemoveAllPhoto in RemoveFirebasePhoto err: %v for optionID: %q", err.Error(), option.ID)
 
 		} else {
-			deletedPhotos = append(deletedPhotos, object)
+			deletedImages = append(deletedImages, images[i])
 		}
 
-		if i == len(photos)-1 {
-			if len(deletedPhotos) != len(photos) {
-				for j := 0; j < len(photos); j++ {
+		if i == len(images)-1 {
+			if len(deletedImages) != len(images) {
+				for j := 0; j < len(images); j++ {
 					found := false
-					for k := 0; k < len(deletedPhotos); k++ {
-						if deletedPhotos[j] == photos[k] {
+					for k := 0; k < len(deletedImages); k++ {
+						if deletedImages[j] == images[k] {
 							found = true
 						}
 					}
 					if !found {
-						notDeletedPhotos = append(notDeletedPhotos, deletedPhotos[j])
+						notDeletedImages = append(notDeletedImages, deletedImages[j])
 					}
 				}
 
@@ -539,7 +539,7 @@ func RemoveAllPhoto(server *Server, ctx *gin.Context, option db.OptionsInfo) (er
 		}
 
 	}
-	if len(notDeletedPhotos) < 1 {
+	if len(notDeletedImages) < 1 {
 		err = server.store.RemoveOptionInfoPhoto(ctx, option.ID)
 		if err != nil {
 			log.Printf("An error at RemoveAllPhoto in RemoveOptionInfoPhoto err: %v for optionID: %q", err.Error(), option.ID)
@@ -550,11 +550,11 @@ func RemoveAllPhoto(server *Server, ctx *gin.Context, option db.OptionsInfo) (er
 		return
 	}
 	// we would just update it
-	argPhotos := db.UpdateOptionInfoPhotoOnlyParams{
-		Photo:    notDeletedPhotos,
+	argPhotos := db.UpdateOptionInfoImagesParams{
+		Images:    notDeletedImages,
 		OptionID: option.ID,
 	}
-	_, err = server.store.UpdateOptionInfoPhotoOnly(ctx, argPhotos)
+	_, err = server.store.UpdateOptionInfoImages(ctx, argPhotos)
 	if err != nil {
 		log.Printf("An error at RemoveAllPhoto in UpdateOptionInfoPhoto err: %v for optionID: %q", err.Error(), option.ID)
 		err = fmt.Errorf("error occurred while performing your request, please try again")
@@ -570,7 +570,7 @@ func HandleCreateGuestArea(server *Server, ctx *gin.Context, option db.OptionsIn
 		OptionID:    option.ID,
 		SharedSpace: sharedSpace,
 		SpaceType:   spaceArea,
-		Photos:      []string{"none"},
+		Images:      []string{"none"},
 		Beds:        []string{"none"},
 	}
 	_, err = server.store.CreateSpaceArea(ctx, arg)
@@ -640,7 +640,7 @@ func HandleShortletViewToPublish(server *Server, ctx *gin.Context, option db.Opt
 		NumOfGuest:           int(publishData.GuestWelcomed),
 		Space:                spaceArea,
 		PopularAm:            popularAm,
-		CoverImage:           publishData.CoverImage,
+		MainImage:           publishData.MainImage,
 		FirstName:            user.FirstName,
 		HomeSafetyAm:         homeSafetyAm,
 		Street:               publishData.Street,
@@ -672,7 +672,7 @@ func HandleEventViewToPublish(server *Server, ctx *gin.Context, option db.Option
 		OptionType:         option.OptionType,
 		Name:               publishData.HostNameOption,
 		OptionMainType:     publishData.EventType,
-		CoverImage:         publishData.CoverImage,
+		MainImage:         publishData.MainImage,
 		FirstName:          user.FirstName,
 		Description:        publishData.Des,
 	}
@@ -698,7 +698,7 @@ func HandleShortletHostCurrentOption(server *Server, ctx *gin.Context, option db
 		OptionType:     option.OptionType,
 		HostNameOption: currentOptionData.HostNameOption,
 		OptionMainType: currentOptionData.TypeOfShortlet,
-		CoverImage:     currentOptionData.CoverImage,
+		MainImage:     currentOptionData.MainImage,
 		State:          currentOptionData.State,
 		Country:        currentOptionData.Country,
 	}
@@ -723,7 +723,7 @@ func HandleEventHostCurrentOption(server *Server, ctx *gin.Context, option db.Op
 		OptionType:     option.OptionType,
 		HostNameOption: currentOptionData.HostNameOption,
 		OptionMainType: currentOptionData.EventType,
-		CoverImage:     currentOptionData.CoverImage,
+		MainImage:     currentOptionData.MainImage,
 		State:          "none",
 		Country:        "none",
 	}

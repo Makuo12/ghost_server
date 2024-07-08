@@ -250,14 +250,12 @@ type CheckInOutDetail struct {
 }
 
 type CheckInStep struct {
-	ID          uuid.UUID `json:"id"`
-	OptionID    uuid.UUID `json:"option_id"`
-	Photo       string    `json:"photo"`
-	PublicPhoto string    `json:"public_photo"`
-	Image       string    `json:"image"`
-	Des         string    `json:"des"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
+	ID        uuid.UUID `json:"id"`
+	OptionID  uuid.UUID `json:"option_id"`
+	Image     string    `json:"image"`
+	Des       string    `json:"des"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 type CompleteChargeReview struct {
@@ -301,8 +299,7 @@ type Entry struct {
 type EventCheckInStep struct {
 	ID              uuid.UUID `json:"id"`
 	EventDateTimeID uuid.UUID `json:"event_date_time_id"`
-	Photo           string    `json:"photo"`
-	PublicPhoto     string    `json:"public_photo"`
+	Image           string    `json:"image"`
 	Des             string    `json:"des"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`
@@ -523,7 +520,7 @@ type Message struct {
 	Message    string    `json:"message"`
 	Type       string    `json:"type"`
 	Read       bool      `json:"read"`
-	Photo      string    `json:"photo"`
+	MainImage  string    `json:"main_image"`
 	ParentID   string    `json:"parent_id"`
 	Reference  string    `json:"reference"`
 	CreatedAt  time.Time `json:"created_at"`
@@ -752,16 +749,12 @@ type OptionsInfoDetail struct {
 }
 
 type OptionsInfoPhoto struct {
-	OptionID         uuid.UUID `json:"option_id"`
-	CoverImage       string    `json:"cover_image"`
-	HasMetaData      bool      `json:"has_meta_data"`
-	PublicCoverImage string    `json:"public_cover_image"`
-	PublicPhoto      []string  `json:"public_photo"`
-	Photo            []string  `json:"photo"`
-	MainImage        string    `json:"main_image"`
-	Images           []string  `json:"images"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	OptionID    uuid.UUID `json:"option_id"`
+	HasMetaData bool      `json:"has_meta_data"`
+	MainImage   string    `json:"main_image"`
+	Images      []string  `json:"images"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type OptionsInfosCategory struct {
@@ -942,7 +935,7 @@ type SpaceArea struct {
 	OptionID    uuid.UUID `json:"option_id"`
 	SharedSpace bool      `json:"shared_space"`
 	SpaceType   string    `json:"space_type"`
-	Photos      []string  `json:"photos"`
+	Images      []string  `json:"images"`
 	Beds        []string  `json:"beds"`
 	IsSuite     bool      `json:"is_suite"`
 	CreatedAt   time.Time `json:"created_at"`
@@ -994,8 +987,6 @@ type User struct {
 	DefaultAccountID  string    `json:"default_account_id"`
 	IsActive          bool      `json:"is_active"`
 	IsDeleted         bool      `json:"is_deleted"`
-	Photo             string    `json:"photo"`
-	PublicPhoto       string    `json:"public_photo"`
 	Image             string    `json:"image"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt         time.Time `json:"created_at"`

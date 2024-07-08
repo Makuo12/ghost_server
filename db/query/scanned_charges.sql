@@ -9,7 +9,7 @@ INSERT INTO scanned_charges (
 RETURNING *;
 
 -- name: GetScannedChargeOption :one
-SELECT sc.scanned, co.option_user_id, co.id AS charge_id, sc.scanned_by, sc.scanned_time, u.first_name AS scanned_by_name, u.photo AS scanned_by_profile_photo  
+SELECT sc.scanned, co.option_user_id, co.id AS charge_id, sc.scanned_by, sc.scanned_time, u.first_name AS scanned_by_name, u.image AS scanned_user_image  
 FROM charge_option_references co
     LEFT JOIN scanned_charges sc ON sc.charge_id = co.id
     LEFT JOIN users u ON u.user_id = sc.scanned_by
@@ -17,7 +17,7 @@ WHERE co.id = sqlc.arg(charge_id) AND co.user_id = sqlc.arg(user_id) AND co.is_c
 
 
 -- name: GetScannedChargeTicket :one
-SELECT sc.scanned, ce.option_user_id, ct.id AS charge_id, sc.scanned_by, sc.scanned_time, ct.grade, u.first_name AS scanned_by_name, u.photo AS scanned_by_profile_photo, ct.ticket_type 
+SELECT sc.scanned, ce.option_user_id, ct.id AS charge_id, sc.scanned_by, sc.scanned_time, ct.grade, u.first_name AS scanned_by_name, u.image AS scanned_user_image, ct.ticket_type 
 FROM charge_ticket_references ct
     JOIN charge_date_references cd on cd.id = ct.charge_date_id
     JOIN charge_event_references ce on ce.id = cd.charge_event_id
@@ -79,7 +79,7 @@ u.default_card,
 u.default_payout_card,
 u.default_account_id,
 u.is_active AS u_is_active,
-u.photo,
+u.image AS host_image,
 u.password_changed_at AS u_password_changed_at,
 u.created_at AS u_created_at,
 u.updated_at AS u_updated_at,
@@ -179,7 +179,7 @@ u.default_card,
 u.default_payout_card,
 u.default_account_id,
 u.is_active AS u_is_active,
-u.photo,
+u.image AS host_image,
 u.password_changed_at AS u_password_changed_at,
 u.created_at AS u_created_at,
 u.updated_at AS u_updated_at,

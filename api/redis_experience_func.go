@@ -30,29 +30,26 @@ func ConvertSliceToExperienceOptionData(data map[string]string, dollarToNaira st
 		addedPrice = 0.0
 	}
 	newData := ExperienceOptionData{
-		UserOptionID:       getDataValue(data, constants.OPTION_USER_ID),
-		Name:               getDataValue(data, constants.HOST_OPTION_NAME),
-		IsVerified:         tools.ConvertStringToBool(getDataValue(data, constants.OPTION_IS_VERIFIED)),
-		CoverImage:         getDataValue(data, constants.COVER_IMAGE),
-		HostAsIndividual:   tools.ConvertStringToBool(getDataValue(data, constants.HOST_AS_INDIVIDUAL)),
-		BasePrice:          tools.ConvertFloatToString(basePrice),
-		WeekendPrice:       tools.ConvertFloatToString(weekendPrice),
-		Photos:             strings.Split(getDataValue(data, constants.PHOTOS), "*"),
-		TypeOfShortlet:     getDataValue(data, constants.TYPE_OF_SHORTLET),
-		State:              getDataValue(data, constants.STATE),
-		Country:            getDataValue(data, constants.COUNTRY),
-		ProfilePhoto:       getDataValue(data, constants.PROFILE_PHOTO),
-		HostName:           getDataValue(data, constants.HOST_NAME),
-		HostJoined:         getDataValue(data, constants.HOST_JOINED),
-		HostVerified:       tools.ConvertStringToBool(getDataValue(data, constants.HOST_VERIFIED)),
-		Category:           getDataValue(data, constants.CATEGORY),
-		AddedPrice:         tools.ConvertFloatToString(addedPrice),
-		StartDate:          getDataValue(data, constants.START_DATE),
-		EndDate:            getDataValue(data, constants.END_DATE),
-		AddPriceFound:      tools.ConvertStringToBool(getDataValue(data, constants.ADD_DATE_FOUND)),
-		PublicPhotos:       strings.Split(getDataValue(data, constants.PUBLIC_PHOTOS), "*"),
-		PublicCoverImage:   getDataValue(data, constants.PUBLIC_COVER_IMAGE),
-		PublicProfilePhoto: getDataValue(data, constants.PUBLIC_PROFILE_PHOTO),
+		UserOptionID:     getDataValue(data, constants.OPTION_USER_ID),
+		Name:             getDataValue(data, constants.HOST_OPTION_NAME),
+		IsVerified:       tools.ConvertStringToBool(getDataValue(data, constants.OPTION_IS_VERIFIED)),
+		HostAsIndividual: tools.ConvertStringToBool(getDataValue(data, constants.HOST_AS_INDIVIDUAL)),
+		BasePrice:        tools.ConvertFloatToString(basePrice),
+		WeekendPrice:     tools.ConvertFloatToString(weekendPrice),
+		TypeOfShortlet:   getDataValue(data, constants.TYPE_OF_SHORTLET),
+		State:            getDataValue(data, constants.STATE),
+		Country:          getDataValue(data, constants.COUNTRY),
+		HostName:         getDataValue(data, constants.HOST_NAME),
+		HostJoined:       getDataValue(data, constants.HOST_JOINED),
+		HostVerified:     tools.ConvertStringToBool(getDataValue(data, constants.HOST_VERIFIED)),
+		Category:         getDataValue(data, constants.CATEGORY),
+		AddedPrice:       tools.ConvertFloatToString(addedPrice),
+		StartDate:        getDataValue(data, constants.START_DATE),
+		EndDate:          getDataValue(data, constants.END_DATE),
+		AddPriceFound:    tools.ConvertStringToBool(getDataValue(data, constants.ADD_DATE_FOUND)),
+		MainUrl:          getDataValue(data, constants.PUBLIC_COVER_IMAGE),
+		HostUrl:          getDataValue(data, constants.PUBLIC_PROFILE_PHOTO),
+		Urls:             strings.Split(getDataValue(data, constants.PUBLIC_PHOTOS), "*"),
 		// Add more fields here in the same format
 	}
 	return newData
@@ -64,27 +61,24 @@ func ConvertSliceToExperienceEventData(data map[string]string, dollarToNaira str
 		lowestPrice = 0.0
 	}
 	newData := ExperienceEventData{
-		UserOptionID:       data[constants.OPTION_USER_ID],
-		Name:               data[constants.HOST_OPTION_NAME],
-		IsVerified:         tools.ConvertStringToBool(data[constants.OPTION_IS_VERIFIED]),
-		CoverImage:         data[constants.COVER_IMAGE],
-		Photos:             strings.Split(data[constants.PHOTOS], "*"),
-		TicketAvailable:    tools.ConvertStringToBool(data[constants.TICKET_AVAILABLE]),
-		SubEventType:       data[constants.SUB_EVENT_TYPE],
-		TicketLowestPrice:  tools.ConvertFloatToString(lowestPrice),
-		EventStartDate:     data[constants.EVENT_START_DATE],
-		EventEndDate:       data[constants.EVENT_END_DATE],
-		Location:           HandleExperienceEventLocation(data[constants.LOCATION]),
-		ProfilePhoto:       data[constants.PROFILE_PHOTO],
-		HostAsIndividual:   tools.ConvertStringToBool(data[constants.HOST_AS_INDIVIDUAL]),
-		HostName:           data[constants.HOST_NAME],
-		HostJoined:         data[constants.HOST_JOINED],
-		HostVerified:       tools.ConvertStringToBool(data[constants.HOST_VERIFIED]),
-		Category:           data[constants.CATEGORY],
-		HasFreeTicket:      tools.ConvertStringToBool(data[constants.HAS_FREE_TICKET]),
-		PublicPhotos:       strings.Split(getDataValue(data, constants.PUBLIC_PHOTOS), "*"),
-		PublicCoverImage:   getDataValue(data, constants.PUBLIC_COVER_IMAGE),
-		PublicProfilePhoto: getDataValue(data, constants.PUBLIC_PROFILE_PHOTO),
+		UserOptionID:      data[constants.OPTION_USER_ID],
+		Name:              data[constants.HOST_OPTION_NAME],
+		IsVerified:        tools.ConvertStringToBool(data[constants.OPTION_IS_VERIFIED]),
+		TicketAvailable:   tools.ConvertStringToBool(data[constants.TICKET_AVAILABLE]),
+		SubEventType:      data[constants.SUB_EVENT_TYPE],
+		TicketLowestPrice: tools.ConvertFloatToString(lowestPrice),
+		EventStartDate:    data[constants.EVENT_START_DATE],
+		EventEndDate:      data[constants.EVENT_END_DATE],
+		Location:          HandleExperienceEventLocation(data[constants.LOCATION]),
+		HostAsIndividual:  tools.ConvertStringToBool(data[constants.HOST_AS_INDIVIDUAL]),
+		HostName:          data[constants.HOST_NAME],
+		HostJoined:        data[constants.HOST_JOINED],
+		HostVerified:      tools.ConvertStringToBool(data[constants.HOST_VERIFIED]),
+		Category:          data[constants.CATEGORY],
+		HasFreeTicket:     tools.ConvertStringToBool(data[constants.HAS_FREE_TICKET]),
+		MainUrl:           getDataValue(data, constants.PUBLIC_COVER_IMAGE),
+		HostUrl:           getDataValue(data, constants.PUBLIC_PROFILE_PHOTO),
+		Urls:              strings.Split(getDataValue(data, constants.PUBLIC_PHOTOS), "*"),
 	}
 	return newData
 }
@@ -107,6 +101,9 @@ func HandleExperienceEventLocation(data string) (res []ExperienceEventLocation) 
 
 func ConvertExperienceOptionDataToSlice(ctx context.Context, server *Server, data db.ListOptionExperienceRow) []string {
 	addDateFound, startDateBook, endDateBook, addPrice := HandleOptionRedisExAddPrice(ctx, server, data.ID, data.OptionUserID, data.PreparationTime, data.AvailabilityWindow, data.AdvanceNotice, data.Price, data.WeekendPrice)
+	mainPath, mainUrl := tools.GetImageItem(data.MainImage)
+	userPath, userUrl := tools.GetImageItem(data.HostImage)
+	paths, urls := tools.GetImageListItem(data.Images)
 	return []string{
 		constants.OPTION_USER_ID,
 		tools.UuidToString(data.OptionUserID),
@@ -115,7 +112,7 @@ func ConvertExperienceOptionDataToSlice(ctx context.Context, server *Server, dat
 		constants.OPTION_IS_VERIFIED,
 		tools.ConvertBoolToString(data.IsVerified),
 		constants.COVER_IMAGE,
-		data.CoverImage,
+		mainPath,
 		constants.HOST_AS_INDIVIDUAL,
 		tools.ConvertBoolToString(data.HostAsIndividual),
 		constants.BASE_PRICE,
@@ -123,7 +120,7 @@ func ConvertExperienceOptionDataToSlice(ctx context.Context, server *Server, dat
 		constants.WEEKEND_PRICE,
 		tools.IntToMoneyString(data.WeekendPrice),
 		constants.PHOTOS,
-		strings.Join(data.Photo, "*"),
+		strings.Join(paths, "*"),
 		constants.TYPE_OF_SHORTLET,
 		data.TypeOfShortlet,
 		constants.STATE,
@@ -131,7 +128,7 @@ func ConvertExperienceOptionDataToSlice(ctx context.Context, server *Server, dat
 		constants.COUNTRY,
 		data.Country,
 		constants.PROFILE_PHOTO,
-		data.Photo_2,
+		userPath,
 		constants.HOST_NAME,
 		data.FirstName,
 		constants.HOST_JOINED,
@@ -151,11 +148,11 @@ func ConvertExperienceOptionDataToSlice(ctx context.Context, server *Server, dat
 		constants.ADD_PRICE,
 		tools.IntToMoneyString(addPrice),
 		constants.PUBLIC_COVER_IMAGE,
-		data.PublicCoverImage,
+		mainUrl,
 		constants.PUBLIC_PHOTOS,
-		strings.Join(data.OptionPublicPhoto, "*"),
+		strings.Join(urls, "*"),
 		constants.PUBLIC_PROFILE_PHOTO,
-		data.HostPublicPhoto,
+		userUrl,
 		// Add more fields here in the same format
 	}
 }

@@ -92,10 +92,8 @@ func (server *Server) ListIncompleteOptionInfos(ctx *gin.Context) {
 			HostNameOption:     optionInfos[i].HostNameOption,
 			ExtraInfo:          extraInfo,
 			CreatedAt:          tools.ConvertTimeToStringDateOnly(optionInfos[i].CreatedAt),
-			CoverImage:         HandleSqlNullString(optionInfos[i].CoverImage),
-			PublicCoverImage:   HandleSqlNullString(optionInfos[i].PublicCoverImage),
-			Photo:              tools.HandleDBList(optionInfos[i].Photo),
-			PublicPhoto:        tools.HandleDBList(optionInfos[i].PublicPhoto),
+			MainImage:   HandleSqlNullString(optionInfos[i].MainImage),
+			Images:        tools.HandleDBList(optionInfos[i].Images),
 		}
 		resData = append(resData, data)
 	}

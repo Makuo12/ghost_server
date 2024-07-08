@@ -8,6 +8,7 @@ import (
 
 	"cloud.google.com/go/storage"
 	"github.com/google/uuid"
+	"github.com/makuo12/ghost_server/tools"
 )
 
 type DeleteOptionResult struct {
@@ -23,14 +24,12 @@ type DeleteOptionParams struct {
 type DeleteOptionInfoPhotoParams struct {
 	UserOptionID string `json:"user_option_id"`
 	OptionID     string `json:"option_id"`
-	Photo        string `json:"photo"`
-	PhotoUrl     string `json:"photo_url"`
+	Image        string `json:"image"`
 	IsCover      bool   `json:"is_cover"`
 }
 
 type DeleteOptionInfoPhotoRes struct {
-	Photo        string `json:"photo"`
-	PhotoUrl     string `json:"photo_url"`
+	Image       string `json:"image"`
 	IsCover      bool   `json:"is_cover"`
 }
 
@@ -267,11 +266,12 @@ func HandleOptionPhoto(ctx context.Context, q *Queries, optionID uuid.UUID, buck
 		return err
 	}
 	photos := []string{}
-	photos = append(photos, optionPhoto.Photo...)
-	photos = append(photos, optionPhoto.CoverImage)
+	photos = append(photos, optionPhoto.Images...)
+	photos = append(photos, optionPhoto.MainImage)
 	// Delete all photos
 	for _, p := range photos {
-		err = RemoveFirebasePhoto(ctx, bucket, p)
+		path, _ := tools.GetImageItem(p)
+		err = RemoveFirebasePhoto(ctx, bucket, path)
 		if err != nil && err != ErrorRecordNotFound {
 			log.Println("err: RemoveFirebasePhoto", err)
 		}
@@ -286,8 +286,8 @@ func HandleOptionPhoto(ctx context.Context, q *Queries, optionID uuid.UUID, buck
 		log.Println("err: GetCheckInStepByOptionID", err)
 		return err
 	}
-
-	err = RemoveFirebasePhoto(ctx, bucket, step.Photo)
+	stepPath, _ := tools.GetImageItem(step.Image)
+	err = RemoveFirebasePhoto(ctx, bucket, stepPath)
 	if err != nil && err != ErrorRecordNotFound {
 		log.Println("err: RemoveFirebasePhoto", err)
 	}
@@ -329,43 +329,33 @@ func (store *SQLStore) DeleteOptionPhoto(ctx context.Context, arg DeleteOptionIn
 	err := store.execTx(ctx, func(q *Queries) error {
 		var err error
 		if arg.IsCover {
-			_, err = store.UpdateOptionInfoAllPhotoCover(ctx, UpdateOptionInfoAllPhotoCoverParams{
-				PublicCoverImage: "none",
-				CoverImage:       "none",
+			_, err = store.UpdateOptionInfoMainImage(ctx, UpdateOptionInfoMainImageParams{
+				MainImage: "none",
 				OptionID: optionPhoto.OptionID,
 			})
 			if err != nil {
 				return err
 			}
 		} else {
-			var photos []string
-			var photoUrls []string
-			for _, photo := range optionPhoto.Photo {
-				if photo != arg.Photo {
-					photos = append(photos, photo)
+			var images []string
+			for _, image := range optionPhoto.Images {
+				if image != arg.Image {
+					images = append(images, image)
 				}
 			}
-			if len(photos) == 0 {
-				photos = []string{"none"}
+			if len(images) == 0 {
+				images = []string{"none"}
 			}
-			for _, photoUrl := range optionPhoto.PublicPhoto {
-				if photoUrl != arg.PhotoUrl {
-					photoUrls = append(photoUrls, photoUrl)
-				}
-			}
-			if len(photoUrls) == 0 {
-				photoUrls = []string{"none"}
-			}
-			_, err = store.UpdateOptionInfoAllPhotoOnly(ctx, UpdateOptionInfoAllPhotoOnlyParams{
+			_, err = store.UpdateOptionInfoImages(ctx, UpdateOptionInfoImagesParams{
 				OptionID: optionPhoto.OptionID,
-				PublicPhoto: photoUrls,
-				Photo: photos,
+				Images: images,
 			})
 			if err != nil {
 				return err
 			}
 		}
-		err = RemoveFirebasePhoto(ctx, bucket, arg.Photo)
+		path, _ := tools.GetImageItem(arg.Image)
+		err = RemoveFirebasePhoto(ctx, bucket, path)
 		if err != nil {
 			return err
 		}
@@ -375,8 +365,7 @@ func (store *SQLStore) DeleteOptionPhoto(ctx context.Context, arg DeleteOptionIn
 		return DeleteOptionInfoPhotoRes{}, err
 	}
 	return DeleteOptionInfoPhotoRes{
-		Photo: arg.Photo,
-		PhotoUrl: arg.PhotoUrl,
+		Image: arg.Image,
 		IsCover: arg.IsCover,
 	}, err
 }

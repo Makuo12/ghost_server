@@ -100,7 +100,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					OptionID:       dOptionID,
 					FirstName:      d.FirstName,
 					HostNameOption: d.HostNameOption,
-					UserPhoto:      d.Photo,
+					HostImage:      d.HostImage,
 					ArriveAfter:    d.ArriveAfter,
 					ArriveBefore:   d.ArriveBefore,
 					LeaveBefore:    d.LeaveBefore,
@@ -111,7 +111,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					CanScanCode:    canScanCode,
 					CanReserve:     canReserve,
 					OptionStatus:   d.Status,
-					CoverImage:     d.CoverImage,
+					MainImage:     d.MainImage,
 					RoomID:         roomID,
 				}
 				hasItem = true
@@ -129,7 +129,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					OptionID:       dOptionID,
 					FirstName:      d.FirstName,
 					HostNameOption: d.HostNameOption,
-					UserPhoto:      d.Photo,
+					HostImage:      d.HostImage,
 					ArriveAfter:    d.ArriveAfter,
 					ArriveBefore:   d.ArriveBefore,
 					LeaveBefore:    d.LeaveBefore,
@@ -140,7 +140,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					CanScanCode:    canScanCode,
 					CanReserve:     canReserve,
 					OptionStatus:   d.Status,
-					CoverImage:     d.CoverImage,
+					MainImage:     d.MainImage,
 					RoomID:         roomID,
 				}
 				hasItem = true
@@ -158,7 +158,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					OptionID:       dOptionID,
 					FirstName:      d.FirstName,
 					HostNameOption: d.HostNameOption,
-					UserPhoto:      d.Photo,
+					HostImage:      d.HostImage,
 					ArriveAfter:    d.ArriveAfter,
 					ArriveBefore:   d.ArriveBefore,
 					LeaveBefore:    d.LeaveBefore,
@@ -169,7 +169,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					CanScanCode:    canScanCode,
 					CanReserve:     canReserve,
 					OptionStatus:   d.Status,
-					CoverImage:     d.CoverImage,
+					MainImage:     d.MainImage,
 					RoomID:         roomID,
 				}
 				hasItem = true
@@ -186,7 +186,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					OptionID:       dOptionID,
 					FirstName:      d.FirstName,
 					HostNameOption: d.HostNameOption,
-					UserPhoto:      d.Photo,
+					HostImage:      d.HostImage,
 					ArriveAfter:    d.ArriveAfter,
 					ArriveBefore:   d.ArriveBefore,
 					LeaveBefore:    d.LeaveBefore,
@@ -197,7 +197,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					CanScanCode:    canScanCode,
 					CanReserve:     canReserve,
 					OptionStatus:   d.Status,
-					CoverImage:     d.CoverImage,
+					MainImage:     d.MainImage,
 					RoomID:         roomID,
 				}
 				hasItem = true
@@ -215,7 +215,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					OptionID:       dOptionID,
 					FirstName:      d.FirstName,
 					HostNameOption: d.HostNameOption,
-					UserPhoto:      d.Photo,
+					HostImage:      d.HostImage,
 					ArriveAfter:    d.ArriveAfter,
 					ArriveBefore:   d.ArriveBefore,
 					LeaveBefore:    d.LeaveBefore,
@@ -226,7 +226,7 @@ func HandleTime(selection string, user db.User, d db.ListChargeOptionReferenceHo
 					CanScanCode:    canScanCode,
 					CanReserve:     canReserve,
 					OptionStatus:   d.Status,
-					CoverImage:     d.CoverImage,
+					MainImage:     d.MainImage,
 					RoomID:         roomID,
 				}
 				hasItem = true

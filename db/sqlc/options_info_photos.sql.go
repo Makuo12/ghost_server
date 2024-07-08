@@ -15,39 +15,25 @@ import (
 const createOptionInfoPhoto = `-- name: CreateOptionInfoPhoto :one
 INSERT INTO options_info_photos (
     option_id,
-    cover_image,
-    photo,
-    public_cover_image,
-    public_photo
+    main_image,
+    images
 )
-VALUES ($1, $2, $3, $4, $5)
-RETURNING option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, main_image, images, created_at, updated_at
+VALUES ($1, $2, $3)
+RETURNING option_id, has_meta_data, main_image, images, created_at, updated_at
 `
 
 type CreateOptionInfoPhotoParams struct {
-	OptionID         uuid.UUID `json:"option_id"`
-	CoverImage       string    `json:"cover_image"`
-	Photo            []string  `json:"photo"`
-	PublicCoverImage string    `json:"public_cover_image"`
-	PublicPhoto      []string  `json:"public_photo"`
+	OptionID  uuid.UUID `json:"option_id"`
+	MainImage string    `json:"main_image"`
+	Images    []string  `json:"images"`
 }
 
 func (q *Queries) CreateOptionInfoPhoto(ctx context.Context, arg CreateOptionInfoPhotoParams) (OptionsInfoPhoto, error) {
-	row := q.db.QueryRow(ctx, createOptionInfoPhoto,
-		arg.OptionID,
-		arg.CoverImage,
-		arg.Photo,
-		arg.PublicCoverImage,
-		arg.PublicPhoto,
-	)
+	row := q.db.QueryRow(ctx, createOptionInfoPhoto, arg.OptionID, arg.MainImage, arg.Images)
 	var i OptionsInfoPhoto
 	err := row.Scan(
 		&i.OptionID,
-		&i.CoverImage,
 		&i.HasMetaData,
-		&i.PublicCoverImage,
-		&i.PublicPhoto,
-		&i.Photo,
 		&i.MainImage,
 		&i.Images,
 		&i.CreatedAt,
@@ -57,7 +43,7 @@ func (q *Queries) CreateOptionInfoPhoto(ctx context.Context, arg CreateOptionInf
 }
 
 const getOptionInfoPhoto = `-- name: GetOptionInfoPhoto :one
-SELECT option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, main_image, images, created_at, updated_at 
+SELECT option_id, has_meta_data, main_image, images, created_at, updated_at 
 FROM options_info_photos
 WHERE option_id = $1
 `
@@ -67,11 +53,7 @@ func (q *Queries) GetOptionInfoPhoto(ctx context.Context, optionID uuid.UUID) (O
 	var i OptionsInfoPhoto
 	err := row.Scan(
 		&i.OptionID,
-		&i.CoverImage,
 		&i.HasMetaData,
-		&i.PublicCoverImage,
-		&i.PublicPhoto,
-		&i.Photo,
 		&i.MainImage,
 		&i.Images,
 		&i.CreatedAt,
@@ -80,34 +62,8 @@ func (q *Queries) GetOptionInfoPhoto(ctx context.Context, optionID uuid.UUID) (O
 	return i, err
 }
 
-const getOptionInfoPhotoCoverOnly = `-- name: GetOptionInfoPhotoCoverOnly :one
-SELECT cover_image 
-FROM options_info_photos
-WHERE option_id = $1
-`
-
-func (q *Queries) GetOptionInfoPhotoCoverOnly(ctx context.Context, optionID uuid.UUID) (string, error) {
-	row := q.db.QueryRow(ctx, getOptionInfoPhotoCoverOnly, optionID)
-	var cover_image string
-	err := row.Scan(&cover_image)
-	return cover_image, err
-}
-
-const getOptionInfoPhotoOnly = `-- name: GetOptionInfoPhotoOnly :one
-SELECT photo 
-FROM options_info_photos
-WHERE option_id = $1
-`
-
-func (q *Queries) GetOptionInfoPhotoOnly(ctx context.Context, optionID uuid.UUID) ([]string, error) {
-	row := q.db.QueryRow(ctx, getOptionInfoPhotoOnly, optionID)
-	var photo []string
-	err := row.Scan(&photo)
-	return photo, err
-}
-
 const listAllPhoto = `-- name: ListAllPhoto :many
-SELECT option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, main_image, images, created_at, updated_at
+SELECT option_id, has_meta_data, main_image, images, created_at, updated_at
 FROM options_info_photos
 `
 
@@ -122,11 +78,7 @@ func (q *Queries) ListAllPhoto(ctx context.Context) ([]OptionsInfoPhoto, error) 
 		var i OptionsInfoPhoto
 		if err := rows.Scan(
 			&i.OptionID,
-			&i.CoverImage,
 			&i.HasMetaData,
-			&i.PublicCoverImage,
-			&i.PublicPhoto,
-			&i.Photo,
 			&i.MainImage,
 			&i.Images,
 			&i.CreatedAt,
@@ -143,45 +95,41 @@ func (q *Queries) ListAllPhoto(ctx context.Context) ([]OptionsInfoPhoto, error) 
 }
 
 const listAllUserPhoto = `-- name: ListAllUserPhoto :many
-SELECT id, co_host_id, option_user_id, host_id, deep_link_id, primary_user_id, is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, currency, option_img, option_type, main_option_type, oi.created_at, completed, oi.updated_at, option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, main_image, images, oip.created_at, oip.updated_at
+SELECT id, co_host_id, option_user_id, host_id, deep_link_id, primary_user_id, is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, currency, option_img, option_type, main_option_type, oi.created_at, completed, oi.updated_at, option_id, has_meta_data, main_image, images, oip.created_at, oip.updated_at
 FROM options_infos oi
 JOIN options_info_photos oip on oip.option_id = oi.id
 WHERE oi.host_id = $1
 `
 
 type ListAllUserPhotoRow struct {
-	ID               uuid.UUID `json:"id"`
-	CoHostID         uuid.UUID `json:"co_host_id"`
-	OptionUserID     uuid.UUID `json:"option_user_id"`
-	HostID           uuid.UUID `json:"host_id"`
-	DeepLinkID       uuid.UUID `json:"deep_link_id"`
-	PrimaryUserID    uuid.UUID `json:"primary_user_id"`
-	IsActive         bool      `json:"is_active"`
-	IsComplete       bool      `json:"is_complete"`
-	IsVerified       bool      `json:"is_verified"`
-	Category         string    `json:"category"`
-	CategoryTwo      string    `json:"category_two"`
-	CategoryThree    string    `json:"category_three"`
-	CategoryFour     string    `json:"category_four"`
-	IsTopSeller      bool      `json:"is_top_seller"`
-	TimeZone         string    `json:"time_zone"`
-	Currency         string    `json:"currency"`
-	OptionImg        string    `json:"option_img"`
-	OptionType       string    `json:"option_type"`
-	MainOptionType   string    `json:"main_option_type"`
-	CreatedAt        time.Time `json:"created_at"`
-	Completed        time.Time `json:"completed"`
-	UpdatedAt        time.Time `json:"updated_at"`
-	OptionID         uuid.UUID `json:"option_id"`
-	CoverImage       string    `json:"cover_image"`
-	HasMetaData      bool      `json:"has_meta_data"`
-	PublicCoverImage string    `json:"public_cover_image"`
-	PublicPhoto      []string  `json:"public_photo"`
-	Photo            []string  `json:"photo"`
-	MainImage        string    `json:"main_image"`
-	Images           []string  `json:"images"`
-	CreatedAt_2      time.Time `json:"created_at_2"`
-	UpdatedAt_2      time.Time `json:"updated_at_2"`
+	ID             uuid.UUID `json:"id"`
+	CoHostID       uuid.UUID `json:"co_host_id"`
+	OptionUserID   uuid.UUID `json:"option_user_id"`
+	HostID         uuid.UUID `json:"host_id"`
+	DeepLinkID     uuid.UUID `json:"deep_link_id"`
+	PrimaryUserID  uuid.UUID `json:"primary_user_id"`
+	IsActive       bool      `json:"is_active"`
+	IsComplete     bool      `json:"is_complete"`
+	IsVerified     bool      `json:"is_verified"`
+	Category       string    `json:"category"`
+	CategoryTwo    string    `json:"category_two"`
+	CategoryThree  string    `json:"category_three"`
+	CategoryFour   string    `json:"category_four"`
+	IsTopSeller    bool      `json:"is_top_seller"`
+	TimeZone       string    `json:"time_zone"`
+	Currency       string    `json:"currency"`
+	OptionImg      string    `json:"option_img"`
+	OptionType     string    `json:"option_type"`
+	MainOptionType string    `json:"main_option_type"`
+	CreatedAt      time.Time `json:"created_at"`
+	Completed      time.Time `json:"completed"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	OptionID       uuid.UUID `json:"option_id"`
+	HasMetaData    bool      `json:"has_meta_data"`
+	MainImage      string    `json:"main_image"`
+	Images         []string  `json:"images"`
+	CreatedAt_2    time.Time `json:"created_at_2"`
+	UpdatedAt_2    time.Time `json:"updated_at_2"`
 }
 
 func (q *Queries) ListAllUserPhoto(ctx context.Context, hostID uuid.UUID) ([]ListAllUserPhotoRow, error) {
@@ -217,11 +165,7 @@ func (q *Queries) ListAllUserPhoto(ctx context.Context, hostID uuid.UUID) ([]Lis
 			&i.Completed,
 			&i.UpdatedAt,
 			&i.OptionID,
-			&i.CoverImage,
 			&i.HasMetaData,
-			&i.PublicCoverImage,
-			&i.PublicPhoto,
-			&i.Photo,
 			&i.MainImage,
 			&i.Images,
 			&i.CreatedAt_2,
@@ -238,7 +182,7 @@ func (q *Queries) ListAllUserPhoto(ctx context.Context, hostID uuid.UUID) ([]Lis
 }
 
 const listOptionPhotoByAdmin = `-- name: ListOptionPhotoByAdmin :many
-SELECT option_id, cover_image, has_meta_data, public_cover_image, public_photo, photo, main_image, images, created_at, updated_at
+SELECT option_id, has_meta_data, main_image, images, created_at, updated_at
 FROM options_info_photos
 `
 
@@ -253,11 +197,7 @@ func (q *Queries) ListOptionPhotoByAdmin(ctx context.Context) ([]OptionsInfoPhot
 		var i OptionsInfoPhoto
 		if err := rows.Scan(
 			&i.OptionID,
-			&i.CoverImage,
 			&i.HasMetaData,
-			&i.PublicCoverImage,
-			&i.PublicPhoto,
-			&i.Photo,
 			&i.MainImage,
 			&i.Images,
 			&i.CreatedAt,
@@ -283,69 +223,13 @@ func (q *Queries) RemoveOptionInfoPhoto(ctx context.Context, optionID uuid.UUID)
 	return err
 }
 
-const updateOptionInfoAllPhotoCover = `-- name: UpdateOptionInfoAllPhotoCover :one
-UPDATE options_info_photos
-SET 
-    public_cover_image = $1,
-    cover_image = $2,
-    updated_at = NOW()
-WHERE option_id = $3
-RETURNING cover_image, photo
-`
-
-type UpdateOptionInfoAllPhotoCoverParams struct {
-	PublicCoverImage string    `json:"public_cover_image"`
-	CoverImage       string    `json:"cover_image"`
-	OptionID         uuid.UUID `json:"option_id"`
-}
-
-type UpdateOptionInfoAllPhotoCoverRow struct {
-	CoverImage string   `json:"cover_image"`
-	Photo      []string `json:"photo"`
-}
-
-func (q *Queries) UpdateOptionInfoAllPhotoCover(ctx context.Context, arg UpdateOptionInfoAllPhotoCoverParams) (UpdateOptionInfoAllPhotoCoverRow, error) {
-	row := q.db.QueryRow(ctx, updateOptionInfoAllPhotoCover, arg.PublicCoverImage, arg.CoverImage, arg.OptionID)
-	var i UpdateOptionInfoAllPhotoCoverRow
-	err := row.Scan(&i.CoverImage, &i.Photo)
-	return i, err
-}
-
-const updateOptionInfoAllPhotoOnly = `-- name: UpdateOptionInfoAllPhotoOnly :one
-UPDATE options_info_photos
-SET
-    public_photo = $1,
-    photo = $2,
-    updated_at = NOW()
-WHERE option_id = $3
-RETURNING cover_image, photo
-`
-
-type UpdateOptionInfoAllPhotoOnlyParams struct {
-	PublicPhoto []string  `json:"public_photo"`
-	Photo       []string  `json:"photo"`
-	OptionID    uuid.UUID `json:"option_id"`
-}
-
-type UpdateOptionInfoAllPhotoOnlyRow struct {
-	CoverImage string   `json:"cover_image"`
-	Photo      []string `json:"photo"`
-}
-
-func (q *Queries) UpdateOptionInfoAllPhotoOnly(ctx context.Context, arg UpdateOptionInfoAllPhotoOnlyParams) (UpdateOptionInfoAllPhotoOnlyRow, error) {
-	row := q.db.QueryRow(ctx, updateOptionInfoAllPhotoOnly, arg.PublicPhoto, arg.Photo, arg.OptionID)
-	var i UpdateOptionInfoAllPhotoOnlyRow
-	err := row.Scan(&i.CoverImage, &i.Photo)
-	return i, err
-}
-
 const updateOptionInfoImages = `-- name: UpdateOptionInfoImages :one
 UPDATE options_info_photos
 SET
     images = $1,
     updated_at = NOW()
 WHERE option_id = $2
-RETURNING cover_image, photo
+RETURNING main_image, images
 `
 
 type UpdateOptionInfoImagesParams struct {
@@ -354,14 +238,14 @@ type UpdateOptionInfoImagesParams struct {
 }
 
 type UpdateOptionInfoImagesRow struct {
-	CoverImage string   `json:"cover_image"`
-	Photo      []string `json:"photo"`
+	MainImage string   `json:"main_image"`
+	Images    []string `json:"images"`
 }
 
 func (q *Queries) UpdateOptionInfoImages(ctx context.Context, arg UpdateOptionInfoImagesParams) (UpdateOptionInfoImagesRow, error) {
 	row := q.db.QueryRow(ctx, updateOptionInfoImages, arg.Images, arg.OptionID)
 	var i UpdateOptionInfoImagesRow
-	err := row.Scan(&i.CoverImage, &i.Photo)
+	err := row.Scan(&i.MainImage, &i.Images)
 	return i, err
 }
 
@@ -371,7 +255,7 @@ SET
     main_image = $1,
     updated_at = NOW()
 WHERE option_id = $2 
-RETURNING cover_image, photo
+RETURNING main_image, images
 `
 
 type UpdateOptionInfoMainImageParams struct {
@@ -380,145 +264,41 @@ type UpdateOptionInfoMainImageParams struct {
 }
 
 type UpdateOptionInfoMainImageRow struct {
-	CoverImage string   `json:"cover_image"`
-	Photo      []string `json:"photo"`
+	MainImage string   `json:"main_image"`
+	Images    []string `json:"images"`
 }
 
 func (q *Queries) UpdateOptionInfoMainImage(ctx context.Context, arg UpdateOptionInfoMainImageParams) (UpdateOptionInfoMainImageRow, error) {
 	row := q.db.QueryRow(ctx, updateOptionInfoMainImage, arg.MainImage, arg.OptionID)
 	var i UpdateOptionInfoMainImageRow
-	err := row.Scan(&i.CoverImage, &i.Photo)
+	err := row.Scan(&i.MainImage, &i.Images)
 	return i, err
 }
 
 const updateOptionInfoPhoto = `-- name: UpdateOptionInfoPhoto :one
 UPDATE options_info_photos
 SET 
-    cover_image = $1,
-    photo = $2,
+    main_image = $1,
+    images = $2,
     updated_at = NOW()
 WHERE option_id = $3
-RETURNING cover_image, photo
+RETURNING main_image, images
 `
 
 type UpdateOptionInfoPhotoParams struct {
-	CoverImage string    `json:"cover_image"`
-	Photo      []string  `json:"photo"`
-	OptionID   uuid.UUID `json:"option_id"`
+	MainImage string    `json:"main_image"`
+	Images    []string  `json:"images"`
+	OptionID  uuid.UUID `json:"option_id"`
 }
 
 type UpdateOptionInfoPhotoRow struct {
-	CoverImage string   `json:"cover_image"`
-	Photo      []string `json:"photo"`
+	MainImage string   `json:"main_image"`
+	Images    []string `json:"images"`
 }
 
 func (q *Queries) UpdateOptionInfoPhoto(ctx context.Context, arg UpdateOptionInfoPhotoParams) (UpdateOptionInfoPhotoRow, error) {
-	row := q.db.QueryRow(ctx, updateOptionInfoPhoto, arg.CoverImage, arg.Photo, arg.OptionID)
+	row := q.db.QueryRow(ctx, updateOptionInfoPhoto, arg.MainImage, arg.Images, arg.OptionID)
 	var i UpdateOptionInfoPhotoRow
-	err := row.Scan(&i.CoverImage, &i.Photo)
-	return i, err
-}
-
-const updateOptionInfoPhotoCover = `-- name: UpdateOptionInfoPhotoCover :one
-UPDATE options_info_photos
-SET 
-    cover_image = $1,
-    updated_at = NOW()
-WHERE option_id = $2 
-RETURNING cover_image, photo
-`
-
-type UpdateOptionInfoPhotoCoverParams struct {
-	CoverImage string    `json:"cover_image"`
-	OptionID   uuid.UUID `json:"option_id"`
-}
-
-type UpdateOptionInfoPhotoCoverRow struct {
-	CoverImage string   `json:"cover_image"`
-	Photo      []string `json:"photo"`
-}
-
-func (q *Queries) UpdateOptionInfoPhotoCover(ctx context.Context, arg UpdateOptionInfoPhotoCoverParams) (UpdateOptionInfoPhotoCoverRow, error) {
-	row := q.db.QueryRow(ctx, updateOptionInfoPhotoCover, arg.CoverImage, arg.OptionID)
-	var i UpdateOptionInfoPhotoCoverRow
-	err := row.Scan(&i.CoverImage, &i.Photo)
-	return i, err
-}
-
-const updateOptionInfoPhotoCoverUrl = `-- name: UpdateOptionInfoPhotoCoverUrl :one
-UPDATE options_info_photos
-SET 
-    public_cover_image = $1,
-    updated_at = NOW()
-WHERE option_id = $2 
-RETURNING cover_image, photo
-`
-
-type UpdateOptionInfoPhotoCoverUrlParams struct {
-	PublicCoverImage string    `json:"public_cover_image"`
-	OptionID         uuid.UUID `json:"option_id"`
-}
-
-type UpdateOptionInfoPhotoCoverUrlRow struct {
-	CoverImage string   `json:"cover_image"`
-	Photo      []string `json:"photo"`
-}
-
-func (q *Queries) UpdateOptionInfoPhotoCoverUrl(ctx context.Context, arg UpdateOptionInfoPhotoCoverUrlParams) (UpdateOptionInfoPhotoCoverUrlRow, error) {
-	row := q.db.QueryRow(ctx, updateOptionInfoPhotoCoverUrl, arg.PublicCoverImage, arg.OptionID)
-	var i UpdateOptionInfoPhotoCoverUrlRow
-	err := row.Scan(&i.CoverImage, &i.Photo)
-	return i, err
-}
-
-const updateOptionInfoPhotoOnly = `-- name: UpdateOptionInfoPhotoOnly :one
-UPDATE options_info_photos
-SET
-    photo = $1,
-    updated_at = NOW()
-WHERE option_id = $2
-RETURNING cover_image, photo
-`
-
-type UpdateOptionInfoPhotoOnlyParams struct {
-	Photo    []string  `json:"photo"`
-	OptionID uuid.UUID `json:"option_id"`
-}
-
-type UpdateOptionInfoPhotoOnlyRow struct {
-	CoverImage string   `json:"cover_image"`
-	Photo      []string `json:"photo"`
-}
-
-func (q *Queries) UpdateOptionInfoPhotoOnly(ctx context.Context, arg UpdateOptionInfoPhotoOnlyParams) (UpdateOptionInfoPhotoOnlyRow, error) {
-	row := q.db.QueryRow(ctx, updateOptionInfoPhotoOnly, arg.Photo, arg.OptionID)
-	var i UpdateOptionInfoPhotoOnlyRow
-	err := row.Scan(&i.CoverImage, &i.Photo)
-	return i, err
-}
-
-const updateOptionInfoPhotoOnlyUrl = `-- name: UpdateOptionInfoPhotoOnlyUrl :one
-UPDATE options_info_photos
-SET
-    public_photo = $1,
-    updated_at = NOW()
-WHERE option_id = $2
-RETURNING cover_image, photo
-`
-
-type UpdateOptionInfoPhotoOnlyUrlParams struct {
-	PublicPhoto []string  `json:"public_photo"`
-	OptionID    uuid.UUID `json:"option_id"`
-}
-
-type UpdateOptionInfoPhotoOnlyUrlRow struct {
-	CoverImage string   `json:"cover_image"`
-	Photo      []string `json:"photo"`
-}
-
-func (q *Queries) UpdateOptionInfoPhotoOnlyUrl(ctx context.Context, arg UpdateOptionInfoPhotoOnlyUrlParams) (UpdateOptionInfoPhotoOnlyUrlRow, error) {
-	row := q.db.QueryRow(ctx, updateOptionInfoPhotoOnlyUrl, arg.PublicPhoto, arg.OptionID)
-	var i UpdateOptionInfoPhotoOnlyUrlRow
-	err := row.Scan(&i.CoverImage, &i.Photo)
+	err := row.Scan(&i.MainImage, &i.Images)
 	return i, err
 }

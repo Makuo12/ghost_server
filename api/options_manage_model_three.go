@@ -5,9 +5,9 @@ type OptionCoHostItem struct {
 	MainHostName   string `json:"main_host_name"`
 	MainOptionName string `json:"main_option_name"`
 	OptionCoHostID string `json:"option_co_host_id"`
-	CoverImage     string `json:"cover_image"`
+	MainImage      string `json:"main_image"`
 	MainOption     string `json:"main_option"`
-	ProfilePhoto   string `json:"profile_photo"`
+	HostImage      string `json:"host_image"`
 	IsPrimaryHost  bool   `json:"is_primary_host"`
 }
 

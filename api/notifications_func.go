@@ -194,30 +194,30 @@ func HandleChargeToOptionData(ctx context.Context, server *Server, charge db.Cha
 		log.Printf("Error at addedPrice GetDeepLinkExperience in ConvertPrice err: %v, user: %v\n", err, charge.ID)
 		addedPrice = 0.0
 	}
+	_, mainUrl := tools.GetImageItem(data.MainImage)
+	_, userUrl := tools.GetImageItem(data.HostImage)
+	_, urls := tools.GetImageListItem(data.Images)
 	res := ExperienceOptionData{
-		UserOptionID:       tools.UuidToString(data.OptionUserID),
-		Name:               data.HostNameOption,
-		IsVerified:         data.IsVerified,
-		CoverImage:         data.CoverImage,
-		HostAsIndividual:   data.HostAsIndividual,
-		BasePrice:          tools.ConvertFloatToString(basePrice),
-		WeekendPrice:       tools.ConvertFloatToString(weekendPrice),
-		Photos:             data.Photo,
-		TypeOfShortlet:     data.TypeOfShortlet,
-		State:              data.State,
-		Country:            data.Country,
-		ProfilePhoto:       data.Photo_2,
-		HostName:           data.FirstName,
-		HostJoined:         tools.ConvertDateOnlyToString(data.CreatedAt),
-		HostVerified:       data.IsVerified_2,
-		Category:           data.Category,
-		AddedPrice:         tools.ConvertFloatToString(addedPrice),
-		AddPriceFound:      addDateFound,
-		StartDate:          tools.ConvertDateOnlyToString(startDateBook),
-		EndDate:            tools.ConvertDateOnlyToString(endDateBook),
-		PublicPhotos:       data.OptionPublicPhoto,
-		PublicCoverImage:   data.PublicCoverImage,
-		PublicProfilePhoto: data.HostPublicPhoto,
+		UserOptionID:     tools.UuidToString(data.OptionUserID),
+		Name:             data.HostNameOption,
+		IsVerified:       data.IsVerified,
+		HostAsIndividual: data.HostAsIndividual,
+		BasePrice:        tools.ConvertFloatToString(basePrice),
+		WeekendPrice:     tools.ConvertFloatToString(weekendPrice),
+		TypeOfShortlet:   data.TypeOfShortlet,
+		State:            data.State,
+		Country:          data.Country,
+		HostName:         data.FirstName,
+		HostJoined:       tools.ConvertDateOnlyToString(data.CreatedAt),
+		HostVerified:     data.IsVerified_2,
+		Category:         data.Category,
+		AddedPrice:       tools.ConvertFloatToString(addedPrice),
+		AddPriceFound:    addDateFound,
+		StartDate:        tools.ConvertDateOnlyToString(startDateBook),
+		EndDate:          tools.ConvertDateOnlyToString(endDateBook),
+		MainUrl:          mainUrl,
+		HostUrl:          userUrl,
+		Urls:             urls,
 	}
 	return res, nil
 }

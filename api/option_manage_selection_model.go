@@ -7,7 +7,7 @@ type OptionSelectionOffsetParams struct {
 
 type UHMOptionSelectionRes struct {
 	HostNameOption string `json:"host_name_option"`
-	CoverImage     string `json:"cover_image"`
+	MainImage     string `json:"main_image"`
 	OptionID       string `json:"option_id"`
 	HasName        bool   `json:"has_name"`
 	MainOptionType string `json:"main_option_type"`

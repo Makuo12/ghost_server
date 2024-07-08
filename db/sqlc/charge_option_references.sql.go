@@ -389,7 +389,7 @@ func (q *Queries) GetChargeOptionReferenceByID(ctx context.Context, arg GetCharg
 }
 
 const getChargeOptionReferenceByMsg = `-- name: GetChargeOptionReferenceByMsg :one
-SELECT od.host_name_option, oi_p.cover_image, u_s.first_name, co.guests, co.start_date, co.end_date, co.total_fee, co.service_fee, u_s.email, u_s.phone_number, u_s.photo, i_d.is_verified, co.currency
+SELECT od.host_name_option, oi_p.main_image, u_s.first_name, co.guests, co.start_date, co.end_date, co.total_fee, co.service_fee, u_s.email, u_s.phone_number, u_s.image, i_d.is_verified, co.currency
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id
@@ -408,7 +408,7 @@ type GetChargeOptionReferenceByMsgParams struct {
 
 type GetChargeOptionReferenceByMsgRow struct {
 	HostNameOption string    `json:"host_name_option"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
 	FirstName      string    `json:"first_name"`
 	Guests         []string  `json:"guests"`
 	StartDate      time.Time `json:"start_date"`
@@ -417,7 +417,7 @@ type GetChargeOptionReferenceByMsgRow struct {
 	ServiceFee     int64     `json:"service_fee"`
 	Email          string    `json:"email"`
 	PhoneNumber    string    `json:"phone_number"`
-	Photo          string    `json:"photo"`
+	Image          string    `json:"image"`
 	IsVerified     bool      `json:"is_verified"`
 	Currency       string    `json:"currency"`
 }
@@ -428,7 +428,7 @@ func (q *Queries) GetChargeOptionReferenceByMsg(ctx context.Context, arg GetChar
 	var i GetChargeOptionReferenceByMsgRow
 	err := row.Scan(
 		&i.HostNameOption,
-		&i.CoverImage,
+		&i.MainImage,
 		&i.FirstName,
 		&i.Guests,
 		&i.StartDate,
@@ -437,7 +437,7 @@ func (q *Queries) GetChargeOptionReferenceByMsg(ctx context.Context, arg GetChar
 		&i.ServiceFee,
 		&i.Email,
 		&i.PhoneNumber,
-		&i.Photo,
+		&i.Image,
 		&i.IsVerified,
 		&i.Currency,
 	)
@@ -565,7 +565,7 @@ func (q *Queries) GetChargeOptionReferenceByUserID(ctx context.Context, arg GetC
 }
 
 const getChargeOptionReferenceCheckInStep = `-- name: GetChargeOptionReferenceCheckInStep :many
-SELECT cis.photo, cis.des, cis.id
+SELECT cis.image, cis.des, cis.id
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN check_in_steps cis on oi.id = cis.option_id
@@ -582,7 +582,7 @@ type GetChargeOptionReferenceCheckInStepParams struct {
 }
 
 type GetChargeOptionReferenceCheckInStepRow struct {
-	Photo string    `json:"photo"`
+	Image string    `json:"image"`
 	Des   string    `json:"des"`
 	ID    uuid.UUID `json:"id"`
 }
@@ -601,7 +601,7 @@ func (q *Queries) GetChargeOptionReferenceCheckInStep(ctx context.Context, arg G
 	items := []GetChargeOptionReferenceCheckInStepRow{}
 	for rows.Next() {
 		var i GetChargeOptionReferenceCheckInStepRow
-		if err := rows.Scan(&i.Photo, &i.Des, &i.ID); err != nil {
+		if err := rows.Scan(&i.Image, &i.Des, &i.ID); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -899,7 +899,7 @@ func (q *Queries) ListAllIDChargeOptionReference(ctx context.Context, optionUser
 }
 
 const listChargeOptionReferenceBook = `-- name: ListChargeOptionReferenceBook :many
-SELECT u.user_id, co.start_date, co.end_date, co.id AS reference_id, u.first_name, u.photo
+SELECT u.user_id, co.start_date, co.end_date, co.id AS reference_id, u.first_name, u.image
 FROM charge_option_references co
     JOIN users u on u.user_id = co.user_id
 WHERE co.option_user_id = $1 AND co.is_complete=$2 AND co.cancelled=$3
@@ -917,7 +917,7 @@ type ListChargeOptionReferenceBookRow struct {
 	EndDate     time.Time `json:"end_date"`
 	ReferenceID uuid.UUID `json:"reference_id"`
 	FirstName   string    `json:"first_name"`
-	Photo       string    `json:"photo"`
+	Image       string    `json:"image"`
 }
 
 func (q *Queries) ListChargeOptionReferenceBook(ctx context.Context, arg ListChargeOptionReferenceBookParams) ([]ListChargeOptionReferenceBookRow, error) {
@@ -935,7 +935,7 @@ func (q *Queries) ListChargeOptionReferenceBook(ctx context.Context, arg ListCha
 			&i.EndDate,
 			&i.ReferenceID,
 			&i.FirstName,
-			&i.Photo,
+			&i.Image,
 		); err != nil {
 			return nil, err
 		}
@@ -948,7 +948,7 @@ func (q *Queries) ListChargeOptionReferenceBook(ctx context.Context, arg ListCha
 }
 
 const listChargeOptionReferenceByOptionUserID = `-- name: ListChargeOptionReferenceByOptionUserID :many
-SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, o_p_p.cover_image, o_p_p.photo
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, o_p_p.main_image, o_p_p.images
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id
@@ -970,7 +970,7 @@ type ListChargeOptionReferenceByOptionUserIDRow struct {
 	UserID         uuid.UUID `json:"user_id"`
 	HostNameOption string    `json:"host_name_option"`
 	StartDate      time.Time `json:"start_date"`
-	Photo          string    `json:"photo"`
+	Image          string    `json:"image"`
 	EndDate        time.Time `json:"end_date"`
 	FirstName      string    `json:"first_name"`
 	ID             uuid.UUID `json:"id"`
@@ -978,8 +978,8 @@ type ListChargeOptionReferenceByOptionUserIDRow struct {
 	ArriveBefore   string    `json:"arrive_before"`
 	LeaveBefore    string    `json:"leave_before"`
 	CheckInMethod  string    `json:"check_in_method"`
-	CoverImage     string    `json:"cover_image"`
-	Photo_2        []string  `json:"photo_2"`
+	MainImage      string    `json:"main_image"`
+	Images         []string  `json:"images"`
 }
 
 func (q *Queries) ListChargeOptionReferenceByOptionUserID(ctx context.Context, arg ListChargeOptionReferenceByOptionUserIDParams) ([]ListChargeOptionReferenceByOptionUserIDRow, error) {
@@ -996,7 +996,7 @@ func (q *Queries) ListChargeOptionReferenceByOptionUserID(ctx context.Context, a
 			&i.UserID,
 			&i.HostNameOption,
 			&i.StartDate,
-			&i.Photo,
+			&i.Image,
 			&i.EndDate,
 			&i.FirstName,
 			&i.ID,
@@ -1004,8 +1004,8 @@ func (q *Queries) ListChargeOptionReferenceByOptionUserID(ctx context.Context, a
 			&i.ArriveBefore,
 			&i.LeaveBefore,
 			&i.CheckInMethod,
-			&i.CoverImage,
-			&i.Photo_2,
+			&i.MainImage,
+			&i.Images,
 		); err != nil {
 			return nil, err
 		}
@@ -1018,7 +1018,7 @@ func (q *Queries) ListChargeOptionReferenceByOptionUserID(ctx context.Context, a
 }
 
 const listChargeOptionReferenceCurrent = `-- name: ListChargeOptionReferenceCurrent :many
-SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.cover_image, o_p_p.photo, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone, o_p_p.public_cover_image, o_p_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo,
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.main_image, o_p_p.images, u.image AS host_image, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone,
 CASE
     WHEN NOW() > co.end_date + INTERVAL '4 hours' AND NOT EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = co.id) THEN 'started'
     WHEN NOW() > co.end_date + INTERVAL '4 hours' AND EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = co.id) THEN cr.status
@@ -1054,34 +1054,32 @@ type ListChargeOptionReferenceCurrentParams struct {
 }
 
 type ListChargeOptionReferenceCurrentRow struct {
-	MainOptionType    string    `json:"main_option_type"`
-	UserID            uuid.UUID `json:"user_id"`
-	HostNameOption    string    `json:"host_name_option"`
-	StartDate         time.Time `json:"start_date"`
-	Photo             string    `json:"photo"`
-	EndDate           time.Time `json:"end_date"`
-	FirstName         string    `json:"first_name"`
-	ID                uuid.UUID `json:"id"`
-	ArriveAfter       string    `json:"arrive_after"`
-	ArriveBefore      string    `json:"arrive_before"`
-	LeaveBefore       string    `json:"leave_before"`
-	CheckInMethod     string    `json:"check_in_method"`
-	TypeOfShortlet    string    `json:"type_of_shortlet"`
-	SpaceType         string    `json:"space_type"`
-	CoverImage        string    `json:"cover_image"`
-	Photo_2           []string  `json:"photo_2"`
-	TotalFee          int64     `json:"total_fee"`
-	DateBooked        time.Time `json:"date_booked"`
-	Currency          string    `json:"currency"`
-	Street            string    `json:"street"`
-	City              string    `json:"city"`
-	State             string    `json:"state"`
-	Country           string    `json:"country"`
-	TimeZone          string    `json:"time_zone"`
-	PublicCoverImage  string    `json:"public_cover_image"`
-	OptionPublicPhoto []string  `json:"option_public_photo"`
-	HostPublicPhoto   string    `json:"host_public_photo"`
-	ReviewStage       string    `json:"review_stage"`
+	MainOptionType string    `json:"main_option_type"`
+	UserID         uuid.UUID `json:"user_id"`
+	HostNameOption string    `json:"host_name_option"`
+	StartDate      time.Time `json:"start_date"`
+	Image          string    `json:"image"`
+	EndDate        time.Time `json:"end_date"`
+	FirstName      string    `json:"first_name"`
+	ID             uuid.UUID `json:"id"`
+	ArriveAfter    string    `json:"arrive_after"`
+	ArriveBefore   string    `json:"arrive_before"`
+	LeaveBefore    string    `json:"leave_before"`
+	CheckInMethod  string    `json:"check_in_method"`
+	TypeOfShortlet string    `json:"type_of_shortlet"`
+	SpaceType      string    `json:"space_type"`
+	MainImage      string    `json:"main_image"`
+	Images         []string  `json:"images"`
+	HostImage      string    `json:"host_image"`
+	TotalFee       int64     `json:"total_fee"`
+	DateBooked     time.Time `json:"date_booked"`
+	Currency       string    `json:"currency"`
+	Street         string    `json:"street"`
+	City           string    `json:"city"`
+	State          string    `json:"state"`
+	Country        string    `json:"country"`
+	TimeZone       string    `json:"time_zone"`
+	ReviewStage    string    `json:"review_stage"`
 }
 
 func (q *Queries) ListChargeOptionReferenceCurrent(ctx context.Context, arg ListChargeOptionReferenceCurrentParams) ([]ListChargeOptionReferenceCurrentRow, error) {
@@ -1104,7 +1102,7 @@ func (q *Queries) ListChargeOptionReferenceCurrent(ctx context.Context, arg List
 			&i.UserID,
 			&i.HostNameOption,
 			&i.StartDate,
-			&i.Photo,
+			&i.Image,
 			&i.EndDate,
 			&i.FirstName,
 			&i.ID,
@@ -1114,8 +1112,9 @@ func (q *Queries) ListChargeOptionReferenceCurrent(ctx context.Context, arg List
 			&i.CheckInMethod,
 			&i.TypeOfShortlet,
 			&i.SpaceType,
-			&i.CoverImage,
-			&i.Photo_2,
+			&i.MainImage,
+			&i.Images,
+			&i.HostImage,
 			&i.TotalFee,
 			&i.DateBooked,
 			&i.Currency,
@@ -1124,9 +1123,6 @@ func (q *Queries) ListChargeOptionReferenceCurrent(ctx context.Context, arg List
 			&i.State,
 			&i.Country,
 			&i.TimeZone,
-			&i.PublicCoverImage,
-			&i.OptionPublicPhoto,
-			&i.HostPublicPhoto,
 			&i.ReviewStage,
 		); err != nil {
 			return nil, err
@@ -1220,17 +1216,17 @@ SELECT
     co.end_date,
     co.id AS reference_id,
     oi.id AS option_id,
-    op.cover_image,
+    op.main_image,
     u.first_name,
     od.host_name_option,
-    u.photo,
+    u.image AS host_image,
     cid.arrive_after,
     cid.arrive_before,
     cid.leave_before,
     oi.time_zone,
     os.status,
     oi.co_host_id,
-    op.cover_image,
+    op.main_image,
     CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.scan_code::boolean
         WHEN oi.host_id = $2 THEN true
         ELSE false -- Optional: Handle other cases if needed
@@ -1278,17 +1274,17 @@ type ListChargeOptionReferenceHostRow struct {
 	EndDate        time.Time `json:"end_date"`
 	ReferenceID    uuid.UUID `json:"reference_id"`
 	OptionID       uuid.UUID `json:"option_id"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
 	FirstName      string    `json:"first_name"`
 	HostNameOption string    `json:"host_name_option"`
-	Photo          string    `json:"photo"`
+	HostImage      string    `json:"host_image"`
 	ArriveAfter    string    `json:"arrive_after"`
 	ArriveBefore   string    `json:"arrive_before"`
 	LeaveBefore    string    `json:"leave_before"`
 	TimeZone       string    `json:"time_zone"`
 	Status         string    `json:"status"`
 	CoHostID       uuid.UUID `json:"co_host_id"`
-	CoverImage_2   string    `json:"cover_image_2"`
+	MainImage_2    string    `json:"main_image_2"`
 	ScanCode       bool      `json:"scan_code"`
 	Reservations   bool      `json:"reservations"`
 	HostType       string    `json:"host_type"`
@@ -1309,17 +1305,17 @@ func (q *Queries) ListChargeOptionReferenceHost(ctx context.Context, arg ListCha
 			&i.EndDate,
 			&i.ReferenceID,
 			&i.OptionID,
-			&i.CoverImage,
+			&i.MainImage,
 			&i.FirstName,
 			&i.HostNameOption,
-			&i.Photo,
+			&i.HostImage,
 			&i.ArriveAfter,
 			&i.ArriveBefore,
 			&i.LeaveBefore,
 			&i.TimeZone,
 			&i.Status,
 			&i.CoHostID,
-			&i.CoverImage_2,
+			&i.MainImage_2,
 			&i.ScanCode,
 			&i.Reservations,
 			&i.HostType,
@@ -1335,7 +1331,7 @@ func (q *Queries) ListChargeOptionReferenceHost(ctx context.Context, arg ListCha
 }
 
 const listChargeOptionReferenceVisited = `-- name: ListChargeOptionReferenceVisited :many
-SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.cover_image, o_p_p.photo, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone, o_p_p.public_cover_image, o_p_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.main_image, o_p_p.images, u.image AS host_image, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id
@@ -1360,33 +1356,31 @@ type ListChargeOptionReferenceVisitedParams struct {
 }
 
 type ListChargeOptionReferenceVisitedRow struct {
-	MainOptionType    string    `json:"main_option_type"`
-	UserID            uuid.UUID `json:"user_id"`
-	HostNameOption    string    `json:"host_name_option"`
-	StartDate         time.Time `json:"start_date"`
-	Photo             string    `json:"photo"`
-	EndDate           time.Time `json:"end_date"`
-	FirstName         string    `json:"first_name"`
-	ID                uuid.UUID `json:"id"`
-	ArriveAfter       string    `json:"arrive_after"`
-	ArriveBefore      string    `json:"arrive_before"`
-	LeaveBefore       string    `json:"leave_before"`
-	CheckInMethod     string    `json:"check_in_method"`
-	TypeOfShortlet    string    `json:"type_of_shortlet"`
-	SpaceType         string    `json:"space_type"`
-	CoverImage        string    `json:"cover_image"`
-	Photo_2           []string  `json:"photo_2"`
-	TotalFee          int64     `json:"total_fee"`
-	DateBooked        time.Time `json:"date_booked"`
-	Currency          string    `json:"currency"`
-	Street            string    `json:"street"`
-	City              string    `json:"city"`
-	State             string    `json:"state"`
-	Country           string    `json:"country"`
-	TimeZone          string    `json:"time_zone"`
-	PublicCoverImage  string    `json:"public_cover_image"`
-	OptionPublicPhoto []string  `json:"option_public_photo"`
-	HostPublicPhoto   string    `json:"host_public_photo"`
+	MainOptionType string    `json:"main_option_type"`
+	UserID         uuid.UUID `json:"user_id"`
+	HostNameOption string    `json:"host_name_option"`
+	StartDate      time.Time `json:"start_date"`
+	Image          string    `json:"image"`
+	EndDate        time.Time `json:"end_date"`
+	FirstName      string    `json:"first_name"`
+	ID             uuid.UUID `json:"id"`
+	ArriveAfter    string    `json:"arrive_after"`
+	ArriveBefore   string    `json:"arrive_before"`
+	LeaveBefore    string    `json:"leave_before"`
+	CheckInMethod  string    `json:"check_in_method"`
+	TypeOfShortlet string    `json:"type_of_shortlet"`
+	SpaceType      string    `json:"space_type"`
+	MainImage      string    `json:"main_image"`
+	Images         []string  `json:"images"`
+	HostImage      string    `json:"host_image"`
+	TotalFee       int64     `json:"total_fee"`
+	DateBooked     time.Time `json:"date_booked"`
+	Currency       string    `json:"currency"`
+	Street         string    `json:"street"`
+	City           string    `json:"city"`
+	State          string    `json:"state"`
+	Country        string    `json:"country"`
+	TimeZone       string    `json:"time_zone"`
 }
 
 func (q *Queries) ListChargeOptionReferenceVisited(ctx context.Context, arg ListChargeOptionReferenceVisitedParams) ([]ListChargeOptionReferenceVisitedRow, error) {
@@ -1409,7 +1403,7 @@ func (q *Queries) ListChargeOptionReferenceVisited(ctx context.Context, arg List
 			&i.UserID,
 			&i.HostNameOption,
 			&i.StartDate,
-			&i.Photo,
+			&i.Image,
 			&i.EndDate,
 			&i.FirstName,
 			&i.ID,
@@ -1419,8 +1413,9 @@ func (q *Queries) ListChargeOptionReferenceVisited(ctx context.Context, arg List
 			&i.CheckInMethod,
 			&i.TypeOfShortlet,
 			&i.SpaceType,
-			&i.CoverImage,
-			&i.Photo_2,
+			&i.MainImage,
+			&i.Images,
+			&i.HostImage,
 			&i.TotalFee,
 			&i.DateBooked,
 			&i.Currency,
@@ -1429,9 +1424,6 @@ func (q *Queries) ListChargeOptionReferenceVisited(ctx context.Context, arg List
 			&i.State,
 			&i.Country,
 			&i.TimeZone,
-			&i.PublicCoverImage,
-			&i.OptionPublicPhoto,
-			&i.HostPublicPhoto,
 		); err != nil {
 			return nil, err
 		}
@@ -1444,7 +1436,7 @@ func (q *Queries) ListChargeOptionReferenceVisited(ctx context.Context, arg List
 }
 
 const listOptionPaymentByUserID = `-- name: ListOptionPaymentByUserID :many
-SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, o_p_p.cover_image, o_p_p.photo, co.total_fee, co.date_booked, co.currency, co.cancelled
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, o_p_p.main_image, o_p_p.images, co.total_fee, co.date_booked, co.currency, co.cancelled
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id
@@ -1470,7 +1462,7 @@ type ListOptionPaymentByUserIDRow struct {
 	UserID         uuid.UUID `json:"user_id"`
 	HostNameOption string    `json:"host_name_option"`
 	StartDate      time.Time `json:"start_date"`
-	Photo          string    `json:"photo"`
+	Image          string    `json:"image"`
 	EndDate        time.Time `json:"end_date"`
 	FirstName      string    `json:"first_name"`
 	ID             uuid.UUID `json:"id"`
@@ -1478,8 +1470,8 @@ type ListOptionPaymentByUserIDRow struct {
 	ArriveBefore   string    `json:"arrive_before"`
 	LeaveBefore    string    `json:"leave_before"`
 	CheckInMethod  string    `json:"check_in_method"`
-	CoverImage     string    `json:"cover_image"`
-	Photo_2        []string  `json:"photo_2"`
+	MainImage      string    `json:"main_image"`
+	Images         []string  `json:"images"`
 	TotalFee       int64     `json:"total_fee"`
 	DateBooked     time.Time `json:"date_booked"`
 	Currency       string    `json:"currency"`
@@ -1505,7 +1497,7 @@ func (q *Queries) ListOptionPaymentByUserID(ctx context.Context, arg ListOptionP
 			&i.UserID,
 			&i.HostNameOption,
 			&i.StartDate,
-			&i.Photo,
+			&i.Image,
 			&i.EndDate,
 			&i.FirstName,
 			&i.ID,
@@ -1513,8 +1505,8 @@ func (q *Queries) ListOptionPaymentByUserID(ctx context.Context, arg ListOptionP
 			&i.ArriveBefore,
 			&i.LeaveBefore,
 			&i.CheckInMethod,
-			&i.CoverImage,
-			&i.Photo_2,
+			&i.MainImage,
+			&i.Images,
 			&i.TotalFee,
 			&i.DateBooked,
 			&i.Currency,

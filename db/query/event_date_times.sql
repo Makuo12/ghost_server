@@ -117,7 +117,7 @@ SELECT
     edi.start_time,
     edi.end_time,
     od.host_name_option,
-    op.cover_image,
+    op.main_image,
     CASE WHEN och_subquery.option_id IS NOT NULL THEN oi.co_host_id::uuid
         WHEN oi.host_id = $2 THEN oi.id::uuid
         ELSE oi.id::uuid -- Optional: Handle other cases if needed

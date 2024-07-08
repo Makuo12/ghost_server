@@ -14,11 +14,11 @@ type GetChargeCodeRes struct {
 }
 
 type GetChargeCodeScannedRes struct {
-	Message               string `json:"message"`
-	ScannedByProfilePhoto string `json:"scanned_by_profile_photo"`
-	ScannedByName         string `json:"scanned_by_name"`
-	ScannedTime           string `json:"scanned_time"`
-	ID                    string `json:"id"`
+	Message          string `json:"message"`
+	ScannedUserImage string `json:"scanned_user_image"`
+	ScannedByName    string `json:"scanned_by_name"`
+	ScannedTime      string `json:"scanned_time"`
+	ID               string `json:"id"`
 }
 
 type DeleteChargeCodeParams struct {

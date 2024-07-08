@@ -163,6 +163,9 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 					}
 					continue
 				}
+				mainPath, mainUrl := tools.GetImageItem(e.MainImage)
+				userPath, userUrl := tools.GetImageItem(e.HostImage)
+				paths, urls := tools.GetImageListItem(e.Images)
 				locationRedisList, _, price, ticketAvailable, startDateData, endDateData, hasFreeTicket := SetupExperienceEventData(ctx, server, e, db.ListEventExperienceByLocationRow{}, true, "HandleEventExperienceToRedis")
 				data := []string{
 					constants.OPTION_USER_ID,
@@ -172,11 +175,11 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 					constants.OPTION_IS_VERIFIED,
 					tools.ConvertBoolToString(e.IsVerified),
 					constants.COVER_IMAGE,
-					e.CoverImage,
+					mainPath,
 					constants.HOST_AS_INDIVIDUAL,
 					tools.ConvertBoolToString(e.HostAsIndividual),
 					constants.PHOTOS,
-					strings.Join(e.Photo, "*"),
+					strings.Join(paths, "*"),
 					constants.TICKET_AVAILABLE,
 					tools.ConvertBoolToString(ticketAvailable),
 					constants.SUB_EVENT_TYPE,
@@ -192,7 +195,7 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 					constants.HOST_NAME,
 					e.FirstName,
 					constants.PROFILE_PHOTO,
-					e.Photo_2,
+					userPath,
 					constants.HOST_JOINED,
 					tools.ConvertDateOnlyToString(e.CreatedAt),
 					constants.HOST_VERIFIED,
@@ -204,11 +207,11 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 					constants.CURRENCY,
 					e.Currency,
 					constants.PUBLIC_COVER_IMAGE,
-					e.PublicCoverImage,
+					mainUrl,
 					constants.PUBLIC_PHOTOS,
-					strings.Join(e.OptionPublicPhoto, "*"),
+					strings.Join(urls, "*"),
 					constants.PUBLIC_PROFILE_PHOTO,
-					e.HostPublicPhoto,
+					userUrl,
 				}
 
 				err := RedisClient.HSet(RedisContext, eventKey, data).Err()

@@ -43,7 +43,7 @@ FROM option_co_hosts oc
 WHERE oc.is_active = true AND oc.co_user_id = sqlc.arg(co_user_id) AND oc.accepted = true;
 
 -- name: ListOptionCoHostByCoHost :many
-SELECT u.first_name, od.host_name_option, oi.co_host_id, oi.main_option_type, op.cover_image, oc.id, oi.primary_user_id
+SELECT u.first_name, od.host_name_option, oi.co_host_id, oi.main_option_type, op.main_image, oc.id, oi.primary_user_id, u.image AS host_image
 FROM option_co_hosts oc
     JOIN options_infos oi on  oi.id = oc.option_id
     JOIN users u on u.id = oi.host_id

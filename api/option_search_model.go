@@ -204,31 +204,31 @@ func HandleOptionExSearchLocation(ctx context.Context, server *Server, req ExCon
 				continue
 			}
 		}
+		_, mainUrl := tools.GetImageItem(o.MainImage)
+		_, userUrl := tools.GetImageItem(o.HostImage)
+		_, urls := tools.GetImageListItem(o.Images)
 		hostJoined := tools.ConvertDateOnlyToString(o.CreatedAt)
 		data := ExperienceOptionData{
-			UserOptionID:       tools.UuidToString(o.OptionUserID),
-			Name:               o.HostNameOption,
-			IsVerified:         o.OptionIsVerified,
-			CoverImage:         o.CoverImage,
-			HostAsIndividual:   o.HostAsIndividual,
-			BasePrice:          tools.ConvertFloatToString(basePrice),
-			WeekendPrice:       tools.ConvertFloatToString(weekendPrice),
-			AddedPrice:         addPrice,
-			AddPriceFound:      true,
-			StartDate:          tools.ConvertDateOnlyToString(startDateBook),
-			EndDate:            tools.ConvertDateOnlyToString(endDateBook),
-			Photos:             o.Photo,
-			TypeOfShortlet:     o.TypeOfShortlet,
-			State:              o.State,
-			Country:            o.Country,
-			ProfilePhoto:       o.ProfilePhoto,
-			HostName:           o.HostName,
-			HostJoined:         hostJoined,
-			HostVerified:       o.HostVerified,
-			Category:           o.Category,
-			PublicPhotos:       o.OptionPublicPhoto,
-			PublicCoverImage:   o.PublicCoverImage,
-			PublicProfilePhoto: o.HostPublicPhoto,
+			UserOptionID:     tools.UuidToString(o.OptionUserID),
+			Name:             o.HostNameOption,
+			IsVerified:       o.OptionIsVerified,
+			HostAsIndividual: o.HostAsIndividual,
+			BasePrice:        tools.ConvertFloatToString(basePrice),
+			WeekendPrice:     tools.ConvertFloatToString(weekendPrice),
+			AddedPrice:       addPrice,
+			AddPriceFound:    true,
+			StartDate:        tools.ConvertDateOnlyToString(startDateBook),
+			EndDate:          tools.ConvertDateOnlyToString(endDateBook),
+			TypeOfShortlet:   o.TypeOfShortlet,
+			State:            o.State,
+			Country:          o.Country,
+			HostName:         o.HostName,
+			HostJoined:       hostJoined,
+			HostVerified:     o.HostVerified,
+			Category:         o.Category,
+			MainUrl:          mainUrl,
+			HostUrl:          userUrl,
+			Urls:             urls,
 		}
 		list = append(list, data)
 	}
@@ -301,30 +301,30 @@ func HandleOptionExSearch(ctx context.Context, server *Server, req ExControlOpti
 			}
 		}
 		hostJoined := tools.ConvertDateOnlyToString(o.CreatedAt)
+		_, mainUrl := tools.GetImageItem(o.MainImage)
+		_, userUrl := tools.GetImageItem(o.HostImage)
+		_, urls := tools.GetImageListItem(o.Images)
 		data := ExperienceOptionData{
-			UserOptionID:       tools.UuidToString(o.OptionUserID),
-			Name:               o.HostNameOption,
-			IsVerified:         o.OptionIsVerified,
-			CoverImage:         o.CoverImage,
-			HostAsIndividual:   o.HostAsIndividual,
-			BasePrice:          tools.ConvertFloatToString(basePrice),
-			WeekendPrice:       tools.ConvertFloatToString(weekendPrice),
-			AddedPrice:         addPrice,
-			AddPriceFound:      true,
-			StartDate:          tools.ConvertDateOnlyToString(startDateBook),
-			EndDate:            tools.ConvertDateOnlyToString(endDateBook),
-			Photos:             o.Photo,
-			TypeOfShortlet:     o.TypeOfShortlet,
-			State:              o.State,
-			Country:            o.Country,
-			ProfilePhoto:       o.ProfilePhoto,
-			HostName:           o.HostName,
-			HostJoined:         hostJoined,
-			HostVerified:       o.HostVerified,
-			Category:           o.Category,
-			PublicPhotos:       o.OptionPublicPhoto,
-			PublicCoverImage:   o.PublicCoverImage,
-			PublicProfilePhoto: o.HostPublicPhoto,
+			UserOptionID:     tools.UuidToString(o.OptionUserID),
+			Name:             o.HostNameOption,
+			IsVerified:       o.OptionIsVerified,
+			HostAsIndividual: o.HostAsIndividual,
+			BasePrice:        tools.ConvertFloatToString(basePrice),
+			WeekendPrice:     tools.ConvertFloatToString(weekendPrice),
+			AddedPrice:       addPrice,
+			AddPriceFound:    true,
+			StartDate:        tools.ConvertDateOnlyToString(startDateBook),
+			EndDate:          tools.ConvertDateOnlyToString(endDateBook),
+			TypeOfShortlet:   o.TypeOfShortlet,
+			State:            o.State,
+			Country:          o.Country,
+			HostName:         o.HostName,
+			HostJoined:       hostJoined,
+			HostVerified:     o.HostVerified,
+			Category:         o.Category,
+			MainUrl:          mainUrl,
+			HostUrl:          userUrl,
+			Urls:             urls,
 		}
 		list = append(list, data)
 	}

@@ -70,7 +70,7 @@ type CreateMessageParams struct {
 	ReceiverID        string `json:"receiver_id"`
 	Message           string `json:"message"`
 	Type              string `json:"type"`
-	Photo             string `json:"photo"`
+	Image             string `json:"image"`
 	ParentID          string `json:"parent_id"`
 	Reference         string `json:"reference"`
 	SelectedContactID string `json:"selected_contact_id"`

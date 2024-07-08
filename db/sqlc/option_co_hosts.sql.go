@@ -558,7 +558,7 @@ func (q *Queries) ListOptionCOHostEmail(ctx context.Context, optionID uuid.UUID)
 
 const listOptionCOHostUser = `-- name: ListOptionCOHostUser :many
 SELECT 
-    co.id, option_id, co_user_id, accepted, co.email, co.is_active, reservations, post, scan_code, calender, insights, edit_option_info, edit_event_dates_times, edit_co_hosts, co.created_at, co.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, u.email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, photo, public_photo, image, password_changed_at, u.created_at, u.updated_at
+    co.id, option_id, co_user_id, accepted, co.email, co.is_active, reservations, post, scan_code, calender, insights, edit_option_info, edit_event_dates_times, edit_co_hosts, co.created_at, co.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, u.email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, image, password_changed_at, u.created_at, u.updated_at
 FROM option_co_hosts co
     JOIN users u on u.user_id::varchar = co.co_host_id
 WHERE is_active = true AND option_id = $1
@@ -603,8 +603,6 @@ type ListOptionCOHostUserRow struct {
 	DefaultAccountID    string    `json:"default_account_id"`
 	IsActive_2          bool      `json:"is_active_2"`
 	IsDeleted           bool      `json:"is_deleted"`
-	Photo               string    `json:"photo"`
-	PublicPhoto         string    `json:"public_photo"`
 	Image               string    `json:"image"`
 	PasswordChangedAt   time.Time `json:"password_changed_at"`
 	CreatedAt_2         time.Time `json:"created_at_2"`
@@ -659,8 +657,6 @@ func (q *Queries) ListOptionCOHostUser(ctx context.Context, optionID uuid.UUID) 
 			&i.DefaultAccountID,
 			&i.IsActive_2,
 			&i.IsDeleted,
-			&i.Photo,
-			&i.PublicPhoto,
 			&i.Image,
 			&i.PasswordChangedAt,
 			&i.CreatedAt_2,
@@ -677,7 +673,7 @@ func (q *Queries) ListOptionCOHostUser(ctx context.Context, optionID uuid.UUID) 
 }
 
 const listOptionCoHostByCoHost = `-- name: ListOptionCoHostByCoHost :many
-SELECT u.first_name, od.host_name_option, oi.co_host_id, oi.main_option_type, op.cover_image, oc.id, oi.primary_user_id
+SELECT u.first_name, od.host_name_option, oi.co_host_id, oi.main_option_type, op.main_image, oc.id, oi.primary_user_id, u.image AS host_image
 FROM option_co_hosts oc
     JOIN options_infos oi on  oi.id = oc.option_id
     JOIN users u on u.id = oi.host_id
@@ -699,9 +695,10 @@ type ListOptionCoHostByCoHostRow struct {
 	HostNameOption string    `json:"host_name_option"`
 	CoHostID       uuid.UUID `json:"co_host_id"`
 	MainOptionType string    `json:"main_option_type"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
 	ID             uuid.UUID `json:"id"`
 	PrimaryUserID  uuid.UUID `json:"primary_user_id"`
+	HostImage      string    `json:"host_image"`
 }
 
 func (q *Queries) ListOptionCoHostByCoHost(ctx context.Context, arg ListOptionCoHostByCoHostParams) ([]ListOptionCoHostByCoHostRow, error) {
@@ -718,9 +715,10 @@ func (q *Queries) ListOptionCoHostByCoHost(ctx context.Context, arg ListOptionCo
 			&i.HostNameOption,
 			&i.CoHostID,
 			&i.MainOptionType,
-			&i.CoverImage,
+			&i.MainImage,
 			&i.ID,
 			&i.PrimaryUserID,
+			&i.HostImage,
 		); err != nil {
 			return nil, err
 		}

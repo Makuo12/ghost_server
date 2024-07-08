@@ -195,9 +195,9 @@ func (server *Server) GetFireEmailAndPassword(ctx *gin.Context) {
 		return
 	}
 	res := GetFireEmailAndPasswordRes{
-		Email:        user.Email,
-		FireFight:    user.FirebasePassword,
-		ProfilePhoto: user.Photo,
+		Email:     user.Email,
+		FireFight: user.FirebasePassword,
+		HostImage: user.Image,
 	}
 	log.Printf("GetFireEmailAndPassword (%v) id: %v\n", user.Email, user.ID)
 	ctx.JSON(http.StatusOK, res)
@@ -337,28 +337,28 @@ func (server *Server) UpdateUserProfilePhoto(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	if !tools.ServerStringEmpty(user.Photo) {
-		err = RemoveFirebasePhoto(server, ctx, user.Photo)
+	if !tools.ServerStringEmpty(user.Image) {
+		err = RemoveFirebasePhoto(server, ctx, user.Image)
 		if err != nil {
 			log.Printf("Error at UpdateUserProfilePhoto in RemoveFirebasePhoto err: %v, user: %v\n", err, user.ID)
 		}
 	}
 	userUpdate, err := server.store.UpdateUser(ctx, db.UpdateUserParams{
-		Photo: pgtype.Text{
-			String: req.ProfilePhoto,
+		Image: pgtype.Text{
+			String: req.HostImage,
 			Valid:  true,
 		},
 		ID: user.ID,
 	})
 	if err != nil {
-		log.Printf("Error at UpdateUserProfilePhoto in UpdateUser err: %v, user: %v photoID: %v\n", err, user.ID, req.ProfilePhoto)
+		log.Printf("Error at UpdateUserHostImage in UpdateUser err: %v, user: %v photoID: %v\n", err, user.ID, req.HostImage)
 		err = fmt.Errorf("could not update your profile photo")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 
 	res := UpdateProfilePhotoParams{
-		ProfilePhoto: userUpdate.Photo,
+		HostImage: userUpdate.Image,
 	}
 	log.Printf("UpdateUserProfilePhoto successfully (%v) id: %v\n", user.Email, user.ID)
 	ctx.JSON(http.StatusOK, res)
@@ -386,7 +386,7 @@ func (server *Server) GetUserProfilePhoto(ctx *gin.Context) {
 		return
 	}
 	res := GetUserProfilePhotoRes{
-		ProfilePhoto: user.Photo,
+		HostImage: user.Image,
 	}
 	log.Printf("GetUserProfilePhoto sent successfully (%v) id: %v\n", user.Email, user.ID)
 	ctx.JSON(http.StatusOK, res)
@@ -406,7 +406,7 @@ func (server *Server) GetUserIsHost(ctx *gin.Context) {
 		HasIncomplete:       hasIncomplete,
 		UnreadMessages:      unreadMsgs,
 		UnreadNotifications: int(unreadNotifications),
-		ProfileImage:        user.Photo,
+		HostImage:           user.Image,
 	}
 	log.Printf("GetUserIsHost sent successfully (%v) id: %v\n", user.Email, user.ID)
 	ctx.JSON(http.StatusOK, res)
@@ -525,7 +525,7 @@ func (server *Server) GetUserProfileDetail(ctx *gin.Context) {
 	customOption := ProfileDetailOption{
 		OptionUserID: "",
 		Name:         "",
-		CoverImage:   "",
+		MainImage:   "",
 		Type:         "",
 		MainOption:   "",
 	}
@@ -592,7 +592,7 @@ func (server *Server) GetUserProfileDetail(ctx *gin.Context) {
 			data := ProfileDetailOption{
 				OptionUserID: tools.UuidToString(option.OptionUserID),
 				Name:         option.HostNameOption,
-				CoverImage:   HandleSqlNullString(option.CoverImage),
+				MainImage:    HandleSqlNullString(option.MainImage),
 				Type:         optionType,
 				MainOption:   option.MainOptionType,
 			}

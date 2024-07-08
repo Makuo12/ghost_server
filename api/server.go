@@ -358,8 +358,8 @@ func (server *Server) setupRouter() {
 
 	router.PUT("admin/photo/update/user", server.UpdatePhotoUserAdmin)
 	router.PUT("admin/photo/update/option", server.UpdatePhotoOptionAdmin)
-	router.PUT("admin/photo/update/event-check", server.UpdatePhotoEventCheckInStepAdmin)
-	router.PUT("admin/photo/update/option-check", server.UpdatePhotoCheckInStepAdmin)
+	//router.PUT("admin/photo/update/event-check", server.UpdatePhotoEventCheckInStepAdmin)
+	//router.PUT("admin/photo/update/option-check", server.UpdatePhotoCheckInStepAdmin)
 
 	router.POST("/users/email/check", server.JoinVerifyEmail)
 	router.POST("/users/email/confirm", server.ConfirmCode)
@@ -459,7 +459,7 @@ func (server *Server) setupRouter() {
 	authRoutes.POST("/users/option-highlight/create", server.CreateOptionHighlight)
 	authRoutes.DELETE("/users/option-highlight/remove", server.RemoveOptionHighlight)
 
-	authRoutes.POST("/users/option-photo/create", server.CreateOptionPhoto)
+	//authRoutes.POST("/users/option-photo/create", server.CreateOptionPhoto)
 	authRoutes.DELETE("/users/option-photo/remove", server.RemoveOptionPhoto)
 	authRoutes.POST("/users/option-photo/upload", server.UploadOptionPhoto)
 	authRoutes.DELETE("/users/option-photo/upload/delete", server.DeleteOptionPhoto)

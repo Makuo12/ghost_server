@@ -337,7 +337,7 @@ type UpdateEventCheckInStepParams struct {
 	EventInfoID     string `json:"event_info_id" binding:"required"`
 	EventDateTimeID string `json:"event_date_time_id" binding:"required"`
 	Des             string `json:"des"`
-	Photo           string `json:"photo"`
+	Image           string `json:"image"`
 	// This would tell us whether to use des or photo to update
 	Type string `json:"type" binding:"required"`
 }
@@ -346,7 +346,7 @@ type CreateEventCheckInStepParams struct {
 	EventInfoID     string `json:"event_info_id" binding:"required"`
 	EventDateTimeID string `json:"event_date_time_id" binding:"required"`
 	Des             string `json:"des"`
-	Photo           string `json:"photo"`
+	Image           string `json:"image"`
 	// This would tell us whether to use des or photo to update
 	Type string `json:"type" binding:"required"`
 }

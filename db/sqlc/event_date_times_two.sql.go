@@ -38,7 +38,7 @@ SELECT
     od.host_name_option,
     oi.id AS option_id,
     oi.co_host_id,
-    op.cover_image,
+    op.main_image,
     CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.scan_code::boolean
         WHEN oi.host_id = $2 THEN true
         ELSE false -- Optional: Handle other cases if needed
@@ -107,7 +107,7 @@ type ListAllEventDateTimeInsightRow struct {
 	HostNameOption      string    `json:"host_name_option"`
 	OptionID            uuid.UUID `json:"option_id"`
 	CoHostID            uuid.UUID `json:"co_host_id"`
-	CoverImage          string    `json:"cover_image"`
+	MainImage           string    `json:"main_image"`
 	ScanCode            bool      `json:"scan_code"`
 	Reservations        bool      `json:"reservations"`
 	HostType            string    `json:"host_type"`
@@ -152,7 +152,7 @@ func (q *Queries) ListAllEventDateTimeInsight(ctx context.Context, arg ListAllEv
 			&i.HostNameOption,
 			&i.OptionID,
 			&i.CoHostID,
-			&i.CoverImage,
+			&i.MainImage,
 			&i.ScanCode,
 			&i.Reservations,
 			&i.HostType,
@@ -193,7 +193,7 @@ SELECT
     od.host_name_option,
     oi.id AS option_id,
     oi.co_host_id,
-    op.cover_image,
+    op.main_image,
     CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.scan_code::boolean
         WHEN oi.host_id = $2 THEN true
         ELSE false -- Optional: Handle other cases if needed
@@ -263,7 +263,7 @@ type ListEventDateTimeInsightRow struct {
 	HostNameOption      string    `json:"host_name_option"`
 	OptionID            uuid.UUID `json:"option_id"`
 	CoHostID            uuid.UUID `json:"co_host_id"`
-	CoverImage          string    `json:"cover_image"`
+	MainImage           string    `json:"main_image"`
 	ScanCode            bool      `json:"scan_code"`
 	Reservations        bool      `json:"reservations"`
 	HostType            string    `json:"host_type"`
@@ -309,7 +309,7 @@ func (q *Queries) ListEventDateTimeInsight(ctx context.Context, arg ListEventDat
 			&i.HostNameOption,
 			&i.OptionID,
 			&i.CoHostID,
-			&i.CoverImage,
+			&i.MainImage,
 			&i.ScanCode,
 			&i.Reservations,
 			&i.HostType,

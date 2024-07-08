@@ -145,7 +145,7 @@ SELECT o_i.id,
    o_i.main_option_type,
    o_i.currency,
    o_i_d.host_name_option,
-   o_i_p.cover_image
+   o_i_p.main_image
 FROM options_infos o_i
    JOIN event_infos e_i on o_i.id = e_i.option_id
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
@@ -165,7 +165,7 @@ type GetEventCurrentOptionDataRow struct {
 	MainOptionType string    `json:"main_option_type"`
 	Currency       string    `json:"currency"`
 	HostNameOption string    `json:"host_name_option"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
 }
 
 func (q *Queries) GetEventCurrentOptionData(ctx context.Context, arg GetEventCurrentOptionDataParams) (GetEventCurrentOptionDataRow, error) {
@@ -178,7 +178,7 @@ func (q *Queries) GetEventCurrentOptionData(ctx context.Context, arg GetEventCur
 		&i.MainOptionType,
 		&i.Currency,
 		&i.HostNameOption,
-		&i.CoverImage,
+		&i.MainImage,
 	)
 	return i, err
 }
@@ -219,7 +219,7 @@ SELECT o_i.id,
    e_i.event_type,
    o_i_d.host_name_option,
    o_i_d.des,
-   o_i_p.cover_image
+   o_i_p.main_image
 FROM options_infos o_i
    JOIN event_infos e_i on o_i.id = e_i.option_id
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
@@ -232,7 +232,7 @@ type GetEventPublishDataRow struct {
 	EventType      string    `json:"event_type"`
 	HostNameOption string    `json:"host_name_option"`
 	Des            string    `json:"des"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
 }
 
 func (q *Queries) GetEventPublishData(ctx context.Context, id uuid.UUID) (GetEventPublishDataRow, error) {
@@ -243,7 +243,7 @@ func (q *Queries) GetEventPublishData(ctx context.Context, id uuid.UUID) (GetEve
 		&i.EventType,
 		&i.HostNameOption,
 		&i.Des,
-		&i.CoverImage,
+		&i.MainImage,
 	)
 	return i, err
 }
@@ -359,7 +359,7 @@ func (q *Queries) GetHostOptionInfoByHost(ctx context.Context, hostID uuid.UUID)
 }
 
 const getOptionAndUser = `-- name: GetOptionAndUser :one
-SELECT u.first_name, od.host_name_option, oi.co_host_id, oi.main_option_type, op.cover_image
+SELECT u.first_name, od.host_name_option, oi.co_host_id, oi.main_option_type, op.main_image, u.image AS host_image
 FROM options_infos oi
    JOIN users u on u.id = oi.host_id
    JOIN options_info_details od on od.option_id = oi.id
@@ -372,7 +372,8 @@ type GetOptionAndUserRow struct {
 	HostNameOption string    `json:"host_name_option"`
 	CoHostID       uuid.UUID `json:"co_host_id"`
 	MainOptionType string    `json:"main_option_type"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
+	HostImage      string    `json:"host_image"`
 }
 
 func (q *Queries) GetOptionAndUser(ctx context.Context, id uuid.UUID) (GetOptionAndUserRow, error) {
@@ -383,13 +384,14 @@ func (q *Queries) GetOptionAndUser(ctx context.Context, id uuid.UUID) (GetOption
 		&i.HostNameOption,
 		&i.CoHostID,
 		&i.MainOptionType,
-		&i.CoverImage,
+		&i.MainImage,
+		&i.HostImage,
 	)
 	return i, err
 }
 
 const getOptionEventUHMData = `-- name: GetOptionEventUHMData :one
-SELECT o_i.id, o_i.currency, o_i.main_option_type, o_i_d.host_name_option, o_i_p.photo, o_i_p.cover_image, o_i.option_user_id, e_i.event_type, e_i.sub_category_type, o_i_s.status AS option_status, o_i.category, o_i.category_two, o_i.category_three, o_i.category_four
+SELECT o_i.id, o_i.currency, o_i.main_option_type, o_i_d.host_name_option, o_i_p.images, o_i_p.main_image, o_i.option_user_id, e_i.event_type, e_i.sub_category_type, o_i_s.status AS option_status, o_i.category, o_i.category_two, o_i.category_three, o_i.category_four
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_infos_status o_i_s on o_i_s.option_id = o_i.id
@@ -403,8 +405,8 @@ type GetOptionEventUHMDataRow struct {
 	Currency        string    `json:"currency"`
 	MainOptionType  string    `json:"main_option_type"`
 	HostNameOption  string    `json:"host_name_option"`
-	Photo           []string  `json:"photo"`
-	CoverImage      string    `json:"cover_image"`
+	Images          []string  `json:"images"`
+	MainImage       string    `json:"main_image"`
 	OptionUserID    uuid.UUID `json:"option_user_id"`
 	EventType       string    `json:"event_type"`
 	SubCategoryType string    `json:"sub_category_type"`
@@ -423,8 +425,8 @@ func (q *Queries) GetOptionEventUHMData(ctx context.Context, id uuid.UUID) (GetO
 		&i.Currency,
 		&i.MainOptionType,
 		&i.HostNameOption,
-		&i.Photo,
-		&i.CoverImage,
+		&i.Images,
+		&i.MainImage,
 		&i.OptionUserID,
 		&i.EventType,
 		&i.SubCategoryType,
@@ -758,7 +760,7 @@ func (q *Queries) GetOptionInfoByUserID(ctx context.Context, optionUserID uuid.U
 }
 
 const getOptionInfoCustomer = `-- name: GetOptionInfoCustomer :one
-SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, u.email, u.phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, photo, public_photo, image, password_changed_at, u.created_at, u.updated_at, o_i_d.option_id, des, space_des, guest_access_des, interact_with_guests_des, pets_allowed, other_des, neighborhood_des, get_around_des, host_name_option, option_highlight, o_i_d.created_at, o_i_d.updated_at, o_i_s.option_id, status, status_reason, snooze_start_date, snooze_end_date, unlist_reason, unlist_des, o_i_s.created_at, o_i_s.updated_at, s.option_id, space_type, any_space_shared, guest_welcomed, publish_check_in_steps, year_built, check_in_method, check_in_method_des, property_size, shared_spaces_with, property_size_unit, type_of_shortlet, s.created_at, s.updated_at, c_o_i.option_id, current_state, previous_state, c_o_i.created_at, c_o_i.updated_at, o_p.option_id, price, weekend_price, o_p.created_at, o_p.updated_at, o_a_s.option_id, advance_notice, auto_block_dates, advance_notice_condition, preparation_time, availability_window, o_a_s.created_at, o_a_s.updated_at, o_t_l.option_id, min_stay_day, max_stay_night, manual_approve_request_pass_max, allow_reservation_request, o_t_l.created_at, o_t_l.updated_at, o_b_m.option_id, instant_book, identity_verified, good_track_record, pre_book_msg, o_b_m.created_at, o_b_m.updated_at, b_m.option_id, b_m.email, b_m.phone_number, rules, payment_info, profile_photo, b_m.created_at, b_m.updated_at
+SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, u.email, u.phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, image, password_changed_at, u.created_at, u.updated_at, o_i_d.option_id, des, space_des, guest_access_des, interact_with_guests_des, pets_allowed, other_des, neighborhood_des, get_around_des, host_name_option, option_highlight, o_i_d.created_at, o_i_d.updated_at, o_i_s.option_id, status, status_reason, snooze_start_date, snooze_end_date, unlist_reason, unlist_des, o_i_s.created_at, o_i_s.updated_at, s.option_id, space_type, any_space_shared, guest_welcomed, publish_check_in_steps, year_built, check_in_method, check_in_method_des, property_size, shared_spaces_with, property_size_unit, type_of_shortlet, s.created_at, s.updated_at, c_o_i.option_id, current_state, previous_state, c_o_i.created_at, c_o_i.updated_at, o_p.option_id, price, weekend_price, o_p.created_at, o_p.updated_at, o_a_s.option_id, advance_notice, auto_block_dates, advance_notice_condition, preparation_time, availability_window, o_a_s.created_at, o_a_s.updated_at, o_t_l.option_id, min_stay_day, max_stay_night, manual_approve_request_pass_max, allow_reservation_request, o_t_l.created_at, o_t_l.updated_at, o_b_m.option_id, instant_book, identity_verified, good_track_record, pre_book_msg, o_b_m.created_at, o_b_m.updated_at, b_m.option_id, b_m.email, b_m.phone_number, rules, payment_info, profile_photo, b_m.created_at, b_m.updated_at
 FROM options_infos o_i
    JOIN users u on o_i.host_id = u.id
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
@@ -827,8 +829,6 @@ type GetOptionInfoCustomerRow struct {
 	DefaultAccountID            string    `json:"default_account_id"`
 	IsActive_2                  bool      `json:"is_active_2"`
 	IsDeleted                   bool      `json:"is_deleted"`
-	Photo                       string    `json:"photo"`
-	PublicPhoto                 string    `json:"public_photo"`
 	Image                       string    `json:"image"`
 	PasswordChangedAt           time.Time `json:"password_changed_at"`
 	CreatedAt_2                 time.Time `json:"created_at_2"`
@@ -966,8 +966,6 @@ func (q *Queries) GetOptionInfoCustomer(ctx context.Context, arg GetOptionInfoCu
 		&i.DefaultAccountID,
 		&i.IsActive_2,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt_2,
@@ -1148,27 +1146,27 @@ func (q *Queries) GetOptionInfoMainCount(ctx context.Context) (int64, error) {
 }
 
 const getOptionInfoPhotoByOptionUserID = `-- name: GetOptionInfoPhotoByOptionUserID :one
-SELECT o_i.id, o_i_p.cover_image, o_i_p.photo
+SELECT o_i.id, o_i_p.main_image, o_i_p.images
 FROM options_infos o_i
    JOIN options_info_photos o_i_p on o_i_p.option_id = o_i.id
 WHERE o_i.option_user_id = $1
 `
 
 type GetOptionInfoPhotoByOptionUserIDRow struct {
-	ID         uuid.UUID `json:"id"`
-	CoverImage string    `json:"cover_image"`
-	Photo      []string  `json:"photo"`
+	ID        uuid.UUID `json:"id"`
+	MainImage string    `json:"main_image"`
+	Images    []string  `json:"images"`
 }
 
 func (q *Queries) GetOptionInfoPhotoByOptionUserID(ctx context.Context, optionUserID uuid.UUID) (GetOptionInfoPhotoByOptionUserIDRow, error) {
 	row := q.db.QueryRow(ctx, getOptionInfoPhotoByOptionUserID, optionUserID)
 	var i GetOptionInfoPhotoByOptionUserIDRow
-	err := row.Scan(&i.ID, &i.CoverImage, &i.Photo)
+	err := row.Scan(&i.ID, &i.MainImage, &i.Images)
 	return i, err
 }
 
 const getOptionInfoUserByUserID = `-- name: GetOptionInfoUserByUserID :one
-SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, photo, public_photo, image, password_changed_at, u.created_at, u.updated_at
+SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, image, password_changed_at, u.created_at, u.updated_at
 FROM options_infos o_i
    JOIN users u on o_i.host_id = u.id
 WHERE o_i.option_user_id=$1
@@ -1219,8 +1217,6 @@ type GetOptionInfoUserByUserIDRow struct {
 	DefaultAccountID  string    `json:"default_account_id"`
 	IsActive_2        bool      `json:"is_active_2"`
 	IsDeleted         bool      `json:"is_deleted"`
-	Photo             string    `json:"photo"`
-	PublicPhoto       string    `json:"public_photo"`
 	Image             string    `json:"image"`
 	PasswordChangedAt time.Time `json:"password_changed_at"`
 	CreatedAt_2       time.Time `json:"created_at_2"`
@@ -1275,8 +1271,6 @@ func (q *Queries) GetOptionInfoUserByUserID(ctx context.Context, optionUserID uu
 		&i.DefaultAccountID,
 		&i.IsActive_2,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt_2,
@@ -1286,7 +1280,7 @@ func (q *Queries) GetOptionInfoUserByUserID(ctx context.Context, optionUserID uu
 }
 
 const getOptionInfoUserIDByUserID = `-- name: GetOptionInfoUserIDByUserID :one
-SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, photo, public_photo, image, password_changed_at, u.created_at, u.updated_at, option_id, des, space_des, guest_access_des, interact_with_guests_des, pets_allowed, other_des, neighborhood_des, get_around_des, host_name_option, option_highlight, o_i_d.created_at, o_i_d.updated_at
+SELECT o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, image, password_changed_at, u.created_at, u.updated_at, option_id, des, space_des, guest_access_des, interact_with_guests_des, pets_allowed, other_des, neighborhood_des, get_around_des, host_name_option, option_highlight, o_i_d.created_at, o_i_d.updated_at
 FROM options_infos o_i
    JOIN users u on o_i.host_id = u.id
    JOIN options_info_details o_i_d on o_i_d.option_id = o_i.id
@@ -1338,8 +1332,6 @@ type GetOptionInfoUserIDByUserIDRow struct {
 	DefaultAccountID      string    `json:"default_account_id"`
 	IsActive_2            bool      `json:"is_active_2"`
 	IsDeleted             bool      `json:"is_deleted"`
-	Photo                 string    `json:"photo"`
-	PublicPhoto           string    `json:"public_photo"`
 	Image                 string    `json:"image"`
 	PasswordChangedAt     time.Time `json:"password_changed_at"`
 	CreatedAt_2           time.Time `json:"created_at_2"`
@@ -1407,8 +1399,6 @@ func (q *Queries) GetOptionInfoUserIDByUserID(ctx context.Context, optionUserID 
 		&i.DefaultAccountID,
 		&i.IsActive_2,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt_2,
@@ -1431,7 +1421,7 @@ func (q *Queries) GetOptionInfoUserIDByUserID(ctx context.Context, optionUserID 
 }
 
 const getOptionShortletUHMData = `-- name: GetOptionShortletUHMData :one
-SELECT o_i.id, o_i.currency, o_i.main_option_type, o_i_d.host_name_option, s.type_of_shortlet, s.check_in_method, o_i_p.photo, o_i_p.cover_image, s.space_type, s.guest_welcomed, o_p.price, o_i.option_user_id, l.state, l.city, l.street, l.country, l.postcode, o_i_s.status AS option_status, o_i.category, o_i.category_two, o_i.category_three, o_i.category_four
+SELECT o_i.id, o_i.currency, o_i.main_option_type, o_i_d.host_name_option, s.type_of_shortlet, s.check_in_method, o_i_p.images, o_i_p.main_image, s.space_type, s.guest_welcomed, o_p.price, o_i.option_user_id, l.state, l.city, l.street, l.country, l.postcode, o_i_s.status AS option_status, o_i.category, o_i.category_two, o_i.category_three, o_i.category_four
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_infos_status o_i_s on o_i_s.option_id = o_i.id
@@ -1449,8 +1439,8 @@ type GetOptionShortletUHMDataRow struct {
 	HostNameOption string    `json:"host_name_option"`
 	TypeOfShortlet string    `json:"type_of_shortlet"`
 	CheckInMethod  string    `json:"check_in_method"`
-	Photo          []string  `json:"photo"`
-	CoverImage     string    `json:"cover_image"`
+	Images         []string  `json:"images"`
+	MainImage      string    `json:"main_image"`
 	SpaceType      string    `json:"space_type"`
 	GuestWelcomed  int32     `json:"guest_welcomed"`
 	Price          int64     `json:"price"`
@@ -1477,8 +1467,8 @@ func (q *Queries) GetOptionShortletUHMData(ctx context.Context, id uuid.UUID) (G
 		&i.HostNameOption,
 		&i.TypeOfShortlet,
 		&i.CheckInMethod,
-		&i.Photo,
-		&i.CoverImage,
+		&i.Images,
+		&i.MainImage,
 		&i.SpaceType,
 		&i.GuestWelcomed,
 		&i.Price,
@@ -1506,7 +1496,7 @@ SELECT o_i.id,
    o_i.option_type,
    s.type_of_shortlet,
    o_i_d.host_name_option,
-   o_i_p.cover_image
+   o_i_p.main_image
 FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN shortlets s on o_i.id = s.option_id
@@ -1529,7 +1519,7 @@ type GetShortletCurrentOptionDataRow struct {
 	OptionType     string    `json:"option_type"`
 	TypeOfShortlet string    `json:"type_of_shortlet"`
 	HostNameOption string    `json:"host_name_option"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
 }
 
 func (q *Queries) GetShortletCurrentOptionData(ctx context.Context, arg GetShortletCurrentOptionDataParams) (GetShortletCurrentOptionDataRow, error) {
@@ -1544,7 +1534,7 @@ func (q *Queries) GetShortletCurrentOptionData(ctx context.Context, arg GetShort
 		&i.OptionType,
 		&i.TypeOfShortlet,
 		&i.HostNameOption,
-		&i.CoverImage,
+		&i.MainImage,
 	)
 	return i, err
 }
@@ -1561,7 +1551,7 @@ SELECT o_i.id,
    s.type_of_shortlet,
    o_i_d.host_name_option,
    o_i_d.des,
-   o_i_p.cover_image
+   o_i_p.main_image
 FROM options_infos o_i
    JOIN locations l on o_i.id = l.option_id
    JOIN shortlets s on o_i.id = s.option_id
@@ -1582,7 +1572,7 @@ type GetShortletPublishDataRow struct {
 	TypeOfShortlet       string    `json:"type_of_shortlet"`
 	HostNameOption       string    `json:"host_name_option"`
 	Des                  string    `json:"des"`
-	CoverImage           string    `json:"cover_image"`
+	MainImage            string    `json:"main_image"`
 }
 
 func (q *Queries) GetShortletPublishData(ctx context.Context, id uuid.UUID) (GetShortletPublishDataRow, error) {
@@ -1600,7 +1590,7 @@ func (q *Queries) GetShortletPublishData(ctx context.Context, id uuid.UUID) (Get
 		&i.TypeOfShortlet,
 		&i.HostNameOption,
 		&i.Des,
-		&i.CoverImage,
+		&i.MainImage,
 	)
 	return i, err
 }
@@ -1642,7 +1632,7 @@ func (q *Queries) GetUserOptionInfo(ctx context.Context, hostID uuid.UUID) (Opti
 }
 
 const listOptionInfo = `-- name: ListOptionInfo :many
-SELECT oi.id AS option_id, oi.co_host_id, oi.option_user_id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.cover_image, op.public_cover_image, op.photo, op.public_photo, ois.status AS option_status, s.type_of_shortlet, ei.event_type, s.space_type, 
+SELECT oi.id AS option_id, oi.co_host_id, oi.option_user_id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.main_image, op.images, ois.status AS option_status, s.type_of_shortlet, ei.event_type, s.space_type, 
 CASE
    WHEN och_subquery.option_id IS NOT NULL THEN 'co_host'
    WHEN oi.host_id = $1 THEN 'main_host'
@@ -1678,26 +1668,24 @@ type ListOptionInfoParams struct {
 }
 
 type ListOptionInfoRow struct {
-	OptionID         uuid.UUID   `json:"option_id"`
-	CoHostID         uuid.UUID   `json:"co_host_id"`
-	OptionUserID     uuid.UUID   `json:"option_user_id"`
-	IsComplete       bool        `json:"is_complete"`
-	Currency         string      `json:"currency"`
-	MainOptionType   string      `json:"main_option_type"`
-	CreatedAt        time.Time   `json:"created_at"`
-	OptionType       string      `json:"option_type"`
-	HostNameOption   string      `json:"host_name_option"`
-	CurrentState     string      `json:"current_state"`
-	PreviousState    string      `json:"previous_state"`
-	CoverImage       pgtype.Text `json:"cover_image"`
-	PublicCoverImage pgtype.Text `json:"public_cover_image"`
-	Photo            []string    `json:"photo"`
-	PublicPhoto      []string    `json:"public_photo"`
-	OptionStatus     string      `json:"option_status"`
-	TypeOfShortlet   pgtype.Text `json:"type_of_shortlet"`
-	EventType        pgtype.Text `json:"event_type"`
-	SpaceType        pgtype.Text `json:"space_type"`
-	HostType         string      `json:"host_type"`
+	OptionID       uuid.UUID   `json:"option_id"`
+	CoHostID       uuid.UUID   `json:"co_host_id"`
+	OptionUserID   uuid.UUID   `json:"option_user_id"`
+	IsComplete     bool        `json:"is_complete"`
+	Currency       string      `json:"currency"`
+	MainOptionType string      `json:"main_option_type"`
+	CreatedAt      time.Time   `json:"created_at"`
+	OptionType     string      `json:"option_type"`
+	HostNameOption string      `json:"host_name_option"`
+	CurrentState   string      `json:"current_state"`
+	PreviousState  string      `json:"previous_state"`
+	MainImage      pgtype.Text `json:"main_image"`
+	Images         []string    `json:"images"`
+	OptionStatus   string      `json:"option_status"`
+	TypeOfShortlet pgtype.Text `json:"type_of_shortlet"`
+	EventType      pgtype.Text `json:"event_type"`
+	SpaceType      pgtype.Text `json:"space_type"`
+	HostType       string      `json:"host_type"`
 }
 
 func (q *Queries) ListOptionInfo(ctx context.Context, arg ListOptionInfoParams) ([]ListOptionInfoRow, error) {
@@ -1730,10 +1718,8 @@ func (q *Queries) ListOptionInfo(ctx context.Context, arg ListOptionInfoParams) 
 			&i.HostNameOption,
 			&i.CurrentState,
 			&i.PreviousState,
-			&i.CoverImage,
-			&i.PublicCoverImage,
-			&i.Photo,
-			&i.PublicPhoto,
+			&i.MainImage,
+			&i.Images,
 			&i.OptionStatus,
 			&i.TypeOfShortlet,
 			&i.EventType,
@@ -1751,7 +1737,7 @@ func (q *Queries) ListOptionInfo(ctx context.Context, arg ListOptionInfoParams) 
 }
 
 const listOptionInfoEvent = `-- name: ListOptionInfoEvent :many
-SELECT o_i.id, o_i.is_complete, o_i.currency, o_i.main_option_type, o_i.created_at, o_i.option_type, o_i_d.host_name_option, c_o_i.current_state, c_o_i.previous_state, o_i_s.status AS option_status, o_i_p.cover_image, e_i.event_type, e_i.sub_category_type
+SELECT o_i.id, o_i.is_complete, o_i.currency, o_i.main_option_type, o_i.created_at, o_i.option_type, o_i_d.host_name_option, c_o_i.current_state, c_o_i.previous_state, o_i_s.status AS option_status, o_i_p.main_image, e_i.event_type, e_i.sub_category_type
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN options_infos_status o_i_s on o_i_s.option_id = o_i_d.option_id
@@ -1785,7 +1771,7 @@ type ListOptionInfoEventRow struct {
 	CurrentState    string    `json:"current_state"`
 	PreviousState   string    `json:"previous_state"`
 	OptionStatus    string    `json:"option_status"`
-	CoverImage      string    `json:"cover_image"`
+	MainImage       string    `json:"main_image"`
 	EventType       string    `json:"event_type"`
 	SubCategoryType string    `json:"sub_category_type"`
 }
@@ -1818,7 +1804,7 @@ func (q *Queries) ListOptionInfoEvent(ctx context.Context, arg ListOptionInfoEve
 			&i.CurrentState,
 			&i.PreviousState,
 			&i.OptionStatus,
-			&i.CoverImage,
+			&i.MainImage,
 			&i.EventType,
 			&i.SubCategoryType,
 		); err != nil {
@@ -1833,7 +1819,7 @@ func (q *Queries) ListOptionInfoEvent(ctx context.Context, arg ListOptionInfoEve
 }
 
 const listOptionInfoShortlet = `-- name: ListOptionInfoShortlet :many
-SELECT o_i.id, o_i.is_complete, o_i.currency, o_i.main_option_type, o_i.created_at, o_i.option_type, o_i_d.host_name_option, c_o_i.current_state, c_o_i.previous_state, o_i_p.cover_image, s.space_type, s.type_of_shortlet, o_i_s.status AS option_status
+SELECT o_i.id, o_i.is_complete, o_i.currency, o_i.main_option_type, o_i.created_at, o_i.option_type, o_i_d.host_name_option, c_o_i.current_state, c_o_i.previous_state, o_i_p.main_image, s.space_type, s.type_of_shortlet, o_i_s.status AS option_status
 FROM options_infos o_i
    JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
    JOIN complete_option_info c_o_i on o_i.id = c_o_i.option_id
@@ -1866,7 +1852,7 @@ type ListOptionInfoShortletRow struct {
 	HostNameOption string    `json:"host_name_option"`
 	CurrentState   string    `json:"current_state"`
 	PreviousState  string    `json:"previous_state"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
 	SpaceType      string    `json:"space_type"`
 	TypeOfShortlet string    `json:"type_of_shortlet"`
 	OptionStatus   string    `json:"option_status"`
@@ -1899,7 +1885,7 @@ func (q *Queries) ListOptionInfoShortlet(ctx context.Context, arg ListOptionInfo
 			&i.HostNameOption,
 			&i.CurrentState,
 			&i.PreviousState,
-			&i.CoverImage,
+			&i.MainImage,
 			&i.SpaceType,
 			&i.TypeOfShortlet,
 			&i.OptionStatus,

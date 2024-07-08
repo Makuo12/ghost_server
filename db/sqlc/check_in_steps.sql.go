@@ -14,29 +14,27 @@ import (
 const createCheckInStep = `-- name: CreateCheckInStep :one
 INSERT INTO check_in_steps (
         option_id,
-        photo,
+        image,
         des
     )
 VALUES (
         $1, $2, $3
     )
-RETURNING id, option_id, photo, public_photo, image, des, created_at, updated_at
+RETURNING id, option_id, image, des, created_at, updated_at
 `
 
 type CreateCheckInStepParams struct {
 	OptionID uuid.UUID `json:"option_id"`
-	Photo    string    `json:"photo"`
+	Image    string    `json:"image"`
 	Des      string    `json:"des"`
 }
 
 func (q *Queries) CreateCheckInStep(ctx context.Context, arg CreateCheckInStepParams) (CheckInStep, error) {
-	row := q.db.QueryRow(ctx, createCheckInStep, arg.OptionID, arg.Photo, arg.Des)
+	row := q.db.QueryRow(ctx, createCheckInStep, arg.OptionID, arg.Image, arg.Des)
 	var i CheckInStep
 	err := row.Scan(
 		&i.ID,
 		&i.OptionID,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.Des,
 		&i.CreatedAt,
@@ -46,7 +44,7 @@ func (q *Queries) CreateCheckInStep(ctx context.Context, arg CreateCheckInStepPa
 }
 
 const getCheckInStep = `-- name: GetCheckInStep :one
-SELECT des, photo
+SELECT des, image
 FROM check_in_steps
 WHERE id = $1 AND option_id=$2
 `
@@ -58,36 +56,36 @@ type GetCheckInStepParams struct {
 
 type GetCheckInStepRow struct {
 	Des   string `json:"des"`
-	Photo string `json:"photo"`
+	Image string `json:"image"`
 }
 
 func (q *Queries) GetCheckInStep(ctx context.Context, arg GetCheckInStepParams) (GetCheckInStepRow, error) {
 	row := q.db.QueryRow(ctx, getCheckInStep, arg.ID, arg.OptionID)
 	var i GetCheckInStepRow
-	err := row.Scan(&i.Des, &i.Photo)
+	err := row.Scan(&i.Des, &i.Image)
 	return i, err
 }
 
 const getCheckInStepByOptionID = `-- name: GetCheckInStepByOptionID :one
-SELECT des, photo
+SELECT des, image
 FROM check_in_steps
 WHERE option_id=$1
 `
 
 type GetCheckInStepByOptionIDRow struct {
 	Des   string `json:"des"`
-	Photo string `json:"photo"`
+	Image string `json:"image"`
 }
 
 func (q *Queries) GetCheckInStepByOptionID(ctx context.Context, optionID uuid.UUID) (GetCheckInStepByOptionIDRow, error) {
 	row := q.db.QueryRow(ctx, getCheckInStepByOptionID, optionID)
 	var i GetCheckInStepByOptionIDRow
-	err := row.Scan(&i.Des, &i.Photo)
+	err := row.Scan(&i.Des, &i.Image)
 	return i, err
 }
 
 const listCheckInStepByAdmin = `-- name: ListCheckInStepByAdmin :many
-SELECT id, option_id, photo, public_photo, image, des, created_at, updated_at
+SELECT id, option_id, image, des, created_at, updated_at
 FROM check_in_steps
 `
 
@@ -103,8 +101,6 @@ func (q *Queries) ListCheckInStepByAdmin(ctx context.Context) ([]CheckInStep, er
 		if err := rows.Scan(
 			&i.ID,
 			&i.OptionID,
-			&i.Photo,
-			&i.PublicPhoto,
 			&i.Image,
 			&i.Des,
 			&i.CreatedAt,
@@ -121,7 +117,7 @@ func (q *Queries) ListCheckInStepByAdmin(ctx context.Context) ([]CheckInStep, er
 }
 
 const listCheckInStepOrdered = `-- name: ListCheckInStepOrdered :many
-SELECT cs.des, cs.photo, cs.id, s.publish_check_in_steps
+SELECT cs.des, cs.image, cs.id, s.publish_check_in_steps
 FROM check_in_steps cs
     JOIN shortlets s ON s.option_id = cs.option_id
 WHERE cs.option_id = $1
@@ -130,7 +126,7 @@ ORDER BY cs.created_at
 
 type ListCheckInStepOrderedRow struct {
 	Des                 string    `json:"des"`
-	Photo               string    `json:"photo"`
+	Image               string    `json:"image"`
 	ID                  uuid.UUID `json:"id"`
 	PublishCheckInSteps bool      `json:"publish_check_in_steps"`
 }
@@ -146,7 +142,7 @@ func (q *Queries) ListCheckInStepOrdered(ctx context.Context, optionID uuid.UUID
 		var i ListCheckInStepOrderedRow
 		if err := rows.Scan(
 			&i.Des,
-			&i.Photo,
+			&i.Image,
 			&i.ID,
 			&i.PublishCheckInSteps,
 		); err != nil {
@@ -190,7 +186,7 @@ UPDATE check_in_steps
     SET des = $1, 
     updated_at = NOW()
 WHERE id = $2 AND option_id = $3
-RETURNING des, photo, id
+RETURNING des, image, id
 `
 
 type UpdateCheckInStepDesParams struct {
@@ -201,66 +197,66 @@ type UpdateCheckInStepDesParams struct {
 
 type UpdateCheckInStepDesRow struct {
 	Des   string    `json:"des"`
-	Photo string    `json:"photo"`
+	Image string    `json:"image"`
 	ID    uuid.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateCheckInStepDes(ctx context.Context, arg UpdateCheckInStepDesParams) (UpdateCheckInStepDesRow, error) {
 	row := q.db.QueryRow(ctx, updateCheckInStepDes, arg.Des, arg.ID, arg.OptionID)
 	var i UpdateCheckInStepDesRow
-	err := row.Scan(&i.Des, &i.Photo, &i.ID)
+	err := row.Scan(&i.Des, &i.Image, &i.ID)
 	return i, err
 }
 
-const updateCheckInStepPhoto = `-- name: UpdateCheckInStepPhoto :one
+const updateCheckInStepImage = `-- name: UpdateCheckInStepImage :one
 UPDATE check_in_steps
-    SET photo = $1, 
+    SET image = $1, 
     updated_at = NOW()
 WHERE id = $2 AND option_id = $3
-RETURNING des, photo, id
+RETURNING des, image, id
 `
 
-type UpdateCheckInStepPhotoParams struct {
-	Photo    string    `json:"photo"`
+type UpdateCheckInStepImageParams struct {
+	Image    string    `json:"image"`
 	ID       uuid.UUID `json:"id"`
 	OptionID uuid.UUID `json:"option_id"`
 }
 
-type UpdateCheckInStepPhotoRow struct {
+type UpdateCheckInStepImageRow struct {
 	Des   string    `json:"des"`
-	Photo string    `json:"photo"`
+	Image string    `json:"image"`
 	ID    uuid.UUID `json:"id"`
 }
 
-func (q *Queries) UpdateCheckInStepPhoto(ctx context.Context, arg UpdateCheckInStepPhotoParams) (UpdateCheckInStepPhotoRow, error) {
-	row := q.db.QueryRow(ctx, updateCheckInStepPhoto, arg.Photo, arg.ID, arg.OptionID)
-	var i UpdateCheckInStepPhotoRow
-	err := row.Scan(&i.Des, &i.Photo, &i.ID)
+func (q *Queries) UpdateCheckInStepImage(ctx context.Context, arg UpdateCheckInStepImageParams) (UpdateCheckInStepImageRow, error) {
+	row := q.db.QueryRow(ctx, updateCheckInStepImage, arg.Image, arg.ID, arg.OptionID)
+	var i UpdateCheckInStepImageRow
+	err := row.Scan(&i.Des, &i.Image, &i.ID)
 	return i, err
 }
 
-const updateCheckInStepPublicPhoto = `-- name: UpdateCheckInStepPublicPhoto :one
+const updateCheckInStepPublicImage = `-- name: UpdateCheckInStepPublicImage :one
 UPDATE check_in_steps
-    SET public_photo = $1, 
+    SET image = $1, 
     updated_at = NOW()
 WHERE id = $2
-RETURNING des, photo, id
+RETURNING des, image, id
 `
 
-type UpdateCheckInStepPublicPhotoParams struct {
-	PublicPhoto string    `json:"public_photo"`
-	ID          uuid.UUID `json:"id"`
-}
-
-type UpdateCheckInStepPublicPhotoRow struct {
-	Des   string    `json:"des"`
-	Photo string    `json:"photo"`
+type UpdateCheckInStepPublicImageParams struct {
+	Image string    `json:"image"`
 	ID    uuid.UUID `json:"id"`
 }
 
-func (q *Queries) UpdateCheckInStepPublicPhoto(ctx context.Context, arg UpdateCheckInStepPublicPhotoParams) (UpdateCheckInStepPublicPhotoRow, error) {
-	row := q.db.QueryRow(ctx, updateCheckInStepPublicPhoto, arg.PublicPhoto, arg.ID)
-	var i UpdateCheckInStepPublicPhotoRow
-	err := row.Scan(&i.Des, &i.Photo, &i.ID)
+type UpdateCheckInStepPublicImageRow struct {
+	Des   string    `json:"des"`
+	Image string    `json:"image"`
+	ID    uuid.UUID `json:"id"`
+}
+
+func (q *Queries) UpdateCheckInStepPublicImage(ctx context.Context, arg UpdateCheckInStepPublicImageParams) (UpdateCheckInStepPublicImageRow, error) {
+	row := q.db.QueryRow(ctx, updateCheckInStepPublicImage, arg.Image, arg.ID)
+	var i UpdateCheckInStepPublicImageRow
+	err := row.Scan(&i.Des, &i.Image, &i.ID)
 	return i, err
 }

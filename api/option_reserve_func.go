@@ -296,7 +296,7 @@ func ReserveBookMethods(optionID uuid.UUID, ctx *gin.Context, server *Server, us
 	}
 	if profilePhoto {
 		// This means host requires user to have a profile photo
-		if tools.ServerStringEmpty(user.Photo) {
+		if tools.ServerStringEmpty(user.Image) {
 			err = fmt.Errorf("to book this stay you need to have a profile photo")
 		}
 	}
@@ -551,7 +551,7 @@ func HandleOptionReserveRequest(server *Server, ctx context.Context, payMethodRe
 		ReceiverID: receiver.UserID,
 		Message:    msg,
 		Type:       "user_request",
-		Photo:      "none",
+		MainImage:  "none",
 		ParentID:   "none",
 		Reference:  charge.Reference,
 		CreatedAt:  createdAt,

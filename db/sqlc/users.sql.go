@@ -34,7 +34,7 @@ VALUES (
       $7,
       $8
    )
-RETURNING id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at
+RETURNING id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -83,8 +83,6 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.DefaultAccountID,
 		&i.IsActive,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -104,7 +102,7 @@ func (q *Queries) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 const getUser = `-- name: GetUser :one
-SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at
+SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at
 FROM users
 WHERE id = $1
 LIMIT 1
@@ -136,8 +134,6 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 		&i.DefaultAccountID,
 		&i.IsActive,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -147,7 +143,7 @@ func (q *Queries) GetUser(ctx context.Context, id uuid.UUID) (User, error) {
 }
 
 const getUserByFirstName = `-- name: GetUserByFirstName :one
-SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at
+SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at
 FROM users
 WHERE first_name = $1
 LIMIT 1
@@ -179,8 +175,6 @@ func (q *Queries) GetUserByFirstName(ctx context.Context, firstName string) (Use
 		&i.DefaultAccountID,
 		&i.IsActive,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -190,7 +184,7 @@ func (q *Queries) GetUserByFirstName(ctx context.Context, firstName string) (Use
 }
 
 const getUserByPD = `-- name: GetUserByPD :one
-SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at
+SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at
 FROM users
 WHERE public_id = $1
 `
@@ -221,8 +215,6 @@ func (q *Queries) GetUserByPD(ctx context.Context, publicID uuid.UUID) (User, er
 		&i.DefaultAccountID,
 		&i.IsActive,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -232,7 +224,7 @@ func (q *Queries) GetUserByPD(ctx context.Context, publicID uuid.UUID) (User, er
 }
 
 const getUserByUserID = `-- name: GetUserByUserID :one
-SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at
+SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at
 FROM users
 WHERE user_id = $1
 LIMIT 1
@@ -264,8 +256,6 @@ func (q *Queries) GetUserByUserID(ctx context.Context, userID uuid.UUID) (User, 
 		&i.DefaultAccountID,
 		&i.IsActive,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -295,7 +285,7 @@ func (q *Queries) GetUserIDWithUsername(ctx context.Context, username string) (G
 }
 
 const getUserVerify = `-- name: GetUserVerify :one
-SELECT u.email, u.phone_number, u.first_name, u.last_name, u.default_account_id, u.date_of_birth, u.photo, u_p.languages, u_p.bio, i_d.is_verified, i_d.status
+SELECT u.email, u.phone_number, u.first_name, u.last_name, u.default_account_id, u.date_of_birth, u.image AS host_image, u_p.languages, u_p.bio, i_d.is_verified, i_d.status
 FROM users u
    JOIN users_profiles u_p on u_p.user_id = u.id
    JOIN identity i_d on i_d.user_id = u.id
@@ -309,7 +299,7 @@ type GetUserVerifyRow struct {
 	LastName         string    `json:"last_name"`
 	DefaultAccountID string    `json:"default_account_id"`
 	DateOfBirth      time.Time `json:"date_of_birth"`
-	Photo            string    `json:"photo"`
+	HostImage        string    `json:"host_image"`
 	Languages        []string  `json:"languages"`
 	Bio              string    `json:"bio"`
 	IsVerified       bool      `json:"is_verified"`
@@ -326,7 +316,7 @@ func (q *Queries) GetUserVerify(ctx context.Context, id uuid.UUID) (GetUserVerif
 		&i.LastName,
 		&i.DefaultAccountID,
 		&i.DateOfBirth,
-		&i.Photo,
+		&i.HostImage,
 		&i.Languages,
 		&i.Bio,
 		&i.IsVerified,
@@ -336,7 +326,7 @@ func (q *Queries) GetUserVerify(ctx context.Context, id uuid.UUID) (GetUserVerif
 }
 
 const getUserWithEmail = `-- name: GetUserWithEmail :one
-SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at
+SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at
 FROM users
 WHERE email = $1
 LIMIT 1
@@ -368,8 +358,6 @@ func (q *Queries) GetUserWithEmail(ctx context.Context, email string) (User, err
 		&i.DefaultAccountID,
 		&i.IsActive,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -379,7 +367,7 @@ func (q *Queries) GetUserWithEmail(ctx context.Context, email string) (User, err
 }
 
 const getUserWithPhoneNum = `-- name: GetUserWithPhoneNum :one
-SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at
+SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at
 FROM users
 WHERE phone_number = $1
 LIMIT 1
@@ -411,8 +399,6 @@ func (q *Queries) GetUserWithPhoneNum(ctx context.Context, phoneNumber string) (
 		&i.DefaultAccountID,
 		&i.IsActive,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -422,7 +408,7 @@ func (q *Queries) GetUserWithPhoneNum(ctx context.Context, phoneNumber string) (
 }
 
 const getUserWithUsername = `-- name: GetUserWithUsername :one
-SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at
+SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at
 FROM users
 WHERE username = $1
 LIMIT 1
@@ -454,8 +440,6 @@ func (q *Queries) GetUserWithUsername(ctx context.Context, username string) (Use
 		&i.DefaultAccountID,
 		&i.IsActive,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,
@@ -465,13 +449,13 @@ func (q *Queries) GetUserWithUsername(ctx context.Context, username string) (Use
 }
 
 const listAllUserPhotos = `-- name: ListAllUserPhotos :many
-SELECT u.photo, id.id_photo, id.facial_photo
+SELECT u.image AS host_image, id.id_photo, id.facial_photo
 FROM users u
 JOIN identity id on u.id = id.user_id
 `
 
 type ListAllUserPhotosRow struct {
-	Photo       string `json:"photo"`
+	HostImage   string `json:"host_image"`
 	IDPhoto     string `json:"id_photo"`
 	FacialPhoto string `json:"facial_photo"`
 }
@@ -485,7 +469,7 @@ func (q *Queries) ListAllUserPhotos(ctx context.Context) ([]ListAllUserPhotosRow
 	items := []ListAllUserPhotosRow{}
 	for rows.Next() {
 		var i ListAllUserPhotosRow
-		if err := rows.Scan(&i.Photo, &i.IDPhoto, &i.FacialPhoto); err != nil {
+		if err := rows.Scan(&i.HostImage, &i.IDPhoto, &i.FacialPhoto); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -497,7 +481,7 @@ func (q *Queries) ListAllUserPhotos(ctx context.Context) ([]ListAllUserPhotosRow
 }
 
 const listUserByAdmin = `-- name: ListUserByAdmin :many
-SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at 
+SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at 
 FROM users
 `
 
@@ -533,8 +517,6 @@ func (q *Queries) ListUserByAdmin(ctx context.Context) ([]User, error) {
 			&i.DefaultAccountID,
 			&i.IsActive,
 			&i.IsDeleted,
-			&i.Photo,
-			&i.PublicPhoto,
 			&i.Image,
 			&i.PasswordChangedAt,
 			&i.CreatedAt,
@@ -551,7 +533,7 @@ func (q *Queries) ListUserByAdmin(ctx context.Context) ([]User, error) {
 }
 
 const listUsers = `-- name: ListUsers :many
-SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at
+SELECT id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at
 FROM users
 WHERE is_active = 1
 ORDER BY created_at
@@ -595,8 +577,6 @@ func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, e
 			&i.DefaultAccountID,
 			&i.IsActive,
 			&i.IsDeleted,
-			&i.Photo,
-			&i.PublicPhoto,
 			&i.Image,
 			&i.PasswordChangedAt,
 			&i.CreatedAt,
@@ -627,16 +607,14 @@ SET
    currency = COALESCE($10, currency),
    is_active = COALESCE($11, is_active),
    is_deleted = COALESCE($12, is_deleted),
-   photo = COALESCE($13, photo),
-   public_photo = COALESCE($14, public_photo),
-   default_card = COALESCE($15, default_card),
-   default_payout_card = COALESCE($16, default_payout_card),
-   default_account_id = COALESCE($17, default_account_id),
-   hashed_password = COALESCE($18, hashed_password),
-   image = COALESCE($19, image),
+   default_card = COALESCE($13, default_card),
+   default_payout_card = COALESCE($14, default_payout_card),
+   default_account_id = COALESCE($15, default_account_id),
+   hashed_password = COALESCE($16, hashed_password),
+   image = COALESCE($17, image),
    updated_at = NOW()
-WHERE id = $20 
-RETURNING id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, photo, public_photo, image, password_changed_at, created_at, updated_at
+WHERE id = $18 
+RETURNING id, user_id, firebase_id, public_id, hashed_password, deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, currency, default_card, default_payout_card, default_account_id, is_active, is_deleted, image, password_changed_at, created_at, updated_at
 `
 
 type UpdateUserParams struct {
@@ -652,8 +630,6 @@ type UpdateUserParams struct {
 	Currency          pgtype.Text `json:"currency"`
 	IsActive          pgtype.Bool `json:"is_active"`
 	IsDeleted         pgtype.Bool `json:"is_deleted"`
-	Photo             pgtype.Text `json:"photo"`
-	PublicPhoto       pgtype.Text `json:"public_photo"`
 	DefaultCard       pgtype.Text `json:"default_card"`
 	DefaultPayoutCard pgtype.Text `json:"default_payout_card"`
 	DefaultAccountID  pgtype.Text `json:"default_account_id"`
@@ -676,8 +652,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		arg.Currency,
 		arg.IsActive,
 		arg.IsDeleted,
-		arg.Photo,
-		arg.PublicPhoto,
 		arg.DefaultCard,
 		arg.DefaultPayoutCard,
 		arg.DefaultAccountID,
@@ -709,8 +683,6 @@ func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, e
 		&i.DefaultAccountID,
 		&i.IsActive,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt,

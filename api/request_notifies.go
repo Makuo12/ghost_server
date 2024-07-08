@@ -153,7 +153,7 @@ func (server *Server) GetOUserRequestNotifyDetail(ctx *gin.Context) {
 	res := OUserRequestNotifyDetailRes{
 		StartDate:        tools.ConvertDateOnlyToString(detail.StartDate),
 		EndDate:          tools.ConvertDateOnlyToString(detail.EndDate),
-		CoverImage:       detail.CoverImage,
+		MainImage:        detail.MainImage,
 		Guests:           detail.Guests,
 		Price:            priceString,
 		EmailVerified:    !tools.ServerStringEmpty(detail.Email),

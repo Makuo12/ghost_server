@@ -75,8 +75,6 @@ SET
    currency = COALESCE(sqlc.narg(currency), currency),
    is_active = COALESCE(sqlc.narg(is_active), is_active),
    is_deleted = COALESCE(sqlc.narg(is_deleted), is_deleted),
-   photo = COALESCE(sqlc.narg(photo), photo),
-   public_photo = COALESCE(sqlc.narg(public_photo), public_photo),
    default_card = COALESCE(sqlc.narg(default_card), default_card),
    default_payout_card = COALESCE(sqlc.narg(default_payout_card), default_payout_card),
    default_account_id = COALESCE(sqlc.narg(default_account_id), default_account_id),
@@ -93,7 +91,7 @@ WHERE email = $1
 LIMIT 1;
 
 -- name: GetUserVerify :one
-SELECT u.email, u.phone_number, u.first_name, u.last_name, u.default_account_id, u.date_of_birth, u.photo, u_p.languages, u_p.bio, i_d.is_verified, i_d.status
+SELECT u.email, u.phone_number, u.first_name, u.last_name, u.default_account_id, u.date_of_birth, u.image AS host_image, u_p.languages, u_p.bio, i_d.is_verified, i_d.status
 FROM users u
    JOIN users_profiles u_p on u_p.user_id = u.id
    JOIN identity i_d on i_d.user_id = u.id
@@ -113,7 +111,7 @@ ORDER BY created_at
 LIMIT $1 OFFSET $2;
 
 -- name: ListAllUserPhotos :many
-SELECT u.photo, id.id_photo, id.facial_photo
+SELECT u.image AS host_image, id.id_photo, id.facial_photo
 FROM users u
 JOIN identity id on u.id = id.user_id;
 

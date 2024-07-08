@@ -160,3 +160,25 @@ func RemoveDuplicates(slice []string) []string {
 	return result
 }
 
+func GetImageItem(image string) (path string, url string) {
+	split := strings.Split(image, "*")
+	if len(split) == 2 {
+		path = split[0]
+		url = split[1]
+		return
+	}
+	return
+}
+
+func GetImageListItem(images []string) ([]string, []string) {
+	myPaths := []string{}
+	myUrls := []string{}
+	for _, image := range images {
+		split := strings.Split(image, "*")
+		if len(split) == 2 {
+			myPaths = append(myPaths, split[0])
+			myUrls = append(myUrls, split[0])
+		}
+	}
+	return myPaths, myUrls
+}

@@ -236,7 +236,7 @@ func (q *Queries) GetOptionChargeReview(ctx context.Context, arg GetOptionCharge
 }
 
 const listChargeOptionReview = `-- name: ListChargeOptionReview :many
-SELECT cr.general, cr.environment, cr.accuracy, cr.check_in, cr.communication, cr.location, cr.public_note, u.first_name, u.photo, u.created_at AS user_joined, co.start_date AS date_booked, co.guests
+SELECT cr.general, cr.environment, cr.accuracy, cr.check_in, cr.communication, cr.location, cr.public_note, u.first_name, u.image AS host_image, u.created_at AS user_joined, co.start_date AS date_booked, co.guests
 FROM charge_reviews cr
 JOIN charge_option_references co ON cr.charge_id = co.id
 JOIN users u ON cr.user_id = u.user_id
@@ -253,7 +253,7 @@ type ListChargeOptionReviewRow struct {
 	Location      int32     `json:"location"`
 	PublicNote    string    `json:"public_note"`
 	FirstName     string    `json:"first_name"`
-	Photo         string    `json:"photo"`
+	HostImage     string    `json:"host_image"`
 	UserJoined    time.Time `json:"user_joined"`
 	DateBooked    time.Time `json:"date_booked"`
 	Guests        []string  `json:"guests"`
@@ -277,7 +277,7 @@ func (q *Queries) ListChargeOptionReview(ctx context.Context, optionUserID uuid.
 			&i.Location,
 			&i.PublicNote,
 			&i.FirstName,
-			&i.Photo,
+			&i.HostImage,
 			&i.UserJoined,
 			&i.DateBooked,
 			&i.Guests,
@@ -293,7 +293,7 @@ func (q *Queries) ListChargeOptionReview(ctx context.Context, optionUserID uuid.
 }
 
 const listChargeOptionReviewIndex = `-- name: ListChargeOptionReviewIndex :many
-SELECT cr.general, cr.environment, cr.accuracy, cr.check_in, cr.communication, cr.location, cr.public_note, u.first_name, u.photo, u.created_at AS user_joined, co.start_date AS date_booked, co.guests
+SELECT cr.general, cr.environment, cr.accuracy, cr.check_in, cr.communication, cr.location, cr.public_note, u.first_name, u.image AS host_image, u.created_at AS user_joined, co.start_date AS date_booked, co.guests
 FROM charge_reviews cr
 JOIN charge_option_references co ON cr.charge_id = co.id
 JOIN users u ON cr.user_id = u.user_id
@@ -318,7 +318,7 @@ type ListChargeOptionReviewIndexRow struct {
 	Location      int32     `json:"location"`
 	PublicNote    string    `json:"public_note"`
 	FirstName     string    `json:"first_name"`
-	Photo         string    `json:"photo"`
+	HostImage     string    `json:"host_image"`
 	UserJoined    time.Time `json:"user_joined"`
 	DateBooked    time.Time `json:"date_booked"`
 	Guests        []string  `json:"guests"`
@@ -342,7 +342,7 @@ func (q *Queries) ListChargeOptionReviewIndex(ctx context.Context, arg ListCharg
 			&i.Location,
 			&i.PublicNote,
 			&i.FirstName,
-			&i.Photo,
+			&i.HostImage,
 			&i.UserJoined,
 			&i.DateBooked,
 			&i.Guests,

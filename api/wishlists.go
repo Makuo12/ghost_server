@@ -90,19 +90,19 @@ func (server *Server) CreateWishlist(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	coverImage := "none"
+	mainImage := "none"
 	optionPhotos, err := server.store.GetOptionInfoPhotoByOptionUserID(ctx, wishlistItem.OptionUserID)
 	if err != nil {
 		log.Printf("Error at  CreateWishlist in GetOptionInfoPhotoByOptionUserID err: %v, user: %v\n", err, user.ID)
 	} else {
-		coverImage = optionPhotos.CoverImage
+		mainImage = optionPhotos.MainImage
 	}
 	res := WishlistItem{
 		Name:           wishlist.Name,
 		WishlistID:     tools.UuidToString(wishlist.ID),
 		WishlistItemID: tools.UuidToString(wishlistItem.ID),
 		OptionUserID:   tools.UuidToString(wishlistItem.OptionUserID),
-		CoverImage:     coverImage,
+		MainImage:     mainImage,
 	}
 	ctx.JSON(http.StatusOK, res)
 }
@@ -179,19 +179,19 @@ func (server *Server) CreateWishlistItem(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	coverImage := "none"
+	mainImage := "none"
 	optionPhotos, err := server.store.GetOptionInfoPhotoByOptionUserID(ctx, wishlistItem.OptionUserID)
 	if err != nil {
 		log.Printf("Error at  CreateWishlist in GetOptionInfoPhotoByOptionUserID err: %v, user: %v\n", err, user.ID)
 	} else {
-		coverImage = optionPhotos.CoverImage
+		mainImage = optionPhotos.MainImage
 	}
 	res := WishlistItem{
 		Name:           wishlist.Name,
 		WishlistID:     tools.UuidToString(wishlist.ID),
 		WishlistItemID: tools.UuidToString(wishlistItem.ID),
 		OptionUserID:   tools.UuidToString(wishlistItem.OptionUserID),
-		CoverImage:     coverImage,
+		MainImage:     mainImage,
 	}
 	ctx.JSON(http.StatusOK, res)
 }

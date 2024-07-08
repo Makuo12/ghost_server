@@ -5,7 +5,7 @@ INSERT INTO messages (
     receiver_id,
     message,
     type,
-    photo,
+    main_image,
     read,
     parent_id,
     reference,
@@ -53,7 +53,7 @@ SELECT
     m.message,
     m.type,
     m.read,
-    m.photo,
+    m.main_image,
     m.parent_id,
     m.reference,
     m.created_at,
@@ -65,7 +65,7 @@ SELECT
     p.message AS parent_message,
     p.type AS parent_type,
     p.read AS parent_read,
-    p.photo AS parent_photo,
+    p.main_image AS parent_main_image,
     p.parent_id AS parent_parent_id,
     p.reference AS parent_reference,
     p.created_at AS parent_created_at,
@@ -83,7 +83,7 @@ SELECT
     m.message,
     m.type,
     m.read,
-    m.photo,
+    m.main_image,
     m.parent_id,
     m.reference,
     m.created_at,
@@ -95,7 +95,7 @@ SELECT
     p.message AS parent_message,
     p.type AS parent_type,
     p.read AS parent_read,
-    p.photo AS parent_photo,
+    p.main_image AS parent_main_image,
     p.parent_id AS parent_parent_id,
     p.reference AS parent_reference,
     p.created_at AS parent_created_at,
@@ -116,7 +116,7 @@ SELECT
     m.message,
     m.type,
     m.read,
-    m.photo,
+    m.main_image,
     m.parent_id,
     m.reference,
     m.created_at,
@@ -128,7 +128,7 @@ SELECT
     p.message AS parent_message,
     p.type AS parent_type,
     p.read AS parent_read,
-    p.photo AS parent_photo,
+    p.main_image AS parent_main_image,
     p.parent_id AS parent_parent_id,
     p.reference AS parent_reference,
     p.created_at AS parent_created_at
@@ -146,7 +146,7 @@ SELECT
     m.message,
     m.type,
     m.read,
-    m.photo,
+    m.main_image,
     m.parent_id,
     m.reference,
     m.created_at,
@@ -158,7 +158,7 @@ SELECT
     p.message AS parent_message,
     p.type AS parent_type,
     p.read AS parent_read,
-    p.photo AS parent_photo,
+    p.main_image AS parent_main_image,
     p.parent_id AS parent_parent_id,
     p.reference AS parent_reference,
     p.created_at AS parent_created_at
@@ -170,7 +170,7 @@ WHERE m.id = $1;
 SELECT
     connected_user_id::uuid,
     u.first_name,
-    u.photo,
+    u.image,
     last_message,
     last_message_time,
     send_id::uuid,
@@ -204,7 +204,7 @@ LEFT JOIN messages unread_messages
     ON (message_data.connected_user_id = unread_messages.sender_id AND $1 = unread_messages.receiver_id)
         OR (message_data.connected_user_id = unread_messages.receiver_id AND $1 = unread_messages.sender_id)
         AND unread_messages.read = false AND send_id != $1 -- Check if message is not read
-GROUP BY connected_user_id, u.first_name, u.photo, last_message, last_message_time, send_id, message_id
+GROUP BY connected_user_id, u.first_name, u.image, last_message, last_message_time, send_id, message_id
 ORDER BY last_message_time DESC -- Sort by last message's created_at in descending order
     LIMIT $2
     OFFSET $3; 
@@ -213,7 +213,7 @@ ORDER BY last_message_time DESC -- Sort by last message's created_at in descendi
 SELECT
     connected_user_id::uuid,
     u.first_name,
-    u.photo,
+    u.image,
     last_message,
     last_message_time,
     send_id::uuid,
@@ -247,14 +247,14 @@ LEFT JOIN messages unread_messages
     ON (message_data.connected_user_id = unread_messages.sender_id AND $1 = unread_messages.receiver_id)
         OR (message_data.connected_user_id = unread_messages.receiver_id AND $1 = unread_messages.sender_id)
         AND unread_messages.read = false AND send_id != $1 -- Check if message is not read
-GROUP BY connected_user_id, u.first_name, u.photo, last_message, last_message_time, send_id, message_id; 
+GROUP BY connected_user_id, u.first_name, u.image, last_message, last_message_time, send_id, message_id; 
 
 
 -- name: ListMessageContactByTime :many
 SELECT
     connected_user_id::uuid,
     u.first_name,
-    u.photo,
+    u.image AS host_image,
     last_message,
     last_message_time,
     send_id::uuid,
@@ -288,7 +288,7 @@ LEFT JOIN messages unread_messages
     ON (message_data.connected_user_id = unread_messages.sender_id AND $1 = unread_messages.receiver_id)
         OR (message_data.connected_user_id = unread_messages.receiver_id AND $1 = unread_messages.sender_id)
         AND unread_messages.read = false AND send_id != $1 -- Check if message is not read
-GROUP BY connected_user_id, u.first_name, u.photo, last_message, last_message_time, send_id, message_id
+GROUP BY connected_user_id, u.first_name, u.image, last_message, last_message_time, send_id, message_id
 ORDER BY last_message_time DESC -- Sort by last message's created_at in descending order
     LIMIT $3
     OFFSET $4; 
@@ -319,7 +319,7 @@ WHERE receiver_id = $1 AND created_at > $2;
 SELECT
     connected_user_id::uuid,
     u.first_name,
-    u.photo,
+    u.image,
     last_message,
     last_message_time,
     send_id::uuid,
@@ -353,7 +353,7 @@ LEFT JOIN messages unread_messages
     ON (message_data.connected_user_id = unread_messages.sender_id AND $1 = unread_messages.receiver_id)
         OR (message_data.connected_user_id = unread_messages.receiver_id AND $1 = unread_messages.sender_id)
         AND unread_messages.read = false AND send_id != $1 -- Check if message is not read
-GROUP BY connected_user_id, u.first_name, u.photo, last_message, last_message_time, send_id, message_id
+GROUP BY connected_user_id, u.first_name, u.image, last_message, last_message_time, send_id, message_id
 ORDER BY
     COUNT(CASE WHEN unread_messages.type = 'user_request' AND send_id != $1 AND unread_messages.read = false  THEN 1 END),
     COUNT(CASE WHEN unread_messages.type = 'user_cancel' AND send_id != $1 AND unread_messages.read = false THEN 1 END),
@@ -369,7 +369,7 @@ ORDER BY
 --SELECT
 --    connected_user_id::uuid,
 --    u.first_name,
---    u.photo,
+--    u.image,
 --    last_message,
 --    last_message_time,
 --    send_id::uuid,
@@ -403,7 +403,7 @@ ORDER BY
 --    ON (message_data.connected_user_id = unread_messages.sender_id AND $1 = unread_messages.receiver_id)
 --        OR (message_data.connected_user_id = unread_messages.receiver_id AND $1 = unread_messages.sender_id)
 --        AND unread_messages.read = false AND send_id != $1 -- Check if message is not read
---GROUP BY connected_user_id, u.first_name, u.photo, last_message, last_message_time, send_id, message_id
+--GROUP BY connected_user_id, u.first_name, u.image, last_message, last_message_time, send_id, message_id
 --ORDER BY
 --    COUNT(CASE WHEN unread_messages.type = 'user_request' AND  NOW() < (unread_messages.created_at + INTERVAL '2 days') AND send_id != $1 AND unread_messages.read = false  THEN 1 END),
 --    COUNT(CASE WHEN unread_messages.type = 'user_cancel' AND send_id != $1 AND unread_messages.read = false THEN 1 END),

@@ -358,10 +358,8 @@ func PublishHandlePhoto(server *Server, ctx *gin.Context, option db.OptionsInfo,
 	if err != nil {
 		res = CreateOptionInfoPhotoParams{
 			OptionID:           tools.UuidToString(option.ID),
-			MainCoverImage:     "",
-			MainPhoto:          []string{""},
-			PublicPhoto:        []string{""},
-			PublicCoverImage:   "",
+			MainImage:          "",
+			Images:             []string{""},
 			UserOptionID:       tools.UuidToString(option.OptionUserID),
 			CurrentServerView:  completeOption.CurrentState,
 			PreviousServerView: completeOption.PreviousState,
@@ -373,10 +371,8 @@ func PublishHandlePhoto(server *Server, ctx *gin.Context, option db.OptionsInfo,
 	}
 	res = CreateOptionInfoPhotoParams{
 		OptionID:           tools.UuidToString(option.ID),
-		MainCoverImage:     optionPhoto.CoverImage,
-		MainPhoto:          optionPhoto.Photo,
-		PublicPhoto:        optionPhoto.PublicPhoto,
-		PublicCoverImage:   optionPhoto.PublicCoverImage,
+		MainImage:          optionPhoto.MainImage,
+		Images:             optionPhoto.Images,
 		UserOptionID:       tools.UuidToString(option.OptionUserID),
 		CurrentServerView:  completeOption.CurrentState,
 		PreviousServerView: completeOption.PreviousState,
@@ -426,14 +422,12 @@ func ReversePublishToPhoto(server *Server, ctx *gin.Context, option db.OptionsIn
 			MainOptionType:     option.MainOptionType,
 			OptionType:         option.OptionType,
 			Currency:           option.Currency,
-			MainPhoto:          []string{},
-			MainCoverImage:     "",
-			PublicPhoto:        []string{},
-			PublicCoverImage:   "",
+			Images:             []string{},
+			MainImage:          "",
 		}
 	} else {
-		if len(photoData.Photo) == 0 {
-			photoData.Photo = []string{""}
+		if len(photoData.Images) == 0 {
+			photoData.Images = []string{""}
 		}
 		res = CreateOptionInfoPhotoParams{
 			OptionID:           tools.UuidToString(option.ID),
@@ -443,10 +437,8 @@ func ReversePublishToPhoto(server *Server, ctx *gin.Context, option db.OptionsIn
 			MainOptionType:     option.MainOptionType,
 			OptionType:         option.OptionType,
 			Currency:           option.Currency,
-			MainPhoto:          photoData.PublicPhoto,
-			MainCoverImage:     photoData.PublicCoverImage,
-			PublicPhoto:        photoData.PublicPhoto,
-			PublicCoverImage:   photoData.PublicCoverImage,
+			Images:             photoData.Images,
+			MainImage:          photoData.MainImage,
 		}
 	}
 	return

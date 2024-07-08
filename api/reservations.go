@@ -30,7 +30,7 @@ func (server *Server) GetReserveHostDetail(ctx *gin.Context) {
 	res := GetReserveHostDetailRes{
 		IdentityVerified: identityVerified,
 		HasNumber:        !tools.ServerStringEmpty(userData.PhoneNumber),
-		HasProfilePhoto:  !tools.ServerStringEmpty(userData.Photo),
+		HasProfilePhoto:  !tools.ServerStringEmpty(userData.HostImage),
 		HasEmail:         !tools.ServerStringEmpty(userData.Email),
 		HasFirstName:     !tools.ServerStringEmpty(userData.FirstName),
 		HasPayout:        !tools.ServerStringEmpty(userData.DefaultAccountID),

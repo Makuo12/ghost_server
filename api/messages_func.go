@@ -48,7 +48,7 @@ func GenerateUniqueMessageContacts(redisData, resData []MessageContactItem) []Me
 			MsgID:                      msg.MsgID,
 			ConnectedUserID:            msg.ConnectedUserID,
 			FirstName:                  msg.FirstName,
-			Photo:                      msg.Photo,
+			MainImage:                  msg.MainImage,
 			LastMessage:                msg.LastMessage,
 			LastMessageTime:            msg.LastMessageTime,
 			UnreadMessageCount:         users[msg.ConnectedUserID].UnreadMessageCount + msg.UnreadMessageCount,

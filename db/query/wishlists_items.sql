@@ -10,7 +10,7 @@ VALUES (
 RETURNING *;
 
 -- name: GetWishlistItem :one
-SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.cover_image, o_i_p.photo, w.name
+SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.main_image, o_i_p.images, w.name
 FROM wishlists_items w_i
     JOIN options_infos o_i on o_i.option_user_id = w_i.option_user_id
     JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -20,7 +20,7 @@ LIMIT 1;
 
 
 -- name: GetWishlistItemByOptionID :one
-SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.cover_image, o_i_p.photo, w.name
+SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.main_image, o_i_p.images, w.name
 FROM wishlists_items w_i
     JOIN options_infos o_i on o_i.option_user_id = w_i.option_user_id
     JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -52,7 +52,7 @@ FROM wishlists_items w_i
 WHERE w_i.wishlist_id = $1 AND w.user_id = $2;
 
 -- name: ListWishlistItemUser :many
-SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.cover_image, o_i_p.photo, w.name
+SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.main_image, o_i_p.images, w.name
 FROM wishlists_items w_i
     JOIN options_infos o_i on o_i.option_user_id = w_i.option_user_id
     JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id

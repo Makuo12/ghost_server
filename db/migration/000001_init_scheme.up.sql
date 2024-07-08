@@ -26,8 +26,6 @@ CREATE TABLE "users" (
   "default_account_id" varchar NOT NULL DEFAULT 'none',
   "is_active" boolean NOT NULL DEFAULT true,
   "is_deleted" boolean NOT NULL DEFAULT false,
-  "photo" varchar NOT NULL DEFAULT 'none',
-  "public_photo" varchar NOT NULL DEFAULT 'none',
   "image" varchar NOT NULL DEFAULT 'none',
   "password_changed_at" timestamptz NOT NULL DEFAULT (now()),
   "created_at" timestamptz NOT NULL DEFAULT (now()),
@@ -362,11 +360,7 @@ CREATE TABLE "option_discounts" (
 
 CREATE TABLE "options_info_photos" (
   "option_id" uuid PRIMARY KEY NOT NULL,
-  "cover_image" varchar NOT NULL,
   "has_meta_data" boolean NOT NULL DEFAULT false,
-  "public_cover_image" varchar NOT NULL DEFAULT 'none',
-  "public_photo" varchar[] NOT NULL,
-  "photo" varchar[] NOT NULL,
   "main_image" varchar NOT NULL,
   "images" varchar[] NOT NULL,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
@@ -414,8 +408,7 @@ CREATE TABLE "event_date_times" (
 CREATE TABLE "event_check_in_steps" (
   "id" uuid UNIQUE PRIMARY KEY DEFAULT (uuid_generate_v4()),
   "event_date_time_id" uuid NOT NULL,
-  "photo" varchar NOT NULL DEFAULT 'none',
-  "public_photo" varchar NOT NULL DEFAULT 'none',
+  "image" varchar NOT NULL DEFAULT 'none',
   "des" text NOT NULL DEFAULT 'none',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
@@ -534,7 +527,7 @@ CREATE TABLE "space_areas" (
   "option_id" uuid NOT NULL,
   "shared_space" boolean NOT NULL DEFAULT false,
   "space_type" varchar NOT NULL,
-  "photos" varchar[] NOT NULL,
+  "images" varchar[] NOT NULL,
   "beds" varchar[] NOT NULL,
   "is_suite" boolean NOT NULL DEFAULT false,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
@@ -584,8 +577,6 @@ CREATE TABLE "amenities" (
 CREATE TABLE "check_in_steps" (
   "id" uuid UNIQUE PRIMARY KEY DEFAULT (uuid_generate_v4()),
   "option_id" uuid NOT NULL,
-  "photo" varchar NOT NULL DEFAULT 'none',
-  "public_photo" varchar NOT NULL DEFAULT 'none',
   "image" varchar NOT NULL DEFAULT 'none',
   "des" text NOT NULL DEFAULT 'none',
   "created_at" timestamptz NOT NULL DEFAULT (now()),
@@ -1026,7 +1017,7 @@ CREATE TABLE "messages" (
   "message" text NOT NULL DEFAULT 'none',
   "type" varchar NOT NULL,
   "read" boolean NOT NULL DEFAULT false,
-  "photo" varchar NOT NULL DEFAULT 'none',
+  "main_image" varchar NOT NULL DEFAULT 'none',
   "parent_id" varchar NOT NULL DEFAULT 'none',
   "reference" varchar NOT NULL DEFAULT 'none',
   "created_at" timestamptz NOT NULL,

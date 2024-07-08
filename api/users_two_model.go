@@ -60,7 +60,7 @@ type UserProfileParams struct {
 }
 
 type UpdateProfilePhotoParams struct {
-	ProfilePhoto string `json:"profile_photo" binding:"required"`
+	HostImage string `json:"host_image" binding:"required"`
 }
 
 type GetUserCurrencyRes struct {
@@ -72,11 +72,11 @@ type GetUserIsHostRes struct {
 	HasIncomplete       bool   `json:"has_incomplete"`
 	UnreadMessages      int    `json:"unread_messages"`
 	UnreadNotifications int    `json:"unread_notifications"`
-	ProfileImage        string `json:"profile_image"`
+	HostImage        string `json:"host_image"`
 }
 
 type GetUserProfilePhotoRes struct {
-	ProfilePhoto string `json:"profile_photo"`
+	HostImage string `json:"host_image"`
 }
 
 type CreateUpdateUserLocationParams struct {
@@ -97,7 +97,7 @@ type CreateUpdateUserLocationRes struct {
 type ProfileDetailOption struct {
 	OptionUserID string `json:"option_user_id"`
 	Name         string `json:"name"`
-	CoverImage   string `json:"cover_image"`
+	MainImage   string `json:"main_image"`
 	Type         string `json:"type"`
 	MainOption   string `json:"main_option"`
 }

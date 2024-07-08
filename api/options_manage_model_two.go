@@ -113,7 +113,7 @@ type OptionExtraInfoRes struct {
 type CheckInStepRes struct {
 	ID    string `json:"id"`
 	Des   string `json:"des"`
-	Photo string `json:"photo"`
+	Image string `json:"image"`
 }
 
 type ListCheckInStepRes struct {
@@ -125,7 +125,7 @@ type UpdateCheckInStepParams struct {
 	StepID   string `json:"step_id" binding:"required"`
 	OptionID string `json:"option_id" binding:"required"`
 	Des      string `json:"des"`
-	Photo    string `json:"photo"`
+	Image    string `json:"image"`
 	// This would tell us whether to use des or photo to update
 	Type string `json:"type" binding:"required"`
 }
@@ -133,7 +133,7 @@ type UpdateCheckInStepParams struct {
 type CreateCheckInStepParams struct {
 	OptionID string `json:"option_id" binding:"required"`
 	Des      string `json:"des"`
-	Photo    string `json:"photo"`
+	Image    string `json:"image"`
 	// This would tell us whether to use des or photo to update
 	Type string `json:"type" binding:"required"`
 }
@@ -352,7 +352,7 @@ type OptionCOHostItem struct {
 	Email         string `json:"email" binding:"required"`
 	Accepted      bool   `json:"accepted"`
 	FirstName     string `json:"first_name" binding:"required"`
-	ProfilePhoto  string `json:"profile_photo" binding:"required"`
+	HostImage     string `json:"host_image" binding:"required"`
 	Date          string `json:"date" binding:"required"`
 	IsPrimaryHost bool   `json:"is_primary_host"`
 	IsMainHost    bool   `json:"is_main_host"`
@@ -399,7 +399,7 @@ type GetOptionCOHostRes struct {
 	Post               bool `json:"post"`
 	ScanCode           bool `json:"scan_code"`
 	Calender           bool `json:"calender"`
-	Insights           bool   `json:"insights"`
+	Insights           bool `json:"insights"`
 	EditOptionInfo     bool `json:"edit_option_info"`
 	EditEventDateTimes bool `json:"edit_event_date_times"`
 	EditCoHosts        bool `json:"edit_co_hosts"`
@@ -424,7 +424,7 @@ type ResendInviteRes struct {
 	Success bool `json:"success" binding:"required"`
 }
 
-//U UPDATE
+// U UPDATE
 type UOptionInfoStatusRes struct {
 	Status          string `json:"status"`
 	StatusReason    string `json:"status_reason"`
@@ -490,6 +490,3 @@ type GetMainOptionQuestionRes struct {
 	OrganizationName  string `json:"organization_name"`
 	OrganizationEmail string `json:"organization_email"`
 }
-
-
-

@@ -124,7 +124,7 @@ WHERE id = sqlc.arg(id) AND user_id = sqlc.arg(user_id) AND is_complete = sqlc.a
 
 --- GetChargeOptionReferenceByMsg this is using the message table reference and senderID is the contactID
 -- name: GetChargeOptionReferenceByMsg :one
-SELECT od.host_name_option, oi_p.cover_image, u_s.first_name, co.guests, co.start_date, co.end_date, co.total_fee, co.service_fee, u_s.email, u_s.phone_number, u_s.photo, i_d.is_verified, co.currency
+SELECT od.host_name_option, oi_p.main_image, u_s.first_name, co.guests, co.start_date, co.end_date, co.total_fee, co.service_fee, u_s.email, u_s.phone_number, u_s.image, i_d.is_verified, co.currency
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id
@@ -182,7 +182,7 @@ FROM charge_option_references co
 WHERE co.user_id = $1 AND co.is_complete=$2;
 
 -- name: ListOptionPaymentByUserID :many
-SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, o_p_p.cover_image, o_p_p.photo, co.total_fee, co.date_booked, co.currency, co.cancelled
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, o_p_p.main_image, o_p_p.images, co.total_fee, co.date_booked, co.currency, co.cancelled
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id
@@ -197,7 +197,7 @@ OFFSET $4;
 
 
 -- name: ListChargeOptionReferenceByOptionUserID :many
-SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, o_p_p.cover_image, o_p_p.photo
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, o_p_p.main_image, o_p_p.images
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id
@@ -223,7 +223,7 @@ FROM charge_option_references co
 WHERE co.id = $1 AND co.user_id = $2 AND co.cancelled = $3 AND co.is_complete=$4;
 
 -- name: GetChargeOptionReferenceCheckInStep :many
-SELECT cis.photo, cis.des, cis.id
+SELECT cis.image, cis.des, cis.id
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN check_in_steps cis on oi.id = cis.option_id
@@ -260,17 +260,17 @@ SELECT
     co.end_date,
     co.id AS reference_id,
     oi.id AS option_id,
-    op.cover_image,
+    op.main_image,
     u.first_name,
     od.host_name_option,
-    u.photo,
+    u.image AS host_image,
     cid.arrive_after,
     cid.arrive_before,
     cid.leave_before,
     oi.time_zone,
     os.status,
     oi.co_host_id,
-    op.cover_image,
+    op.main_image,
     CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.scan_code::boolean
         WHEN oi.host_id = $2 THEN true
         ELSE false -- Optional: Handle other cases if needed
@@ -308,7 +308,7 @@ ORDER BY
 
 
 -- name: ListChargeOptionReferenceBook :many
-SELECT u.user_id, co.start_date, co.end_date, co.id AS reference_id, u.first_name, u.photo
+SELECT u.user_id, co.start_date, co.end_date, co.id AS reference_id, u.first_name, u.image
 FROM charge_option_references co
     JOIN users u on u.user_id = co.user_id
 WHERE co.option_user_id = $1 AND co.is_complete=$2 AND co.cancelled=$3;
@@ -356,7 +356,7 @@ WHERE co.user_id = $1 AND co.cancelled = $2 AND co.is_complete = $3 AND (NOW() <
 
 
 -- name: ListChargeOptionReferenceCurrent :many
-SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.cover_image, o_p_p.photo, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone, o_p_p.public_cover_image, o_p_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo,
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.main_image, o_p_p.images, u.image AS host_image, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone,
 CASE
     WHEN NOW() > co.end_date + INTERVAL '4 hours' AND NOT EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = co.id) THEN 'started'
     WHEN NOW() > co.end_date + INTERVAL '4 hours' AND EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = co.id) THEN cr.status
@@ -397,7 +397,7 @@ FROM charge_option_references co
 WHERE co.user_id = $1 AND co.cancelled = $2 AND co.is_complete = $3 AND (NOW() > co.end_date + INTERVAL '8 hours' AND EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = co.id AND cr.is_published = TRUE) OR NOW() > co.end_date + INTERVAL '13 days');
 
 -- name: ListChargeOptionReferenceVisited :many
-SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.photo, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.cover_image, o_p_p.photo, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone, o_p_p.public_cover_image, o_p_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.main_image, o_p_p.images, u.image AS host_image, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id

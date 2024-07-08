@@ -133,7 +133,7 @@ func HandleEventTime(selection string, server *Server, ctx *gin.Context, user db
 				CanReserve:        canReserve,
 				CanScanCode:       canScanCode,
 				OptionStatus:      eventDate.OptionStatus,
-				CoverImage:        eventDate.CoverImage,
+				MainImage:        eventDate.MainImage,
 			}
 			hasData = true
 		}
@@ -155,7 +155,7 @@ func HandleEventTime(selection string, server *Server, ctx *gin.Context, user db
 				CanReserve:        canReserve,
 				CanScanCode:       canScanCode,
 				OptionStatus:      eventDate.OptionStatus,
-				CoverImage:        eventDate.CoverImage,
+				MainImage:        eventDate.MainImage,
 			}
 			hasData = true
 		}
@@ -177,7 +177,7 @@ func HandleEventTime(selection string, server *Server, ctx *gin.Context, user db
 				CanReserve:        canReserve,
 				CanScanCode:       canScanCode,
 				OptionStatus:      eventDate.OptionStatus,
-				CoverImage:        eventDate.CoverImage,
+				MainImage:        eventDate.MainImage,
 			}
 			hasData = true
 		}

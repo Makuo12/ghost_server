@@ -17,7 +17,7 @@ INSERT INTO space_areas (
       option_id,
       shared_space,
       space_type,
-      photos,
+      images,
       beds
    )
 VALUES (
@@ -27,14 +27,14 @@ VALUES (
       $4,
       $5
    )
-RETURNING id, option_id, shared_space, space_type, photos, beds, is_suite, created_at, updated_at
+RETURNING id, option_id, shared_space, space_type, images, beds, is_suite, created_at, updated_at
 `
 
 type CreateSpaceAreaParams struct {
 	OptionID    uuid.UUID `json:"option_id"`
 	SharedSpace bool      `json:"shared_space"`
 	SpaceType   string    `json:"space_type"`
-	Photos      []string  `json:"photos"`
+	Images      []string  `json:"images"`
 	Beds        []string  `json:"beds"`
 }
 
@@ -43,7 +43,7 @@ func (q *Queries) CreateSpaceArea(ctx context.Context, arg CreateSpaceAreaParams
 		arg.OptionID,
 		arg.SharedSpace,
 		arg.SpaceType,
-		arg.Photos,
+		arg.Images,
 		arg.Beds,
 	)
 	var i SpaceArea
@@ -52,7 +52,7 @@ func (q *Queries) CreateSpaceArea(ctx context.Context, arg CreateSpaceAreaParams
 		&i.OptionID,
 		&i.SharedSpace,
 		&i.SpaceType,
-		&i.Photos,
+		&i.Images,
 		&i.Beds,
 		&i.IsSuite,
 		&i.CreatedAt,
@@ -62,7 +62,7 @@ func (q *Queries) CreateSpaceArea(ctx context.Context, arg CreateSpaceAreaParams
 }
 
 const getSpaceArea = `-- name: GetSpaceArea :one
-SELECT id, option_id, shared_space, space_type, photos, beds, is_suite, created_at, updated_at
+SELECT id, option_id, shared_space, space_type, images, beds, is_suite, created_at, updated_at
 FROM space_areas
 WHERE id = $1 AND option_id = $2
 LIMIT 1
@@ -81,7 +81,7 @@ func (q *Queries) GetSpaceArea(ctx context.Context, arg GetSpaceAreaParams) (Spa
 		&i.OptionID,
 		&i.SharedSpace,
 		&i.SpaceType,
-		&i.Photos,
+		&i.Images,
 		&i.Beds,
 		&i.IsSuite,
 		&i.CreatedAt,
@@ -117,7 +117,7 @@ func (q *Queries) GetSpaceAreaType(ctx context.Context, optionID uuid.UUID) ([]s
 }
 
 const listOrderedSpaceArea = `-- name: ListOrderedSpaceArea :many
-SELECT id, option_id, shared_space, space_type, photos, beds, is_suite, created_at, updated_at
+SELECT id, option_id, shared_space, space_type, images, beds, is_suite, created_at, updated_at
 FROM space_areas
 WHERE option_id = $1
 ORDER BY space_type, created_at
@@ -137,7 +137,7 @@ func (q *Queries) ListOrderedSpaceArea(ctx context.Context, optionID uuid.UUID) 
 			&i.OptionID,
 			&i.SharedSpace,
 			&i.SpaceType,
-			&i.Photos,
+			&i.Images,
 			&i.Beds,
 			&i.IsSuite,
 			&i.CreatedAt,
@@ -154,7 +154,7 @@ func (q *Queries) ListOrderedSpaceArea(ctx context.Context, optionID uuid.UUID) 
 }
 
 const listSpaceArea = `-- name: ListSpaceArea :many
-SELECT id, option_id, shared_space, space_type, photos, beds, is_suite, created_at, updated_at
+SELECT id, option_id, shared_space, space_type, images, beds, is_suite, created_at, updated_at
 FROM space_areas
 WHERE option_id = $1
 `
@@ -173,7 +173,7 @@ func (q *Queries) ListSpaceArea(ctx context.Context, optionID uuid.UUID) ([]Spac
 			&i.OptionID,
 			&i.SharedSpace,
 			&i.SpaceType,
-			&i.Photos,
+			&i.Images,
 			&i.Beds,
 			&i.IsSuite,
 			&i.CreatedAt,
@@ -189,30 +189,30 @@ func (q *Queries) ListSpaceArea(ctx context.Context, optionID uuid.UUID) ([]Spac
 	return items, nil
 }
 
-const listSpaceAreaPhotos = `-- name: ListSpaceAreaPhotos :many
-SELECT photos
+const listSpaceAreaImages = `-- name: ListSpaceAreaImages :many
+SELECT images
 FROM space_areas
 WHERE option_id = $1 AND id != $2
 `
 
-type ListSpaceAreaPhotosParams struct {
+type ListSpaceAreaImagesParams struct {
 	OptionID uuid.UUID `json:"option_id"`
 	ID       uuid.UUID `json:"id"`
 }
 
-func (q *Queries) ListSpaceAreaPhotos(ctx context.Context, arg ListSpaceAreaPhotosParams) ([][]string, error) {
-	rows, err := q.db.Query(ctx, listSpaceAreaPhotos, arg.OptionID, arg.ID)
+func (q *Queries) ListSpaceAreaImages(ctx context.Context, arg ListSpaceAreaImagesParams) ([][]string, error) {
+	rows, err := q.db.Query(ctx, listSpaceAreaImages, arg.OptionID, arg.ID)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 	items := [][]string{}
 	for rows.Next() {
-		var photos []string
-		if err := rows.Scan(&photos); err != nil {
+		var images []string
+		if err := rows.Scan(&images); err != nil {
 			return nil, err
 		}
-		items = append(items, photos)
+		items = append(items, images)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -319,7 +319,7 @@ SET
    beds = $2,
    updated_at = NOW()
 WHERE id = $1 
-RETURNING id, option_id, shared_space, space_type, photos, beds, is_suite, created_at, updated_at
+RETURNING id, option_id, shared_space, space_type, images, beds, is_suite, created_at, updated_at
 `
 
 type UpdateSpaceAreaBedsParams struct {
@@ -335,7 +335,38 @@ func (q *Queries) UpdateSpaceAreaBeds(ctx context.Context, arg UpdateSpaceAreaBe
 		&i.OptionID,
 		&i.SharedSpace,
 		&i.SpaceType,
-		&i.Photos,
+		&i.Images,
+		&i.Beds,
+		&i.IsSuite,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateSpaceAreaImages = `-- name: UpdateSpaceAreaImages :one
+UPDATE space_areas
+SET 
+   images = $2,
+   updated_at = NOW()
+WHERE id = $1 
+RETURNING id, option_id, shared_space, space_type, images, beds, is_suite, created_at, updated_at
+`
+
+type UpdateSpaceAreaImagesParams struct {
+	ID     uuid.UUID `json:"id"`
+	Images []string  `json:"images"`
+}
+
+func (q *Queries) UpdateSpaceAreaImages(ctx context.Context, arg UpdateSpaceAreaImagesParams) (SpaceArea, error) {
+	row := q.db.QueryRow(ctx, updateSpaceAreaImages, arg.ID, arg.Images)
+	var i SpaceArea
+	err := row.Scan(
+		&i.ID,
+		&i.OptionID,
+		&i.SharedSpace,
+		&i.SpaceType,
+		&i.Images,
 		&i.Beds,
 		&i.IsSuite,
 		&i.CreatedAt,
@@ -352,7 +383,7 @@ SET
    is_suite = COALESCE($3, is_suite),
    updated_at = NOW()
 WHERE id = $4 AND option_id =  $5
-RETURNING id, option_id, shared_space, space_type, photos, beds, is_suite, created_at, updated_at
+RETURNING id, option_id, shared_space, space_type, images, beds, is_suite, created_at, updated_at
 `
 
 type UpdateSpaceAreaInfoParams struct {
@@ -377,38 +408,7 @@ func (q *Queries) UpdateSpaceAreaInfo(ctx context.Context, arg UpdateSpaceAreaIn
 		&i.OptionID,
 		&i.SharedSpace,
 		&i.SpaceType,
-		&i.Photos,
-		&i.Beds,
-		&i.IsSuite,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const updateSpaceAreaPhotos = `-- name: UpdateSpaceAreaPhotos :one
-UPDATE space_areas
-SET 
-   photos = $2,
-   updated_at = NOW()
-WHERE id = $1 
-RETURNING id, option_id, shared_space, space_type, photos, beds, is_suite, created_at, updated_at
-`
-
-type UpdateSpaceAreaPhotosParams struct {
-	ID     uuid.UUID `json:"id"`
-	Photos []string  `json:"photos"`
-}
-
-func (q *Queries) UpdateSpaceAreaPhotos(ctx context.Context, arg UpdateSpaceAreaPhotosParams) (SpaceArea, error) {
-	row := q.db.QueryRow(ctx, updateSpaceAreaPhotos, arg.ID, arg.Photos)
-	var i SpaceArea
-	err := row.Scan(
-		&i.ID,
-		&i.OptionID,
-		&i.SharedSpace,
-		&i.SpaceType,
-		&i.Photos,
+		&i.Images,
 		&i.Beds,
 		&i.IsSuite,
 		&i.CreatedAt,

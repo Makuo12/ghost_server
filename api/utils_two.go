@@ -115,7 +115,7 @@ func HandleListSpaceAreas(ctx *gin.Context, server *Server, option db.OptionsInf
 	var resData []SpaceAreas
 	for i := 0; i < len(spaceAreas); i++ {
 		spaceData[spaceAreas[i].SpaceType] = spaceData[spaceAreas[i].SpaceType] + 1
-		photos := tools.HandleDBList(spaceAreas[i].Photos)
+		images := tools.HandleDBList(spaceAreas[i].Images)
 		beds := tools.HandleDBList(spaceAreas[i].Beds)
 		name := fmt.Sprintf("%v-%d", spaceAreas[i].SpaceType, spaceData[spaceAreas[i].SpaceType])
 		data := SpaceAreas{
@@ -123,7 +123,7 @@ func HandleListSpaceAreas(ctx *gin.Context, server *Server, option db.OptionsInf
 			OptionID:    tools.UuidToString(spaceAreas[i].OptionID),
 			SharedSpace: spaceAreas[i].SharedSpace,
 			SpaceType:   spaceAreas[i].SpaceType,
-			Photos:      photos,
+			Image:       images,
 			Beds:        beds,
 			IsSuite:     spaceAreas[i].IsSuite,
 			Name:        name,
@@ -140,13 +140,13 @@ func HandleListSpaceAreas(ctx *gin.Context, server *Server, option db.OptionsInf
 }
 
 func HandleGetUnselectedPhotos(ctx *gin.Context, server *Server, option db.OptionsInfo, userID uuid.UUID, req AddPhotoSpaceAreasParams, reqPhotos []string, spaceAreaID uuid.UUID) (photos []string, hasPhotos bool) {
-	photosDBList, err := server.store.ListSpaceAreaPhotos(ctx, db.ListSpaceAreaPhotosParams{
+	photosDBList, err := server.store.ListSpaceAreaImages(ctx, db.ListSpaceAreaImagesParams{
 		OptionID: option.ID,
 		ID:       spaceAreaID,
 	})
 	if err != nil {
 		// we don't want to through any error because it is possible not to find any photo
-		log.Printf("There an error at AddPhotoSpaceAreas at ListSpaceAreaPhotos: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, userID)
+		log.Printf("There an error at AddPhotoSpaceAreas at ListSpaceAreaImages: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, userID)
 	} else {
 		fmt.Println("photoDBList", photosDBList)
 	}
@@ -178,8 +178,8 @@ func HandleGetUnselectedPhotos(ctx *gin.Context, server *Server, option db.Optio
 			hasPhotos = false
 			return
 		}
-		myOptionPhotos := optionPhotos.Photo
-		myOptionPhotos = append(myOptionPhotos, optionPhotos.CoverImage)
+		myOptionPhotos := optionPhotos.Images
+		myOptionPhotos = append(myOptionPhotos, optionPhotos.MainImage)
 		for _, photo := range photosNotSelected {
 			if tools.ContainsString(myOptionPhotos, photo) {
 				photosInOption = append(photosInOption, photo)
@@ -357,7 +357,7 @@ func HandleListOptionSelectComplete(ctx *gin.Context, server *Server, user db.Us
 		}
 		newData := UHMOptionSelectionRes{
 			HostNameOption: data.HostNameOption,
-			CoverImage:     HandleSqlNullString(data.CoverImage),
+			MainImage:      HandleSqlNullString(data.MainImage),
 			OptionID:       tools.UuidToString(dOptionID),
 			MainOptionType: data.MainOptionType,
 			HasName:        true,
@@ -457,7 +457,7 @@ func HandleListOptionSelectInProgress(ctx *gin.Context, server *Server, user db.
 		}
 		newData := UHMOptionSelectionRes{
 			HostNameOption: name,
-			CoverImage:     HandleSqlNullString(data.CoverImage),
+			MainImage:      HandleSqlNullString(data.MainImage),
 			OptionID:       tools.UuidToString(dOptionID),
 			MainOptionType: data.MainOptionType,
 			HasName:        hasName,
@@ -543,7 +543,7 @@ func HandleListOptionSelectInActive(ctx *gin.Context, server *Server, user db.Us
 		}
 		newData := UHMOptionSelectionRes{
 			HostNameOption: data.HostNameOption,
-			CoverImage:     HandleSqlNullString(data.CoverImage),
+			MainImage:      HandleSqlNullString(data.MainImage),
 			OptionID:       tools.UuidToString(dOptionID),
 			MainOptionType: data.MainOptionType,
 			HasName:        true,
@@ -569,34 +569,36 @@ func HandleListOptionSelectInActive(ctx *gin.Context, server *Server, user db.Us
 }
 
 func HandleAddOptionPhotos(ctx *gin.Context, server *Server, option db.OptionsInfo, user db.User, req UpdateOptionPhotoParams) (res UpdateOptionPhotoRes, err error) {
-	photos, err := server.store.GetOptionInfoPhotoOnly(ctx, option.ID)
+	var images = []string{}
+	optionPhoto, err := server.store.GetOptionInfoPhoto(ctx, option.ID)
 	if err != nil {
-		log.Printf("Error at  HandleAddOptionPhotos in GetOptionInfoPhotoOnly err: %v, user: %v, optionID: %v\n", err, user.ID, option.ID)
-		err = fmt.Errorf("could not update your photos")
+		log.Printf("Error at  HandleAddOptionImages in GetOptionInfoPhotoOnly err: %v, user: %v, optionID: %v\n", err, user.ID, option.ID)
+		err = fmt.Errorf("could not update your images")
 		return
 	}
-	if len(req.CreatePaths) == 0 {
+	if len(req.CreateImages) == 0 {
 		err = fmt.Errorf("you must at least add a photo")
 		return
 	}
-	for i := 0; i < len(req.CreatePaths); i++ {
-		photos = append(photos, req.CreatePaths[i])
+	images = append(images, optionPhoto.Images...)
+	for i := 0; i < len(req.CreateImages); i++ {
+		images = append(images, req.CreateImages[i])
 	}
 
 	// We update the database
 
-	optionInfoPhoto, err := server.store.UpdateOptionInfoPhotoOnly(ctx, db.UpdateOptionInfoPhotoOnlyParams{
-		Photo:    photos,
+	optionInfoPhoto, err := server.store.UpdateOptionInfoImages(ctx, db.UpdateOptionInfoImagesParams{
+		Images:   images,
 		OptionID: option.ID,
 	})
 	if err != nil {
-		log.Printf("Error at  HandleAddOptionPhotos in UpdateOptionInfoPhotoOnly err: %v, user: %v, optionID: %v\n", err, user.ID, option.ID)
+		log.Printf("Error at  HandleAddOptionPhotos in UpdateOptionInfoImages err: %v, user: %v, optionID: %v\n", err, user.ID, option.ID)
 		err = fmt.Errorf("could not update your photos")
 		return
 	}
 	res = UpdateOptionPhotoRes{
-		CoverImage: optionInfoPhoto.CoverImage,
-		Photos:     optionInfoPhoto.Photo,
+		MainImage: optionInfoPhoto.MainImage,
+		Images:    optionInfoPhoto.Images,
 	}
 	return
 }
@@ -609,31 +611,31 @@ func HandleOptionPhotoChangeCover(ctx *gin.Context, server *Server, option db.Op
 		return
 	}
 	// compare the cover photo paths to make sure if they match we send a error
-	if optionPhoto.CoverImage == req.ChangeCoverPath {
+	if optionPhoto.MainImage == req.ChangeMainImage {
 		err = fmt.Errorf("change not made because the paths are the same")
 		return
 	}
 	// we make sure the path already exist
-	if !tools.ContainsString(optionPhoto.Photo, req.ChangeCoverPath) {
+	if !tools.ContainsString(optionPhoto.Images, req.ChangeMainImage) {
 		err = fmt.Errorf("could not change photo because path doesn't match any of your saved photo paths")
 		return
 	}
 	// we store the current option photos inside photos
-	var photos []string
+	var images []string
 
-	for _, photo := range optionPhoto.Photo {
-		if photo != req.ChangeCoverPath {
-			photos = append(photos, photo)
+	for _, photo := range optionPhoto.Images {
+		if photo != req.ChangeMainImage {
+			images = append(images, photo)
 		}
 	}
-	// we append the cover image so that the cover image still remain path of the option photos
-	photos = append(photos, optionPhoto.CoverImage)
+	// we append the cover image so that the cover image still remain path of the option images
+	images = append(images, optionPhoto.MainImage)
 	// we update the new cover image
-	// we update the Photo to our new photos
+	// we update the Photo to our new images
 	optionInfoPhoto, err := server.store.UpdateOptionInfoPhoto(ctx, db.UpdateOptionInfoPhotoParams{
-		CoverImage: req.ChangeCoverPath,
-		Photo:      photos,
-		OptionID:   option.ID,
+		MainImage: req.ChangeMainImage,
+		Images:    images,
+		OptionID:  option.ID,
 	})
 	if err != nil {
 		log.Printf("Error at  HandleOptionPhotoChangeCover in UpdateOptionInfoPhoto err: %v, user: %v, optionID: %v\n", err, user.ID, option.ID)
@@ -641,30 +643,30 @@ func HandleOptionPhotoChangeCover(ctx *gin.Context, server *Server, option db.Op
 		return
 	}
 	res = UpdateOptionPhotoRes{
-		CoverImage: optionInfoPhoto.CoverImage,
-		Photos:     optionInfoPhoto.Photo,
+		MainImage: optionInfoPhoto.MainImage,
+		Images:    optionInfoPhoto.Images,
 	}
 	return
 }
 
 func HandleDeleteOptionPhoto(ctx *gin.Context, server *Server, option db.OptionsInfo, user db.User, req UpdateOptionPhotoParams) (res UpdateOptionPhotoRes, err error) {
-	if len(req.DeletePath) == 0 {
+	if len(req.DeleteImage) == 0 {
 		err = fmt.Errorf("photo path is empty")
 		return
 	}
-	photos, err := server.store.GetOptionInfoPhotoOnly(ctx, option.ID)
+	optionPhoto, err := server.store.GetOptionInfoPhoto(ctx, option.ID)
 	if err != nil {
-		log.Printf("Error at  HandleDeleteOptionPhoto in GetOptionInfoPhotoOnly err: %v, user: %v, optionID: %v\n", err, user.ID, option.ID)
+		log.Printf("Error at  HandleDeleteOptionPhoto in GetOptionInfoPhoto err: %v, user: %v, optionID: %v\n", err, user.ID, option.ID)
 		err = fmt.Errorf("could not delete photo")
 		return
 	}
 	// First confirm path exist
-	if !tools.ContainsString(photos, req.DeletePath) {
+	if !tools.ContainsString(optionPhoto.Images, req.DeleteImage) {
 		err = fmt.Errorf("could not remove this photo because path doesn't match any of your saved photo paths")
 		return
 	}
 	// we want to go to firebase and delete the photo
-	err = RemoveFirebasePhoto(server, ctx, req.DeletePath)
+	err = RemoveFirebasePhoto(server, ctx, req.DeleteImage)
 	if err != nil {
 		return
 	}
@@ -675,19 +677,19 @@ func HandleDeleteOptionPhoto(ctx *gin.Context, server *Server, option db.Options
 		log.Printf("There an error at HandleDeleteOptionPhoto atListOrderedSpaceArea: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
 	} else {
 		for i := 0; i < len(spaceAreas); i++ {
-			if tools.ContainsString(spaceAreas[i].Photos, req.DeletePath) {
-				var spacePhotos []string
-				for j := 0; j < len(spaceAreas[i].Photos); j++ {
-					if spaceAreas[i].Photos[i] != req.DeletePath {
-						spacePhotos = append(spacePhotos, spaceAreas[i].Photos[i])
+			if tools.ContainsString(spaceAreas[i].Images, req.DeleteImage) {
+				var spaceImages []string
+				for j := 0; j < len(spaceAreas[i].Images); j++ {
+					if spaceAreas[i].Images[i] != req.DeleteImage {
+						spaceImages = append(spaceImages, spaceAreas[i].Images[i])
 					}
 				}
-				_, err = server.store.UpdateSpaceAreaPhotos(ctx, db.UpdateSpaceAreaPhotosParams{
+				_, err = server.store.UpdateSpaceAreaImages(ctx, db.UpdateSpaceAreaImagesParams{
 					ID:     spaceAreas[i].ID,
-					Photos: spacePhotos,
+					Images: spaceImages,
 				})
 				if err != nil {
-					log.Printf("There an error at HandleDeleteOptionPhoto at UpdateSpaceAreaPhotos: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+					log.Printf("There an error at HandleDeleteOptionPhoto at UpdateSpaceAreaImages: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
 				}
 				break
 			}
@@ -696,35 +698,35 @@ func HandleDeleteOptionPhoto(ctx *gin.Context, server *Server, option db.Options
 	// We want to check if the photo has a caption and then delete it
 	err = server.store.RemoveOptionPhotoCaption(ctx, db.RemoveOptionPhotoCaptionParams{
 		OptionID: option.ID,
-		PhotoID:  req.DeletePath,
+		PhotoID:  req.DeleteImage,
 	})
 	if err != nil {
 		log.Printf("There an error at HandleDeleteOptionPhoto at RemoveOptionPhotoCaption: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
 	}
 	// if the photo was successfully deleted from firebase now we need to update our photos
 	var newPhotos []string
-	for _, item := range photos {
+	for _, item := range optionPhoto.Images {
 		// we want to add the current photos in the db to the newPhotos
 		// however we would not add the photo path that was deleted
-		if item != req.DeletePath {
+		if item != req.DeleteImage {
 			newPhotos = append(newPhotos, item)
 		}
 	}
 
 	// We update the database
 	// WE USE newPhotos because it contains the new photos
-	optionInfoPhoto, err := server.store.UpdateOptionInfoPhotoOnly(ctx, db.UpdateOptionInfoPhotoOnlyParams{
-		Photo:    newPhotos,
+	optionInfoPhoto, err := server.store.UpdateOptionInfoImages(ctx, db.UpdateOptionInfoImagesParams{
+		Images:   newPhotos,
 		OptionID: option.ID,
 	})
 	if err != nil {
-		log.Printf("Error at  HandleDeleteOptionPhoto in UpdateOptionInfoPhotoOnly err: %v, user: %v, optionID: %v , photo path to delete: %v\n", err, user.ID, option.ID, req.DeletePath)
+		log.Printf("Error at  HandleDeleteOptionPhoto in UpdateOptionInfoImages err: %v, user: %v, optionID: %v , photo path to delete: %v\n", err, user.ID, option.ID, req.DeleteImage)
 		err = fmt.Errorf("could not update your photos")
 		return
 	}
 	res = UpdateOptionPhotoRes{
-		CoverImage: optionInfoPhoto.CoverImage,
-		Photos:     optionInfoPhoto.Photo,
+		MainImage: optionInfoPhoto.MainImage,
+		Images:    optionInfoPhoto.Images,
 	}
 	return
 }

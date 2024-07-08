@@ -66,7 +66,7 @@ func (server *Server) ListEventCheckInStep(ctx *gin.Context) {
 		data := CheckInStepRes{
 			ID:    tools.UuidToString(steps[i].ID),
 			Des:   steps[i].Des,
-			Photo: steps[i].Photo,
+			Image: steps[i].Image,
 		}
 		resData = append(resData, data)
 	}
@@ -142,19 +142,20 @@ func (server *Server) RemoveEventCheckInStepPhoto(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	err = RemoveFirebasePhoto(server, ctx, stepDetail.Photo)
+	path, _ := tools.GetImageItem(stepDetail.Image)
+	err = RemoveFirebasePhoto(server, ctx, path)
 	if err != nil {
 		log.Printf("There an error at RemoveEventCheckInStepPhoto at RemoveFirebasePhoto: %v, eventDateTimeID: %v, userID: %v, stepID: %v \n", err.Error(), eventDateTimeID, user.ID, stepID)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	step, err := server.store.UpdateEventCheckInStepPhoto(ctx, db.UpdateEventCheckInStepPhotoParams{
-		Photo:           "none",
+	step, err := server.store.UpdateEventCheckInStepImage(ctx, db.UpdateEventCheckInStepImageParams{
+		Image:           "none",
 		EventDateTimeID: eventDateTimeID,
 		ID:              stepID,
 	})
 	if err != nil {
-		log.Printf("There an error at RemoveEventCheckInStepPhoto at UpdateCheckInStepPhoto: %v, eventDateTimeID: %v, userID: %v \n", err.Error(), eventDateTimeID, user.ID)
+		log.Printf("There an error at RemoveEventCheckInStepImage at UpdateCheckInStepImage: %v, eventDateTimeID: %v, userID: %v \n", err.Error(), eventDateTimeID, user.ID)
 		err = fmt.Errorf("your photo was deleted but not updated on the database, please if anything feels wrong just connect us")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -166,7 +167,7 @@ func (server *Server) RemoveEventCheckInStepPhoto(ctx *gin.Context) {
 	res := CheckInStepRes{
 		ID:    tools.UuidToString(step.ID),
 		Des:   tools.HandleString(step.Des),
-		Photo: step.Photo,
+		Image: step.Image,
 	}
 	ctx.JSON(http.StatusOK, res)
 }
@@ -229,8 +230,9 @@ func (server *Server) RemoveEventCheckInStep(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	if len(stepDetail.Photo) != 0 && stepDetail.Photo != "none" {
-		err = RemoveFirebasePhoto(server, ctx, stepDetail.Photo)
+	if len(stepDetail.Image) != 0 && stepDetail.Image != "none" {
+		path, _ := tools.GetImageItem(stepDetail.Image)
+		err = RemoveFirebasePhoto(server, ctx, path)
 		if err != nil {
 			log.Printf("There an error at RemoveEventCheckInStep at RemoveFirebasePhoto: %v, eventDateTimeID: %v, userID: %v, stepID: %v \n", err.Error(), eventDateTimeID, user.ID, stepID)
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -263,7 +265,7 @@ func (server *Server) RemoveEventCheckInStep(ctx *gin.Context) {
 		data := CheckInStepRes{
 			ID:    tools.UuidToString(steps[i].ID),
 			Des:   steps[i].Des,
-			Photo: steps[i].Photo,
+			Image: steps[i].Image,
 		}
 		resData = append(resData, data)
 	}
@@ -326,8 +328,8 @@ func (server *Server) UpdateEventCheckInStep(ctx *gin.Context) {
 	var res CheckInStepRes
 	switch req.Type {
 	case "photo":
-		step, err := server.store.UpdateEventCheckInStepPhoto(ctx, db.UpdateEventCheckInStepPhotoParams{
-			Photo:           req.Photo,
+		step, err := server.store.UpdateEventCheckInStepImage(ctx, db.UpdateEventCheckInStepImageParams{
+			Image:           req.Image,
 			EventDateTimeID: eventDateTimeID,
 			ID:              stepID,
 		})
@@ -340,7 +342,7 @@ func (server *Server) UpdateEventCheckInStep(ctx *gin.Context) {
 			res = CheckInStepRes{
 				ID:    tools.UuidToString(step.ID),
 				Des:   tools.HandleString(step.Des),
-				Photo: step.Photo,
+				Image: step.Image,
 			}
 		}
 	case "des":
@@ -358,7 +360,7 @@ func (server *Server) UpdateEventCheckInStep(ctx *gin.Context) {
 			res = CheckInStepRes{
 				ID:    tools.UuidToString(step.ID),
 				Des:   tools.HandleString(step.Des),
-				Photo: step.Photo,
+				Image: step.Image,
 			}
 		}
 	default:
@@ -417,25 +419,25 @@ func (server *Server) CreateEventCheckInStep(ctx *gin.Context) {
 	case "photo":
 		step, err := server.store.CreateEventCheckInStep(ctx, db.CreateEventCheckInStepParams{
 			EventDateTimeID: eventDateTimeID,
-			Photo:           req.Photo,
+			Image:           req.Image,
 			Des:             "none",
 		})
 		if err != nil {
-			log.Printf("There an error at CreateEventCheckInStep at CreateEventCheckInStep for photo: %v, eventDateTimeID: %v, userID: %v \n", err.Error(), eventDateTimeID, user.ID)
-			err = fmt.Errorf("could not update your photo in server")
+			log.Printf("There an error at CreateEventCheckInStep at CreateEventCheckInStep for Image: %v, eventDateTimeID: %v, userID: %v \n", err.Error(), eventDateTimeID, user.ID)
+			err = fmt.Errorf("could not update your Image in server")
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
 		} else {
 			res = CheckInStepRes{
 				ID:    tools.UuidToString(step.ID),
 				Des:   tools.HandleString(step.Des),
-				Photo: step.Photo,
+				Image: step.Image,
 			}
 		}
 	case "des":
 		step, err := server.store.CreateEventCheckInStep(ctx, db.CreateEventCheckInStepParams{
 			EventDateTimeID: eventDateTimeID,
-			Photo:           "none",
+			Image:           "none",
 			Des:             req.Des,
 		})
 		if err != nil {
@@ -447,7 +449,7 @@ func (server *Server) CreateEventCheckInStep(ctx *gin.Context) {
 			res = CheckInStepRes{
 				ID:    tools.UuidToString(step.ID),
 				Des:   tools.HandleString(step.Des),
-				Photo: step.Photo,
+				Image: step.Image,
 			}
 		}
 	default:

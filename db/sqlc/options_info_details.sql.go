@@ -102,7 +102,7 @@ func (q *Queries) GetOptionInfoDetailPetsAllow(ctx context.Context, optionID uui
 }
 
 const listOIDSearchByName = `-- name: ListOIDSearchByName :many
-SELECT o_i_d.host_name_option, o_i.id, o_i_p.cover_image, o_i.main_option_type, o_i.is_complete, o_i_s.status AS option_status
+SELECT o_i_d.host_name_option, o_i.id, o_i_p.main_image, o_i.main_option_type, o_i.is_complete, o_i_s.status AS option_status
 FROM options_info_details o_i_d
     JOIN options_infos o_i on o_i_d.option_id = o_i.id
     JOIN options_infos_status o_i_s on o_i_s.option_id = o_i.id
@@ -120,7 +120,7 @@ type ListOIDSearchByNameParams struct {
 type ListOIDSearchByNameRow struct {
 	HostNameOption string    `json:"host_name_option"`
 	ID             uuid.UUID `json:"id"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
 	MainOptionType string    `json:"main_option_type"`
 	IsComplete     bool      `json:"is_complete"`
 	OptionStatus   string    `json:"option_status"`
@@ -138,7 +138,7 @@ func (q *Queries) ListOIDSearchByName(ctx context.Context, arg ListOIDSearchByNa
 		if err := rows.Scan(
 			&i.HostNameOption,
 			&i.ID,
-			&i.CoverImage,
+			&i.MainImage,
 			&i.MainOptionType,
 			&i.IsComplete,
 			&i.OptionStatus,
@@ -209,7 +209,7 @@ func (q *Queries) ListOIDSearchByNameCal(ctx context.Context, arg ListOIDSearchB
 }
 
 const listOIDSearchByNameNoPhoto = `-- name: ListOIDSearchByNameNoPhoto :many
-SELECT oi.id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.cover_image, ois.status AS option_status,
+SELECT oi.id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.main_image, ois.status AS option_status,
 CASE
     WHEN och_subquery.option_id IS NOT NULL THEN 'co_host'
     WHEN oi.host_id = $1 THEN 'main_host'
@@ -246,7 +246,7 @@ type ListOIDSearchByNameNoPhotoRow struct {
 	HostNameOption string    `json:"host_name_option"`
 	CurrentState   string    `json:"current_state"`
 	PreviousState  string    `json:"previous_state"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
 	OptionStatus   string    `json:"option_status"`
 	HostType       string    `json:"host_type"`
 }
@@ -275,7 +275,7 @@ func (q *Queries) ListOIDSearchByNameNoPhoto(ctx context.Context, arg ListOIDSea
 			&i.HostNameOption,
 			&i.CurrentState,
 			&i.PreviousState,
-			&i.CoverImage,
+			&i.MainImage,
 			&i.OptionStatus,
 			&i.HostType,
 		); err != nil {
@@ -290,7 +290,7 @@ func (q *Queries) ListOIDSearchByNameNoPhoto(ctx context.Context, arg ListOIDSea
 }
 
 const listUserSearchEventByName = `-- name: ListUserSearchEventByName :many
-SELECT o_i_d.host_name_option, o_i.option_user_id, o_i.is_verified, o_i_p.cover_image
+SELECT o_i_d.host_name_option, o_i.option_user_id, o_i.is_verified, o_i_p.main_image
 FROM options_info_details o_i_d
     JOIN options_infos o_i on o_i_d.option_id = o_i.id
     JOIN options_info_photos o_i_p on o_i_p.option_id = o_i.id
@@ -308,7 +308,7 @@ type ListUserSearchEventByNameRow struct {
 	HostNameOption string    `json:"host_name_option"`
 	OptionUserID   uuid.UUID `json:"option_user_id"`
 	IsVerified     bool      `json:"is_verified"`
-	CoverImage     string    `json:"cover_image"`
+	MainImage      string    `json:"main_image"`
 }
 
 // -- This is for the user end
@@ -325,7 +325,7 @@ func (q *Queries) ListUserSearchEventByName(ctx context.Context, arg ListUserSea
 			&i.HostNameOption,
 			&i.OptionUserID,
 			&i.IsVerified,
-			&i.CoverImage,
+			&i.MainImage,
 		); err != nil {
 			return nil, err
 		}

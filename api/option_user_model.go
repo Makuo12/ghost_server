@@ -4,27 +4,24 @@ type ExperienceOptionData struct {
 	UserOptionID     string `json:"user_option_id"`
 	Name             string `json:"name"`
 	IsVerified       bool   `json:"is_verified"`
-	CoverImage       string `json:"cover_image"`
 	HostAsIndividual bool   `json:"host_as_individual"`
 	BasePrice        string `json:"base_price"`
 	WeekendPrice     string `json:"weekend_price"`
 	// AddedPrice for when we are calculating based on more than one night
-	AddedPrice         string   `json:"added_price"`
-	AddPriceFound      bool     `json:"add_price_found"`
-	StartDate          string   `json:"start_date"`
-	EndDate            string   `json:"end_date"`
-	Photos             []string `json:"photos"`
-	TypeOfShortlet     string   `json:"type_of_shortlet"`
-	State              string   `json:"state"`
-	Country            string   `json:"country"`
-	ProfilePhoto       string   `json:"profile_photo"`
-	HostName           string   `json:"host_name"`
-	HostJoined         string   `json:"host_joined"`
-	HostVerified       bool     `json:"host_verified"`
-	Category           string   `json:"category"`
-	PublicCoverImage   string   `json:"public_cover_image"`
-	PublicPhotos       []string `json:"public_photos"`
-	PublicProfilePhoto string   `json:"public_profile_photo"`
+	AddedPrice     string   `json:"added_price"`
+	AddPriceFound  bool     `json:"add_price_found"`
+	StartDate      string   `json:"start_date"`
+	EndDate        string   `json:"end_date"`
+	TypeOfShortlet string   `json:"type_of_shortlet"`
+	State          string   `json:"state"`
+	Country        string   `json:"country"`
+	HostName       string   `json:"host_name"`
+	HostJoined     string   `json:"host_joined"`
+	HostVerified   bool     `json:"host_verified"`
+	Category       string   `json:"category"`
+	MainUrl        string   `json:"main_url"`
+	Urls           []string `json:"urls"`
+	HostUrl        string   `json:"host_url"`
 }
 
 type ListExperienceOptionRes struct {
@@ -41,27 +38,24 @@ type ExperienceEventLocation struct {
 }
 
 type ExperienceEventData struct {
-	UserOptionID       string                    `json:"user_option_id"`
-	Name               string                    `json:"name"`
-	IsVerified         bool                      `json:"is_verified"`
-	CoverImage         string                    `json:"cover_image"`
-	Category           string                    `json:"category"`
-	HostName           string                    `json:"host_name"`
-	ProfilePhoto       string                    `json:"profile_photo"`
-	Photos             []string                  `json:"photos"`
-	TicketAvailable    bool                      `json:"ticket_available"`
-	SubEventType       string                    `json:"sub_event_type"`
-	HostAsIndividual   bool                      `json:"host_as_individual"`
-	TicketLowestPrice  string                    `json:"ticket_lowest_price"`
-	EventStartDate     string                    `json:"event_start_date"`
-	EventEndDate       string                    `json:"event_end_date"`
-	HasFreeTicket      bool                      `json:"has_free_ticket"`
-	Location           []ExperienceEventLocation `json:"location"`
-	HostJoined         string                    `json:"host_joined"`
-	HostVerified       bool                      `json:"host_verified"`
-	PublicCoverImage   string                    `json:"public_cover_image"`
-	PublicPhotos       []string                  `json:"public_photos"`
-	PublicProfilePhoto string                    `json:"public_profile_photo"`
+	UserOptionID      string                    `json:"user_option_id"`
+	Name              string                    `json:"name"`
+	IsVerified        bool                      `json:"is_verified"`
+	Category          string                    `json:"category"`
+	HostName          string                    `json:"host_name"`
+	TicketAvailable   bool                      `json:"ticket_available"`
+	SubEventType      string                    `json:"sub_event_type"`
+	HostAsIndividual  bool                      `json:"host_as_individual"`
+	TicketLowestPrice string                    `json:"ticket_lowest_price"`
+	EventStartDate    string                    `json:"event_start_date"`
+	EventEndDate      string                    `json:"event_end_date"`
+	HasFreeTicket     bool                      `json:"has_free_ticket"`
+	Location          []ExperienceEventLocation `json:"location"`
+	HostJoined        string                    `json:"host_joined"`
+	HostVerified      bool                      `json:"host_verified"`
+	MainUrl           string                    `json:"main_url"`
+	Urls              []string                  `json:"urls"`
+	HostUrl           string                    `json:"host_url"`
 }
 
 type ListExperienceEventRes struct {
@@ -84,7 +78,7 @@ type ExperienceSpaceArea struct {
 	Name        string   `json:"name"`
 	AreaType    string   `json:"area_type"`
 	SharedSpace bool     `json:"shared_space"`
-	Photos      []string `json:"photos"`
+	Images      []string `json:"images"`
 	Beds        []string `json:"beds"`
 	IsSuite     bool     `json:"is_suite"`
 	IsEmpty     bool     `json:"is_empty"`
@@ -98,10 +92,10 @@ type ExperienceSm struct {
 }
 
 type ExperienceDetailCoHost struct {
-	UserID       string `json:"user_id"`
-	Name         string `json:"name"`
-	ProfilePhoto string `json:"profile_photo"`
-	IsEmpty      bool   `json:"is_empty"`
+	UserID    string `json:"user_id"`
+	Name      string `json:"name"`
+	HostImage string `json:"host_image"`
+	IsEmpty   bool   `json:"is_empty"`
 }
 
 type ExperienceHouseRules struct {
@@ -397,7 +391,7 @@ type UserExReviewItem struct {
 	YearJoined       string `json:"year_joined"`
 	DateBooked       string `json:"date_booked"`
 	DateHostResponse string `json:"date_host_response"`
-	ProfilePhoto     string `json:"profile_photo"`
+	HostImage        string `json:"host_image"`
 	FirstName        string `json:"first_name"`
 }
 

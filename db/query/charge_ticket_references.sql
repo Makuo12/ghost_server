@@ -91,7 +91,7 @@ WHERE cd.event_date_id = $1;
 
 
 -- name: ListTicketPaymentUser :many
-SELECT o_i.main_option_type, u.user_id, o_i_d.host_name_option, cd.start_date, u.photo, cd.end_date, u.first_name, ct.id, ct.grade, ct.ticket_type, ct.price, ct.cancelled, ce.currency, ct.date_booked
+SELECT o_i.main_option_type, u.user_id, o_i_d.host_name_option, cd.start_date, u.image AS host_image, cd.end_date, u.first_name, ct.id, ct.grade, ct.ticket_type, ct.price, ct.cancelled, ce.currency, ct.date_booked
 FROM charge_ticket_references ct
     JOIN charge_date_references cd on cd.id = ct.charge_date_id
     JOIN charge_event_references ce on ce.id = cd.charge_event_id
@@ -122,7 +122,7 @@ WHERE ct.id = $1 AND o_e_i.type = $2 AND ce.user_id = $3 AND ct.cancelled = $4 A
 
 
 -- name: GetChargeTicketReferenceCheckInStep :many
-SELECT e_i_s.photo, e_i_s.des, e_i_s.id
+SELECT e_i_s.image, e_i_s.des, e_i_s.id
 FROM charge_ticket_references ct
     JOIN charge_date_references cd on cd.id = ct.charge_date_id
     JOIN charge_event_references ce on ce.id = cd.charge_event_id
@@ -237,7 +237,7 @@ FROM charge_ticket_references ct
 WHERE ce.user_id = $1 AND ct.cancelled = $2 AND ce.is_complete = $3 AND (NOW() <= cd.end_date + INTERVAL '13 days' AND EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = ct.id AND cr.is_published = false) OR NOW() <= cd.end_date + INTERVAL '13 days' AND NOT EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = ct.id));
 
 -- name: ListChargeTicketReferenceCurrent :many
-SELECT o_i.main_option_type, u.user_id, o_i_d.host_name_option, cd.start_date, u.photo, cd.end_date, u.first_name, ct.id AS charge_id, ct.grade, e_d_d.start_time, e_d_d.end_time, e_d_d.time_zone, e_d_t.check_in_method, o_p_p.cover_image, o_p_p.photo, ct.ticket_type, e_i.event_type, e_d_l.street, e_d_l.state, e_d_l.city, e_d_l.country, o_p_p.public_cover_image, o_p_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo,
+SELECT o_i.main_option_type, u.user_id, o_i_d.host_name_option, cd.start_date, u.image AS host_image, cd.end_date, u.first_name, ct.id AS charge_id, ct.grade, e_d_d.start_time, e_d_d.end_time, e_d_d.time_zone, e_d_t.check_in_method, ct.ticket_type, e_i.event_type, e_d_l.street, e_d_l.state, e_d_l.city, e_d_l.country, o_p_p.main_image, o_p_p.images, u.image AS host_image,
 CASE
     WHEN NOW() > cd.end_date + INTERVAL '4 hours' AND NOT EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = ct.id) THEN 'started'
     WHEN NOW() > cd.end_date + INTERVAL '4 hours' AND EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = ct.id) THEN cr.status
@@ -283,7 +283,7 @@ FROM charge_ticket_references ct
 WHERE ce.user_id = $1 AND ct.cancelled = $2 AND ce.is_complete = $3 AND (NOW() > cd.end_date + INTERVAL '8 hours' AND EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = ct.id AND cr.is_published = TRUE) OR NOW() > cd.end_date + INTERVAL '13 days');
 
 -- name: ListChargeTicketReferenceVisited :many
-SELECT o_i.main_option_type, u.user_id, o_i_d.host_name_option, cd.start_date, u.photo, cd.end_date, u.first_name, ct.id AS charge_id, ct.grade, e_d_d.start_time, e_d_d.end_time, e_d_d.time_zone, e_d_t.check_in_method, o_p_p.cover_image, o_p_p.photo, ct.ticket_type, e_i.event_type, e_d_l.street, e_d_l.state, e_d_l.city, e_d_l.country, o_p_p.public_cover_image, o_p_p.public_photo AS option_public_photo, u.public_photo AS host_public_photo
+SELECT o_i.main_option_type, u.user_id, o_i_d.host_name_option, cd.start_date, u.image AS host_image, cd.end_date, u.first_name, ct.id AS charge_id, ct.grade, e_d_d.start_time, e_d_d.end_time, e_d_d.time_zone, e_d_t.check_in_method, ct.ticket_type, e_i.event_type, e_d_l.street, e_d_l.state, e_d_l.city, e_d_l.country, o_p_p.main_image, o_p_p.images, u.image AS host_image
 FROM charge_ticket_references ct
     JOIN charge_date_references cd on cd.id = ct.charge_date_id
     JOIN charge_event_references ce on ce.id = cd.charge_event_id

@@ -117,7 +117,7 @@ func (server *Server) CreateOptionCoHost(ctx *gin.Context) {
 		IsMainHost:    false,
 		Accepted:      coHost.Accepted,
 		FirstName:     "",
-		ProfilePhoto:  "",
+		HostImage:     "",
 		Date:          "",
 	}
 	if isCoHost {
@@ -206,7 +206,7 @@ func (server *Server) UpdateOptionCoHost(ctx *gin.Context) {
 		}
 	}
 	var firstName string
-	var profilePhoto string
+	var hostImage string
 	var isPrimaryHost bool
 	date := tools.ConvertTimeToStringDateOnly(coHost.CreatedAt)
 	coUserID, err := tools.StringToUuid(coHost.CoUserID)
@@ -218,7 +218,7 @@ func (server *Server) UpdateOptionCoHost(ctx *gin.Context) {
 			log.Printf("There an error at UpdateOptionCoHost at GetUserWithEmail: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
 		} else {
 			firstName = u.FirstName
-			profilePhoto = u.Photo
+			hostImage = u.Image
 		}
 	}
 	if option.PrimaryUserID == coUserID {
@@ -230,7 +230,7 @@ func (server *Server) UpdateOptionCoHost(ctx *gin.Context) {
 		IsMainHost:    false,
 		Accepted:      coHost.Accepted,
 		FirstName:     firstName,
-		ProfilePhoto:  profilePhoto,
+		HostImage:     hostImage,
 		Date:          date,
 		IsPrimaryHost: isPrimaryHost,
 	}
@@ -277,7 +277,7 @@ func (server *Server) ListOptionCoHost(ctx *gin.Context) {
 			IsMainHost:    true,
 			Accepted:      true,
 			FirstName:     user.FirstName,
-			ProfilePhoto:  user.Photo,
+			HostImage:     user.Image,
 			Date:          tools.ConvertTimeToStringDateOnly(user.CreatedAt),
 		}
 		resData = append(resData, data)
@@ -341,7 +341,7 @@ func (server *Server) ListOptionCoHost(ctx *gin.Context) {
 					IsMainHost:    false,
 					Accepted:      co.Accepted,
 					FirstName:     u.FirstName,
-					ProfilePhoto:  u.Photo,
+					HostImage:     user.Image,
 					Date:          date,
 				}
 			} else {
@@ -352,7 +352,7 @@ func (server *Server) ListOptionCoHost(ctx *gin.Context) {
 					IsMainHost:    false,
 					Accepted:      co.Accepted,
 					FirstName:     "",
-					ProfilePhoto:  "",
+					HostImage:     "",
 					Date:          date,
 				}
 			}

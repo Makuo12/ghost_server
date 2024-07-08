@@ -42,7 +42,7 @@ func (q *Queries) CreateWishlistItem(ctx context.Context, arg CreateWishlistItem
 }
 
 const getWishlistItem = `-- name: GetWishlistItem :one
-SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.cover_image, o_i_p.photo, w.name
+SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.main_image, o_i_p.images, w.name
 FROM wishlists_items w_i
     JOIN options_infos o_i on o_i.option_user_id = w_i.option_user_id
     JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -60,8 +60,8 @@ type GetWishlistItemRow struct {
 	OptionUserID uuid.UUID `json:"option_user_id"`
 	WishlistID   uuid.UUID `json:"wishlist_id"`
 	ID           uuid.UUID `json:"id"`
-	CoverImage   string    `json:"cover_image"`
-	Photo        []string  `json:"photo"`
+	MainImage    string    `json:"main_image"`
+	Images       []string  `json:"images"`
 	Name         string    `json:"name"`
 }
 
@@ -72,15 +72,15 @@ func (q *Queries) GetWishlistItem(ctx context.Context, arg GetWishlistItemParams
 		&i.OptionUserID,
 		&i.WishlistID,
 		&i.ID,
-		&i.CoverImage,
-		&i.Photo,
+		&i.MainImage,
+		&i.Images,
 		&i.Name,
 	)
 	return i, err
 }
 
 const getWishlistItemByOptionID = `-- name: GetWishlistItemByOptionID :one
-SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.cover_image, o_i_p.photo, w.name
+SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.main_image, o_i_p.images, w.name
 FROM wishlists_items w_i
     JOIN options_infos o_i on o_i.option_user_id = w_i.option_user_id
     JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -98,8 +98,8 @@ type GetWishlistItemByOptionIDRow struct {
 	OptionUserID uuid.UUID `json:"option_user_id"`
 	WishlistID   uuid.UUID `json:"wishlist_id"`
 	ID           uuid.UUID `json:"id"`
-	CoverImage   string    `json:"cover_image"`
-	Photo        []string  `json:"photo"`
+	MainImage    string    `json:"main_image"`
+	Images       []string  `json:"images"`
 	Name         string    `json:"name"`
 }
 
@@ -110,8 +110,8 @@ func (q *Queries) GetWishlistItemByOptionID(ctx context.Context, arg GetWishlist
 		&i.OptionUserID,
 		&i.WishlistID,
 		&i.ID,
-		&i.CoverImage,
-		&i.Photo,
+		&i.MainImage,
+		&i.Images,
 		&i.Name,
 	)
 	return i, err
@@ -203,7 +203,7 @@ func (q *Queries) ListWishlistItem(ctx context.Context, arg ListWishlistItemPara
 }
 
 const listWishlistItemUser = `-- name: ListWishlistItemUser :many
-SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.cover_image, o_i_p.photo, w.name
+SELECT w_i.option_user_id, w_i.wishlist_id, w_i.id, o_i_p.main_image, o_i_p.images, w.name
 FROM wishlists_items w_i
     JOIN options_infos o_i on o_i.option_user_id = w_i.option_user_id
     JOIN options_info_photos o_i_p on o_i.id = o_i_p.option_id
@@ -216,8 +216,8 @@ type ListWishlistItemUserRow struct {
 	OptionUserID uuid.UUID `json:"option_user_id"`
 	WishlistID   uuid.UUID `json:"wishlist_id"`
 	ID           uuid.UUID `json:"id"`
-	CoverImage   string    `json:"cover_image"`
-	Photo        []string  `json:"photo"`
+	MainImage    string    `json:"main_image"`
+	Images       []string  `json:"images"`
 	Name         string    `json:"name"`
 }
 
@@ -234,8 +234,8 @@ func (q *Queries) ListWishlistItemUser(ctx context.Context, id uuid.UUID) ([]Lis
 			&i.OptionUserID,
 			&i.WishlistID,
 			&i.ID,
-			&i.CoverImage,
-			&i.Photo,
+			&i.MainImage,
+			&i.Images,
 			&i.Name,
 		); err != nil {
 			return nil, err

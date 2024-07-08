@@ -24,7 +24,7 @@ SELECT
     od.host_name_option,
     oi.id AS option_id,
     oi.co_host_id,
-    op.cover_image,
+    op.main_image,
     CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.scan_code::boolean
         WHEN oi.host_id = $2 THEN true
         ELSE false -- Optional: Handle other cases if needed
@@ -87,7 +87,7 @@ SELECT
     od.host_name_option,
     oi.id AS option_id,
     oi.co_host_id,
-    op.cover_image,
+    op.main_image,
     CASE WHEN och_subquery.scan_code IS NOT NULL THEN och_subquery.scan_code::boolean
         WHEN oi.host_id = $2 THEN true
         ELSE false -- Optional: Handle other cases if needed

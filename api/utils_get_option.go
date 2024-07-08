@@ -347,7 +347,7 @@ func GetUserFromOptionMain(optionMain db.GetOptionInfoMainRow) db.User {
 		DefaultPayoutCard: optionMain.DefaultPayoutCard,
 		DefaultAccountID:  optionMain.DefaultAccountID,
 		IsActive:          optionMain.UIsActive,
-		Photo:             optionMain.Photo,
+		Image:             optionMain.HostImage,
 		PasswordChangedAt: optionMain.UPasswordChangedAt,
 		CreatedAt:         optionMain.UCreatedAt,
 		UpdatedAt:         optionMain.UUpdatedAt,

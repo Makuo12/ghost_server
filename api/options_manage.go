@@ -62,8 +62,8 @@ func (server *Server) GetUHMOptionData(ctx *gin.Context) {
 			CategoryThree:  uhmData.CategoryThree,
 			CategoryFour:   uhmData.CategoryFour,
 			NumOfGuest:     int(uhmData.GuestWelcomed),
-			CoverPhoto:     uhmData.CoverImage,
-			Photos:         uhmData.Photo,
+			MainImage:     uhmData.MainImage,
+			Images:         uhmData.Images,
 			OptionUserID:   tools.UuidToString(uhmData.OptionUserID),
 			Street:         uhmData.Street,
 			State:          uhmData.State,
@@ -96,8 +96,8 @@ func (server *Server) GetUHMOptionData(ctx *gin.Context) {
 			CategoryThree:  uhmData.CategoryThree,
 			CategoryFour:   uhmData.CategoryFour,
 			NumOfGuest:     0,
-			CoverPhoto:     uhmData.CoverImage,
-			Photos:         uhmData.Photo,
+			MainImage:     uhmData.MainImage,
+			Images:         uhmData.Images,
 			OptionUserID:   tools.UuidToString(uhmData.OptionUserID),
 			Street:         "",
 			State:          "",
@@ -198,7 +198,7 @@ func (server *Server) CreateEditSpaceAreas(ctx *gin.Context) {
 				OptionID:    option.ID,
 				SharedSpace: false,
 				SpaceType:   req.Space[i],
-				Photos:      []string{"none"},
+				Images:      []string{"none"},
 				Beds:        []string{"none"},
 			})
 			if err != nil {
@@ -267,14 +267,14 @@ func (server *Server) AddBedSpaceAreas(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	photoRes := tools.HandleDBList(spaceArea.Photos)
+	images := tools.HandleDBList(spaceArea.Images)
 	bedRes := tools.HandleDBList(spaceArea.Beds)
 	res := SpaceAreas{
 		ID:          tools.UuidToString(spaceArea.ID),
 		OptionID:    tools.UuidToString(spaceArea.OptionID),
 		SharedSpace: spaceArea.SharedSpace,
 		SpaceType:   spaceArea.SpaceType,
-		Photos:      photoRes,
+		Image:      images,
 		Beds:        bedRes,
 		IsSuite:     spaceArea.IsSuite,
 		Name:        req.Name,
@@ -326,24 +326,24 @@ func (server *Server) AddPhotoSpaceAreas(ctx *gin.Context) {
 	}
 
 	if hasPhotos {
-		spaceArea, err := server.store.UpdateSpaceAreaPhotos(ctx, db.UpdateSpaceAreaPhotosParams{
+		spaceArea, err := server.store.UpdateSpaceAreaImages(ctx, db.UpdateSpaceAreaImagesParams{
 			ID:     spaceAreaID,
-			Photos: photos,
+			Images: photos,
 		})
 		if err != nil {
-			log.Printf("There an error at AddPhotoSpaceAreas at UpdateSpaceAreaPhotos: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+			log.Printf("There an error at AddPhotoSpaceAreas at UpdateSpaceAreaImages: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
 			err = fmt.Errorf("could not add this photo to this guest area")
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
 		}
-		photoRes := tools.HandleDBList(spaceArea.Photos)
+		images := tools.HandleDBList(spaceArea.Images)
 		bedRes := tools.HandleDBList(spaceArea.Beds)
 		res := SpaceAreas{
 			ID:          tools.UuidToString(spaceArea.ID),
 			OptionID:    tools.UuidToString(spaceArea.OptionID),
 			SharedSpace: spaceArea.SharedSpace,
 			SpaceType:   spaceArea.SpaceType,
-			Photos:      photoRes,
+			Image:      images,
 			Beds:        bedRes,
 			IsSuite:     spaceArea.IsSuite,
 			Name:        req.Name,
@@ -962,7 +962,7 @@ func (server *Server) GetOptionPhotoCaption(ctx *gin.Context) {
 		var spaceData = make(map[string]int)
 		for i := 0; i < len(spaceAreas); i++ {
 			spaceData[spaceAreas[i].SpaceType] = spaceData[spaceAreas[i].SpaceType] + 1
-			if tools.ContainsString(spaceAreas[i].Photos, req.PhotoID) {
+			if tools.ContainsString(spaceAreas[i].Images, req.PhotoID) {
 				name := fmt.Sprintf("%v-%d", spaceAreas[i].SpaceType, spaceData[spaceAreas[i].SpaceType])
 				location = name
 				break

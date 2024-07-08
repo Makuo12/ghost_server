@@ -54,7 +54,7 @@ func (q *Queries) CreateScannedCharge(ctx context.Context, arg CreateScannedChar
 }
 
 const getScannedChargeOption = `-- name: GetScannedChargeOption :one
-SELECT sc.scanned, co.option_user_id, co.id AS charge_id, sc.scanned_by, sc.scanned_time, u.first_name AS scanned_by_name, u.photo AS scanned_by_profile_photo  
+SELECT sc.scanned, co.option_user_id, co.id AS charge_id, sc.scanned_by, sc.scanned_time, u.first_name AS scanned_by_name, u.image AS scanned_user_image  
 FROM charge_option_references co
     LEFT JOIN scanned_charges sc ON sc.charge_id = co.id
     LEFT JOIN users u ON u.user_id = sc.scanned_by
@@ -69,13 +69,13 @@ type GetScannedChargeOptionParams struct {
 }
 
 type GetScannedChargeOptionRow struct {
-	Scanned               pgtype.Bool        `json:"scanned"`
-	OptionUserID          uuid.UUID          `json:"option_user_id"`
-	ChargeID              uuid.UUID          `json:"charge_id"`
-	ScannedBy             pgtype.UUID        `json:"scanned_by"`
-	ScannedTime           pgtype.Timestamptz `json:"scanned_time"`
-	ScannedByName         pgtype.Text        `json:"scanned_by_name"`
-	ScannedByProfilePhoto pgtype.Text        `json:"scanned_by_profile_photo"`
+	Scanned          pgtype.Bool        `json:"scanned"`
+	OptionUserID     uuid.UUID          `json:"option_user_id"`
+	ChargeID         uuid.UUID          `json:"charge_id"`
+	ScannedBy        pgtype.UUID        `json:"scanned_by"`
+	ScannedTime      pgtype.Timestamptz `json:"scanned_time"`
+	ScannedByName    pgtype.Text        `json:"scanned_by_name"`
+	ScannedUserImage pgtype.Text        `json:"scanned_user_image"`
 }
 
 func (q *Queries) GetScannedChargeOption(ctx context.Context, arg GetScannedChargeOptionParams) (GetScannedChargeOptionRow, error) {
@@ -93,7 +93,7 @@ func (q *Queries) GetScannedChargeOption(ctx context.Context, arg GetScannedChar
 		&i.ScannedBy,
 		&i.ScannedTime,
 		&i.ScannedByName,
-		&i.ScannedByProfilePhoto,
+		&i.ScannedUserImage,
 	)
 	return i, err
 }
@@ -140,7 +140,7 @@ u.default_card,
 u.default_payout_card,
 u.default_account_id,
 u.is_active AS u_is_active,
-u.photo,
+u.image AS host_image,
 u.password_changed_at AS u_password_changed_at,
 u.created_at AS u_created_at,
 u.updated_at AS u_updated_at,
@@ -249,7 +249,7 @@ type GetScannedChargeOptionByHostRow struct {
 	DefaultPayoutCard   string    `json:"default_payout_card"`
 	DefaultAccountID    string    `json:"default_account_id"`
 	UIsActive           bool      `json:"u_is_active"`
-	Photo               string    `json:"photo"`
+	HostImage           string    `json:"host_image"`
 	UPasswordChangedAt  time.Time `json:"u_password_changed_at"`
 	UCreatedAt          time.Time `json:"u_created_at"`
 	UUpdatedAt          time.Time `json:"u_updated_at"`
@@ -320,7 +320,7 @@ func (q *Queries) GetScannedChargeOptionByHost(ctx context.Context, arg GetScann
 		&i.DefaultPayoutCard,
 		&i.DefaultAccountID,
 		&i.UIsActive,
-		&i.Photo,
+		&i.HostImage,
 		&i.UPasswordChangedAt,
 		&i.UCreatedAt,
 		&i.UUpdatedAt,
@@ -342,7 +342,7 @@ func (q *Queries) GetScannedChargeOptionByHost(ctx context.Context, arg GetScann
 }
 
 const getScannedChargeTicket = `-- name: GetScannedChargeTicket :one
-SELECT sc.scanned, ce.option_user_id, ct.id AS charge_id, sc.scanned_by, sc.scanned_time, ct.grade, u.first_name AS scanned_by_name, u.photo AS scanned_by_profile_photo, ct.ticket_type 
+SELECT sc.scanned, ce.option_user_id, ct.id AS charge_id, sc.scanned_by, sc.scanned_time, ct.grade, u.first_name AS scanned_by_name, u.image AS scanned_user_image, ct.ticket_type 
 FROM charge_ticket_references ct
     JOIN charge_date_references cd on cd.id = ct.charge_date_id
     JOIN charge_event_references ce on ce.id = cd.charge_event_id
@@ -359,15 +359,15 @@ type GetScannedChargeTicketParams struct {
 }
 
 type GetScannedChargeTicketRow struct {
-	Scanned               pgtype.Bool        `json:"scanned"`
-	OptionUserID          uuid.UUID          `json:"option_user_id"`
-	ChargeID              uuid.UUID          `json:"charge_id"`
-	ScannedBy             pgtype.UUID        `json:"scanned_by"`
-	ScannedTime           pgtype.Timestamptz `json:"scanned_time"`
-	Grade                 string             `json:"grade"`
-	ScannedByName         pgtype.Text        `json:"scanned_by_name"`
-	ScannedByProfilePhoto pgtype.Text        `json:"scanned_by_profile_photo"`
-	TicketType            string             `json:"ticket_type"`
+	Scanned          pgtype.Bool        `json:"scanned"`
+	OptionUserID     uuid.UUID          `json:"option_user_id"`
+	ChargeID         uuid.UUID          `json:"charge_id"`
+	ScannedBy        pgtype.UUID        `json:"scanned_by"`
+	ScannedTime      pgtype.Timestamptz `json:"scanned_time"`
+	Grade            string             `json:"grade"`
+	ScannedByName    pgtype.Text        `json:"scanned_by_name"`
+	ScannedUserImage pgtype.Text        `json:"scanned_user_image"`
+	TicketType       string             `json:"ticket_type"`
 }
 
 func (q *Queries) GetScannedChargeTicket(ctx context.Context, arg GetScannedChargeTicketParams) (GetScannedChargeTicketRow, error) {
@@ -386,7 +386,7 @@ func (q *Queries) GetScannedChargeTicket(ctx context.Context, arg GetScannedChar
 		&i.ScannedTime,
 		&i.Grade,
 		&i.ScannedByName,
-		&i.ScannedByProfilePhoto,
+		&i.ScannedUserImage,
 		&i.TicketType,
 	)
 	return i, err
@@ -434,7 +434,7 @@ u.default_card,
 u.default_payout_card,
 u.default_account_id,
 u.is_active AS u_is_active,
-u.photo,
+u.image AS host_image,
 u.password_changed_at AS u_password_changed_at,
 u.created_at AS u_created_at,
 u.updated_at AS u_updated_at,
@@ -549,7 +549,7 @@ type GetScannedChargeTicketByHostRow struct {
 	DefaultPayoutCard   string    `json:"default_payout_card"`
 	DefaultAccountID    string    `json:"default_account_id"`
 	UIsActive           bool      `json:"u_is_active"`
-	Photo               string    `json:"photo"`
+	HostImage           string    `json:"host_image"`
 	UPasswordChangedAt  time.Time `json:"u_password_changed_at"`
 	UCreatedAt          time.Time `json:"u_created_at"`
 	UUpdatedAt          time.Time `json:"u_updated_at"`
@@ -624,7 +624,7 @@ func (q *Queries) GetScannedChargeTicketByHost(ctx context.Context, arg GetScann
 		&i.DefaultPayoutCard,
 		&i.DefaultAccountID,
 		&i.UIsActive,
-		&i.Photo,
+		&i.HostImage,
 		&i.UPasswordChangedAt,
 		&i.UCreatedAt,
 		&i.UUpdatedAt,

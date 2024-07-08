@@ -231,7 +231,7 @@ func HandleExOptionReview(option db.OptionsInfo, server *Server, ctx *gin.Contex
 			YearJoined:       "none",
 			DateBooked:       "none",
 			DateHostResponse: "none",
-			ProfilePhoto:     "none",
+			HostImage:     "none",
 			FirstName:        "none",
 		}
 		resData = append(resData, data)
@@ -272,7 +272,7 @@ func HandleExOptionReview(option db.OptionsInfo, server *Server, ctx *gin.Contex
 				YearJoined:       tools.ConvertDateOnlyToString(rev.UserJoined),
 				DateBooked:       tools.ConvertDateOnlyToString(rev.DateBooked),
 				DateHostResponse: "none",
-				ProfilePhoto:     rev.Photo,
+				HostImage:        rev.HostImage,
 				FirstName:        rev.FirstName,
 			}
 			resData = append(resData, data)
@@ -336,7 +336,7 @@ func HandleExEventReview(option db.OptionsInfo, server *Server, ctx *gin.Context
 		YearJoined:       "none",
 		DateBooked:       "none",
 		DateHostResponse: "none",
-		ProfilePhoto:     "none",
+		HostImage:     "none",
 		FirstName:        "none",
 	}
 	resData = append(resData, data)
@@ -408,7 +408,7 @@ func HandleListOptionExReview(ctx context.Context, server *Server, req ListExRev
 			YearJoined:       tools.ConvertDateOnlyToString(rev.UserJoined),
 			DateBooked:       tools.ConvertDateOnlyToString(rev.DateBooked),
 			DateHostResponse: "none",
-			ProfilePhoto:     rev.Photo,
+			HostImage:     rev.HostImage,
 			FirstName:        rev.FirstName,
 		}
 		resData = append(resData, data)

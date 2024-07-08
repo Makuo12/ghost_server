@@ -89,7 +89,8 @@ func (server *Server) ValidateOptionCoHost(ctx *gin.Context) {
 		MainHostName:   option.FirstName,
 		MainOptionName: option.HostNameOption,
 		OptionCoHostID: tools.UuidToString(option.CoHostID),
-		CoverImage:     option.CoverImage,
+		HostImage:      option.HostImage,
+		MainImage:      option.MainImage,
 		MainOption:     option.MainOptionType,
 		IsPrimaryHost:  false,
 	}
@@ -145,7 +146,8 @@ func (server *Server) ListOptionCoHostItem(ctx *gin.Context) {
 			MainHostName:   o.FirstName,
 			MainOptionName: o.HostNameOption,
 			OptionCoHostID: tools.UuidToString(o.CoHostID),
-			CoverImage:     o.CoverImage,
+			HostImage:      o.HostImage,
+			MainImage:      o.MainImage,
 			MainOption:     o.MainOptionType,
 			IsPrimaryHost:  isPrimaryHost,
 		}

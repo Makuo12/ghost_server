@@ -52,7 +52,7 @@ RETURNING *;
 
 
 -- name: ListOIDSearchByName :many
-SELECT o_i_d.host_name_option, o_i.id, o_i_p.cover_image, o_i.main_option_type, o_i.is_complete, o_i_s.status AS option_status
+SELECT o_i_d.host_name_option, o_i.id, o_i_p.main_image, o_i.main_option_type, o_i.is_complete, o_i_s.status AS option_status
 FROM options_info_details o_i_d
     JOIN options_infos o_i on o_i_d.option_id = o_i.id
     JOIN options_infos_status o_i_s on o_i_s.option_id = o_i.id
@@ -71,7 +71,7 @@ WHERE LOWER(o_i_d.host_name_option) LIKE $1 AND u.id=$2 AND o_i.is_active = $3 A
 
 ---- This is for the user end
 -- name: ListUserSearchEventByName :many
-SELECT o_i_d.host_name_option, o_i.option_user_id, o_i.is_verified, o_i_p.cover_image
+SELECT o_i_d.host_name_option, o_i.option_user_id, o_i.is_verified, o_i_p.main_image
 FROM options_info_details o_i_d
     JOIN options_infos o_i on o_i_d.option_id = o_i.id
     JOIN options_info_photos o_i_p on o_i_p.option_id = o_i.id
@@ -80,7 +80,7 @@ WHERE LOWER(o_i_d.host_name_option) LIKE $1 AND o_i.is_active = $2 AND o_i.is_co
 
 
 -- name: ListOIDSearchByNameNoPhoto :many
-SELECT oi.id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.cover_image, ois.status AS option_status,
+SELECT oi.id, oi.is_complete, oi.currency, oi.main_option_type, oi.created_at, oi.option_type, od.host_name_option, coi.current_state, coi.previous_state, op.main_image, ois.status AS option_status,
 CASE
     WHEN och_subquery.option_id IS NOT NULL THEN 'co_host'
     WHEN oi.host_id = $1 THEN 'main_host'

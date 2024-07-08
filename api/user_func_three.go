@@ -289,7 +289,7 @@ func (server *Server) ConfirmCodeJoin(ctx *gin.Context) {
 		FirstName:            user.FirstName,
 		LastName:             user.LastName,
 		AccessToken:          accessToken,
-		ProfilePhoto:         user.Photo,
+		HostImage:            user.Image,
 		Currency:             user.Currency,
 		AccessTokenExpiresAt: accessPayloadStringTime,
 		RefreshToken:         refreshToken,

@@ -16,10 +16,10 @@ func (server *Server) ListPhotoUserAdmin(ctx *gin.Context) {
 	users, err := server.store.ListUserByAdmin(ctx)
 	if err == nil && len(users) > 0 {
 		for _, u := range users {
-			if tools.ServerStringEmpty(u.Photo) {
+			if tools.ServerStringEmpty(u.Image) {
 				continue
 			}
-			allPhotos = append(allPhotos, u.Photo)
+			allPhotos = append(allPhotos, u.Image)
 		}
 	}
 	res := ListFirebasePhoto{
@@ -55,10 +55,10 @@ func (server *Server) ListPhotoOptionAdmin(ctx *gin.Context) {
 	optionPhotos, err := server.store.ListOptionPhotoByAdmin(ctx)
 	if err == nil && len(optionPhotos) > 0 {
 		for _, op := range optionPhotos {
-			if len(op.Photo) > 0 {
-				allPhotos = append(allPhotos, op.Photo...)
+			if len(op.Images) > 0 {
+				allPhotos = append(allPhotos, op.Images...)
 			}
-			allPhotos = append(allPhotos, op.CoverImage)
+			allPhotos = append(allPhotos, op.MainImage)
 		}
 	}
 	res := ListFirebasePhoto{
@@ -72,7 +72,7 @@ func (server *Server) ListPhotoEventCheckInStepAdmin(ctx *gin.Context) {
 	eventCheckInSteps, err := server.store.ListEventCheckInStepByAdmin(ctx)
 	if err == nil && len(eventCheckInSteps) > 0 {
 		for _, e := range eventCheckInSteps {
-			allPhotos = append(allPhotos, e.Photo)
+			allPhotos = append(allPhotos, e.Image)
 		}
 	}
 
@@ -87,7 +87,7 @@ func (server *Server) ListPhotoCheckInStepAdmin(ctx *gin.Context) {
 	checkInSteps, err := server.store.ListCheckInStepByAdmin(ctx)
 	if err == nil && len(checkInSteps) > 0 {
 		for _, optionStep := range checkInSteps {
-			allPhotos = append(allPhotos, optionStep.Photo)
+			allPhotos = append(allPhotos, optionStep.Image)
 		}
 	}
 
@@ -110,7 +110,7 @@ func (server *Server) UpdatePhotoUserAdmin(ctx *gin.Context) {
 	users, err := server.store.ListUserByAdmin(ctx)
 	if err == nil && len(users) > 0 {
 		for _, u := range users {
-			if u.Photo == req.Actual {
+			if u.Image == req.Actual {
 				image := fmt.Sprintf("%v*%v", req.Actual, req.Update)
 				_, err := server.store.UpdateUser(ctx, db.UpdateUserParams{
 					Image: pgtype.Text{
@@ -171,7 +171,7 @@ func (server *Server) UpdatePhotoOptionAdmin(ctx *gin.Context) {
 	optionPhotos, err := server.store.ListOptionPhotoByAdmin(ctx)
 	if err == nil && len(optionPhotos) > 0 {
 		for _, op := range optionPhotos {
-			if op.CoverImage == req.Actual {
+			if op.MainImage == req.Actual {
 				image := fmt.Sprintf("%v*%v", req.Actual, req.Update)
 				_, err = server.store.UpdateOptionInfoMainImage(ctx, db.UpdateOptionInfoMainImageParams{
 					OptionID:  op.OptionID,
@@ -182,7 +182,7 @@ func (server *Server) UpdatePhotoOptionAdmin(ctx *gin.Context) {
 				}
 				break
 			}
-			for _, basicPhotos := range op.Photo {
+			for _, basicPhotos := range op.Images {
 				if basicPhotos == req.Actual {
 					image := fmt.Sprintf("%v*%v", req.Actual, req.Update)
 					if !tools.IsInList(op.Images, image) {
@@ -208,62 +208,63 @@ func (server *Server) UpdatePhotoOptionAdmin(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (server *Server) UpdatePhotoEventCheckInStepAdmin(ctx *gin.Context) {
-	var req UpdateFirebasePhotoParams
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("error at UpdateEventCheckInStep in ShouldBindJSON: %v \n", err)
-		err = fmt.Errorf("there was an error while processing your inputs please try again later")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	eventCheckInSteps, err := server.store.ListEventCheckInStepByAdmin(ctx)
-	if err == nil && len(eventCheckInSteps) > 0 {
-		for _, e := range eventCheckInSteps {
-			if e.Photo == req.Actual && e.PublicPhoto != req.Update {
-				_, err = server.store.UpdateEventCheckInStepPublicPhoto(ctx, db.UpdateEventCheckInStepPublicPhotoParams{
-					ID:          e.ID,
-					PublicPhoto: req.Update,
-				})
-				if err != nil {
-					log.Printf("Error at UpdatePhotoOptionAdmin photo %v\n", err.Error())
-				}
-				break
-			}
-		}
-	}
+//func (server *Server) UpdatePhotoEventCheckInStepAdmin(ctx *gin.Context) {
+//	var req UpdateFirebasePhotoParams
+//	if err := ctx.ShouldBindJSON(&req); err != nil {
+//		log.Printf("error at UpdateEventCheckInStep in ShouldBindJSON: %v \n", err)
+//		err = fmt.Errorf("there was an error while processing your inputs please try again later")
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//	eventCheckInSteps, err := server.store.ListEventCheckInStepByAdmin(ctx)
+//	if err == nil && len(eventCheckInSteps) > 0 {
+//		for _, e := range eventCheckInSteps {
+//			image := fmt.Sprintf("%v*%v", req.Actual, req.Update)
+//			if e.Image == req.Actual  {
+//				_, err = server.store.UpdateSpaceAreaImages(ctx, db.UpdateSpaceAreaImagesParams{
+//					ID:          e.ID,
+//					Images: image,
+//				})
+//				if err != nil {
+//					log.Printf("Error at UpdatePhotoOptionAdmin photo %v\n", err.Error())
+//				}
+//				break
+//			}
+//		}
+//	}
 
-	res := UserResponseMsg{
-		Success: true,
-	}
-	ctx.JSON(http.StatusOK, res)
-}
+//	res := UserResponseMsg{
+//		Success: true,
+//	}
+//	ctx.JSON(http.StatusOK, res)
+//}
 
-func (server *Server) UpdatePhotoCheckInStepAdmin(ctx *gin.Context) {
-	var req UpdateFirebasePhotoParams
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		log.Printf("error at UpdateCheckInStep in ShouldBindJSON: %v \n", err)
-		err = fmt.Errorf("there was an error while processing your inputs please try again later")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	checkInSteps, err := server.store.ListCheckInStepByAdmin(ctx)
-	if err == nil && len(checkInSteps) > 0 {
-		for _, optionStep := range checkInSteps {
-			if optionStep.Photo == req.Actual && optionStep.PublicPhoto != req.Update {
-				_, err = server.store.UpdateCheckInStepPublicPhoto(ctx, db.UpdateCheckInStepPublicPhotoParams{
-					ID:          optionStep.ID,
-					PublicPhoto: req.Update,
-				})
-				if err != nil {
-					log.Printf("Error at UpdatePhotoOptionAdmin photo %v\n", err.Error())
-				}
-				break
-			}
-		}
-	}
+//func (server *Server) UpdatePhotoCheckInStepAdmin(ctx *gin.Context) {
+//	var req UpdateFirebasePhotoParams
+//	if err := ctx.ShouldBindJSON(&req); err != nil {
+//		log.Printf("error at UpdateCheckInStep in ShouldBindJSON: %v \n", err)
+//		err = fmt.Errorf("there was an error while processing your inputs please try again later")
+//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+//		return
+//	}
+//	checkInSteps, err := server.store.ListCheckInStepByAdmin(ctx)
+//	if err == nil && len(checkInSteps) > 0 {
+//		for _, optionStep := range checkInSteps {
+//			if optionStep.Photo == req.Actual && optionStep.PublicPhoto != req.Update {
+//				_, err = server.store.UpdateCheckInStepPublicPhoto(ctx, db.UpdateCheckInStepPublicPhotoParams{
+//					ID:          optionStep.ID,
+//					PublicPhoto: req.Update,
+//				})
+//				if err != nil {
+//					log.Printf("Error at UpdatePhotoOptionAdmin photo %v\n", err.Error())
+//				}
+//				break
+//			}
+//		}
+//	}
 
-	res := UserResponseMsg{
-		Success: true,
-	}
-	ctx.JSON(http.StatusOK, res)
-}
+//	res := UserResponseMsg{
+//		Success: true,
+//	}
+//	ctx.JSON(http.StatusOK, res)
+//}

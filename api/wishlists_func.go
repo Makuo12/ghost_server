@@ -87,30 +87,30 @@ func HandleWishlistOptionExperience(ctx *gin.Context, server *Server, user db.Us
 			log.Printf("Error at addedPrice GetDeepLinkExperience in ConvertPrice err: %v, user: %v\n", err, ctx.ClientIP())
 			addedPrice = 0.0
 		}
+		_, mainUrl := tools.GetImageItem(data.MainImage)
+		_, userUrl := tools.GetImageItem(data.HostImage)
+		_, urls := tools.GetImageListItem(data.Images)
 		newData := ExperienceOptionData{
-			UserOptionID:       tools.UuidToString(data.OptionUserID),
-			Name:               data.HostNameOption,
-			IsVerified:         data.IsVerified,
-			CoverImage:         data.CoverImage,
-			HostAsIndividual:   data.HostAsIndividual,
-			BasePrice:          tools.ConvertFloatToString(basePrice),
-			WeekendPrice:       tools.ConvertFloatToString(weekendPrice),
-			Photos:             data.Photo,
-			TypeOfShortlet:     data.TypeOfShortlet,
-			State:              data.State,
-			Country:            data.Country,
-			ProfilePhoto:       data.Photo_2,
-			HostName:           data.FirstName,
-			HostJoined:         tools.ConvertDateOnlyToString(data.CreatedAt),
-			HostVerified:       data.IsVerified_2,
-			Category:           data.Category,
-			AddedPrice:         tools.ConvertFloatToString(addedPrice),
-			AddPriceFound:      addDateFound,
-			StartDate:          tools.ConvertDateOnlyToString(startDateBook),
-			EndDate:            tools.ConvertDateOnlyToString(endDateBook),
-			PublicPhotos:       data.OptionPublicPhoto,
-			PublicCoverImage:   data.PublicCoverImage,
-			PublicProfilePhoto: data.HostPublicPhoto,
+			UserOptionID:     tools.UuidToString(data.OptionUserID),
+			Name:             data.HostNameOption,
+			IsVerified:       data.IsVerified,
+			HostAsIndividual: data.HostAsIndividual,
+			BasePrice:        tools.ConvertFloatToString(basePrice),
+			WeekendPrice:     tools.ConvertFloatToString(weekendPrice),
+			TypeOfShortlet:   data.TypeOfShortlet,
+			State:            data.State,
+			Country:          data.Country,
+			HostName:         data.FirstName,
+			HostJoined:       tools.ConvertDateOnlyToString(data.CreatedAt),
+			HostVerified:     data.IsVerified_2,
+			Category:         data.Category,
+			AddedPrice:       tools.ConvertFloatToString(addedPrice),
+			AddPriceFound:    addDateFound,
+			StartDate:        tools.ConvertDateOnlyToString(startDateBook),
+			EndDate:          tools.ConvertDateOnlyToString(endDateBook),
+			MainUrl:          mainUrl,
+			HostUrl:          userUrl,
+			Urls:             urls,
 		}
 		resData = append(resData, newData)
 
@@ -261,29 +261,28 @@ func HandleWishlistEventExperience(ctx *gin.Context, server *Server, user db.Use
 			priceFloat = 0.0
 			log.Printf("Error at  HandleListEventExperience in ConvertPrice err: %v, user: %v\n", err, ctx.ClientIP())
 		}
-
+		_, mainUrl := tools.GetImageItem(data.MainImage)
+		_, userUrl := tools.GetImageItem(data.HostImage)
+		_, urls := tools.GetImageListItem(data.Images)
 		newData := ExperienceEventData{
 			UserOptionID:       tools.UuidToString(data.OptionUserID),
 			Name:               data.HostNameOption,
 			IsVerified:         data.IsVerified,
-			CoverImage:         data.CoverImage,
-			Photos:             data.Photo,
 			TicketAvailable:    ticketAvailable,
 			SubEventType:       data.SubCategoryType,
 			TicketLowestPrice:  tools.ConvertFloatToString(priceFloat),
 			EventStartDate:     startDateData,
 			EventEndDate:       endDateData,
 			Location:           locationList,
-			ProfilePhoto:       data.Photo_2,
 			HostAsIndividual:   data.HostAsIndividual,
 			HostName:           data.FirstName,
 			HostJoined:         tools.ConvertDateOnlyToString(data.CreatedAt),
 			HostVerified:       data.IsVerified_2,
 			Category:           data.Category,
 			HasFreeTicket:      hasFreeTicket,
-			PublicCoverImage:   data.PublicCoverImage,
-			PublicPhotos:       data.OptionPublicPhoto,
-			PublicProfilePhoto: data.HostPublicPhoto,
+			MainUrl:           mainUrl,
+			HostUrl:           userUrl,
+			Urls:              urls,
 		}
 		resData = append(resData, newData)
 	}

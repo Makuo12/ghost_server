@@ -629,10 +629,8 @@ func (server *Server) RemoveOptionQuestion(ctx *gin.Context) {
 			MainOptionType:     option.MainOptionType,
 			OptionType:         option.OptionType,
 			Currency:           option.Currency,
-			MainPhoto:          []string{},
-			MainCoverImage:     "",
-			PublicPhoto:        []string{},
-			PublicCoverImage:   "",
+			Images:             []string{},
+			MainImage:          "",
 		}
 	} else {
 		res = CreateOptionInfoPhotoParams{
@@ -643,10 +641,8 @@ func (server *Server) RemoveOptionQuestion(ctx *gin.Context) {
 			MainOptionType:     option.MainOptionType,
 			OptionType:         option.OptionType,
 			Currency:           option.Currency,
-			MainPhoto:          photoData.Photo,
-			MainCoverImage:     photoData.CoverImage,
-			PublicPhoto:        photoData.PublicPhoto,
-			PublicCoverImage:   photoData.PublicCoverImage,
+			Images:             photoData.Images,
+			MainImage:          photoData.MainImage,
 		}
 	}
 	ctx.JSON(http.StatusOK, res)

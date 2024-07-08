@@ -48,7 +48,7 @@ func HandleListMsgRedisDB(messageIDs []string, server *Server, ctx *gin.Context,
 			contact := MessageContactItem{
 				ConnectedUserID:            tools.UuidToString(connectedUserID),
 				FirstName:                  connectedUser.FirstName,
-				Photo:                      connectedUser.Photo,
+				MainImage:                      connectedUser.Image,
 				LastMessage:                msg[constants.MESSAGE],
 				LastMessageTime:            msg[constants.CREATED_AT],
 				UnreadMessageCount:         messageCount,
@@ -64,35 +64,35 @@ func HandleListMsgRedisDB(messageIDs []string, server *Server, ctx *gin.Context,
 
 }
 
-func HandleListMessageRedis(messageIDs []string, contactID string, server *Server, ctx *gin.Context, user db.User) (resData []MessageItem) {
-	for _, id := range messageIDs {
-		msg, err := RedisClient.HGetAll(RedisContext, id).Result()
-		if err != nil {
-			log.Printf("error at HandleListMessageRedis at HGetAll err:%v, user: %v , id: %v \n", err.Error(), user.ID, id)
-			continue
-		} else {
-			userID := tools.UuidToString(user.UserID)
-			senderID := msg[constants.SENDER_ID]
-			receiverID := msg[constants.RECEIVER_ID]
-			if (senderID == contactID && receiverID == userID) || (senderID == userID && receiverID == contactID) {
-				messageItem := MessageItem{
-					ID:         msg[constants.ID],
-					SenderID:   senderID,
-					ReceiverID: receiverID,
-					Message:    msg[constants.MESSAGE],
-					Type:       msg[constants.TYPE],
-					Read:       tools.ConvertStringToBool(msg[constants.READ]),
-					Photo:      msg[constants.PHOTO],
-					ParentID:   msg[constants.PARENT_ID],
-					Reference:  msg[constants.REFERENCE],
-					CreatedAt:  msg[constants.CREATED_AT],
-				}
-				resData = append(resData, messageItem)
-			}
-		}
-	}
-	return
-}
+//func HandleListMessageRedis(messageIDs []string, contactID string, server *Server, ctx *gin.Context, user db.User) (resData []MessageItem) {
+//	for _, id := range messageIDs {
+//		msg, err := RedisClient.HGetAll(RedisContext, id).Result()
+//		if err != nil {
+//			log.Printf("error at HandleListMessageRedis at HGetAll err:%v, user: %v , id: %v \n", err.Error(), user.ID, id)
+//			continue
+//		} else {
+//			userID := tools.UuidToString(user.UserID)
+//			senderID := msg[constants.SENDER_ID]
+//			receiverID := msg[constants.RECEIVER_ID]
+//			if (senderID == contactID && receiverID == userID) || (senderID == userID && receiverID == contactID) {
+//				messageItem := MessageItem{
+//					ID:         msg[constants.ID],
+//					SenderID:   senderID,
+//					ReceiverID: receiverID,
+//					Message:    msg[constants.MESSAGE],
+//					Type:       msg[constants.TYPE],
+//					Read:       tools.ConvertStringToBool(msg[constants.READ]),
+//					Photo:      msg[constants.PHOTO],
+//					ParentID:   msg[constants.PARENT_ID],
+//					Reference:  msg[constants.REFERENCE],
+//					CreatedAt:  msg[constants.CREATED_AT],
+//				}
+//				resData = append(resData, messageItem)
+//			}
+//		}
+//	}
+//	return
+//}
 
 func MessageType(msgType string) (userRequestCount int, userCancelCount int, hostCancelCount int, hostChangeDatesCount int) {
 	switch msgType {

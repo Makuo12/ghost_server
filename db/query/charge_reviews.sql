@@ -74,7 +74,7 @@ JOIN charge_option_references co ON cr.charge_id = co.id
 WHERE cr.charge_id = $1 AND co.user_id = $2;
 
 -- name: ListChargeOptionReview :many
-SELECT cr.general, cr.environment, cr.accuracy, cr.check_in, cr.communication, cr.location, cr.public_note, u.first_name, u.photo, u.created_at AS user_joined, co.start_date AS date_booked, co.guests
+SELECT cr.general, cr.environment, cr.accuracy, cr.check_in, cr.communication, cr.location, cr.public_note, u.first_name, u.image AS host_image, u.created_at AS user_joined, co.start_date AS date_booked, co.guests
 FROM charge_reviews cr
 JOIN charge_option_references co ON cr.charge_id = co.id
 JOIN users u ON cr.user_id = u.user_id
@@ -89,7 +89,7 @@ JOIN users u ON cr.user_id = u.user_id
 WHERE co.option_user_id = $1 AND cr.is_published = true; 
 
 -- name: ListChargeOptionReviewIndex :many
-SELECT cr.general, cr.environment, cr.accuracy, cr.check_in, cr.communication, cr.location, cr.public_note, u.first_name, u.photo, u.created_at AS user_joined, co.start_date AS date_booked, co.guests
+SELECT cr.general, cr.environment, cr.accuracy, cr.check_in, cr.communication, cr.location, cr.public_note, u.first_name, u.image AS host_image, u.created_at AS user_joined, co.start_date AS date_booked, co.guests
 FROM charge_reviews cr
 JOIN charge_option_references co ON cr.charge_id = co.id
 JOIN users u ON cr.user_id = u.user_id

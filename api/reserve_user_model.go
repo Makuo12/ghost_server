@@ -1,33 +1,30 @@
 package api
 
 type ReserveUserItem struct {
-	ID                     string   `json:"id"`
-	HostUserID             string   `json:"host_user_id"`
-	MainOption             string   `json:"main_option"`
-	HostNameOption         string   `json:"host_name_option"`
-	StartDate              string   `json:"start_date"`
-	EndDate                string   `json:"end_date"`
-	HostName               string   `json:"host_name"`
-	ProfilePhoto           string   `json:"profile_photo"`
-	OptionCoverImage       string   `json:"option_cover_image"`
-	PublicOptionCoverImage string   `json:"public_option_cover_image"`
-	OptionPhotos           []string `json:"option_photos"`
-	PublicOptionPhotos     []string `json:"public_option_photos"`
-	PublicProfilePhoto     string   `json:"public_profile_photo"`
-	StartTime              string   `json:"start_time"`
-	EndTime                string   `json:"end_time"`
-	CheckInMethod          string   `json:"check_in_method"`
-	Type                   string   `json:"type"`
-	Grade                  string   `json:"grade"`
-	OptionType             string   `json:"option_type"`
-	SpaceType              string   `json:"space_type"`
-	State                  string   `json:"state"`
-	Country                string   `json:"country"`
-	Street                 string   `json:"street"`
-	Timezone               string   `json:"timezone"`
-	City                   string   `json:"city"`
-	ReviewStatus           string   `json:"review_status"`
-	RoomID                 string   `json:"room_id"`
+	ID             string   `json:"id"`
+	HostUserID     string   `json:"host_user_id"`
+	MainOption     string   `json:"main_option"`
+	HostNameOption string   `json:"host_name_option"`
+	StartDate      string   `json:"start_date"`
+	EndDate        string   `json:"end_date"`
+	HostName       string   `json:"host_name"`
+	MainImage      string   `json:"main_image"`
+	Images         []string `json:"images"`
+	HostImage      string   `json:"host_image"`
+	StartTime      string   `json:"start_time"`
+	EndTime        string   `json:"end_time"`
+	CheckInMethod  string   `json:"check_in_method"`
+	Type           string   `json:"type"`
+	Grade          string   `json:"grade"`
+	OptionType     string   `json:"option_type"`
+	SpaceType      string   `json:"space_type"`
+	State          string   `json:"state"`
+	Country        string   `json:"country"`
+	Street         string   `json:"street"`
+	Timezone       string   `json:"timezone"`
+	City           string   `json:"city"`
+	ReviewStatus   string   `json:"review_status"`
+	RoomID         string   `json:"room_id"`
 }
 
 type ListReserveUserItemRes struct {
@@ -69,7 +66,7 @@ type ReserveUserWifiRes struct {
 type RUCheckInStepRes struct {
 	ID    string `json:"id"`
 	Des   string `json:"des"`
-	Photo string `json:"photo"`
+	Image string `json:"image"`
 }
 
 // RU -> ReserveUser

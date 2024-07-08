@@ -94,14 +94,14 @@ func (server *Server) ListOptionDateItems(ctx *gin.Context) {
 			}
 			if exist {
 				data := DateOptionBookedItem{
-					ID:           tools.UuidToString(d.ReferenceID),
-					StartDate:    tools.ConvertDateOnlyToString(d.StartDate),
-					EndDate:      tools.ConvertDateOnlyToString(d.EndDate),
-					ProfilePhoto: d.Photo,
-					Booked:       true,
-					FirstName:    d.FirstName,
-					UserID:       tools.UuidToString(d.UserID),
-					IsEmpty:      false,
+					ID:        tools.UuidToString(d.ReferenceID),
+					StartDate: tools.ConvertDateOnlyToString(d.StartDate),
+					EndDate:   tools.ConvertDateOnlyToString(d.EndDate),
+					UserImage: d.Image,
+					Booked:    true,
+					FirstName: d.FirstName,
+					UserID:    tools.UuidToString(d.UserID),
+					IsEmpty:   false,
 				}
 				resBookData = append(resBookData, data)
 			}
@@ -194,14 +194,14 @@ func (server *Server) CreateUpdateOptionDateTime(ctx *gin.Context) {
 	if len(dates) > 0 {
 		for _, d := range dates {
 			data := DateOptionBookedItem{
-				ID:           tools.UuidToString(d.ReferenceID),
-				StartDate:    tools.ConvertDateOnlyToString(d.StartDate),
-				EndDate:      tools.ConvertDateOnlyToString(d.EndDate),
-				ProfilePhoto: d.Photo,
-				Booked:       true,
-				FirstName:    d.FirstName,
-				UserID:       tools.UuidToString(d.UserID),
-				IsEmpty:      false,
+				ID:        tools.UuidToString(d.ReferenceID),
+				StartDate: tools.ConvertDateOnlyToString(d.StartDate),
+				EndDate:   tools.ConvertDateOnlyToString(d.EndDate),
+				UserImage: d.Image,
+				Booked:    true,
+				FirstName: d.FirstName,
+				UserID:    tools.UuidToString(d.UserID),
+				IsEmpty:   false,
 			}
 			resBookData = append(resBookData, data)
 		}

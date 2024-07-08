@@ -81,30 +81,30 @@ func HandleListOptionExperience(ctx *gin.Context, server *Server, req Experience
 			log.Printf("Error at addedPrice GetDeepLinkExperience in ConvertPrice err: %v, user: %v\n", err, ctx.ClientIP())
 			addedPrice = 0.0
 		}
+		_, mainUrl := tools.GetImageItem(data.MainImage)
+		_, userUrl := tools.GetImageItem(data.HostImage)
+		_, urls := tools.GetImageListItem(data.Images)
 		newData := ExperienceOptionData{
-			UserOptionID:       tools.UuidToString(data.OptionUserID),
-			Name:               data.HostNameOption,
-			IsVerified:         data.IsVerified,
-			CoverImage:         data.CoverImage,
-			HostAsIndividual:   data.HostAsIndividual,
-			BasePrice:          tools.ConvertFloatToString(basePrice),
-			WeekendPrice:       tools.ConvertFloatToString(weekendPrice),
-			Photos:             data.Photo,
-			TypeOfShortlet:     data.TypeOfShortlet,
-			State:              data.State,
-			Country:            data.Country,
-			ProfilePhoto:       data.Photo_2,
-			HostName:           data.FirstName,
-			HostJoined:         tools.ConvertDateOnlyToString(data.CreatedAt),
-			HostVerified:       data.IsVerified_2,
-			Category:           data.Category,
-			AddedPrice:         tools.ConvertFloatToString(addedPrice),
-			AddPriceFound:      addDateFound,
-			StartDate:          tools.ConvertDateOnlyToString(startDateBook),
-			EndDate:            tools.ConvertDateOnlyToString(endDateBook),
-			PublicPhotos:       data.OptionPublicPhoto,
-			PublicCoverImage:   data.PublicCoverImage,
-			PublicProfilePhoto: data.HostPublicPhoto,
+			UserOptionID:     tools.UuidToString(data.OptionUserID),
+			Name:             data.HostNameOption,
+			IsVerified:       data.IsVerified,
+			HostAsIndividual: data.HostAsIndividual,
+			BasePrice:        tools.ConvertFloatToString(basePrice),
+			WeekendPrice:     tools.ConvertFloatToString(weekendPrice),
+			TypeOfShortlet:   data.TypeOfShortlet,
+			State:            data.State,
+			Country:          data.Country,
+			HostName:         data.FirstName,
+			HostJoined:       tools.ConvertDateOnlyToString(data.CreatedAt),
+			HostVerified:     data.IsVerified_2,
+			Category:         data.Category,
+			AddedPrice:       tools.ConvertFloatToString(addedPrice),
+			AddPriceFound:    addDateFound,
+			StartDate:        tools.ConvertDateOnlyToString(startDateBook),
+			EndDate:          tools.ConvertDateOnlyToString(endDateBook),
+			MainUrl:          mainUrl,
+			HostUrl:          userUrl,
+			Urls:             urls,
 		}
 		resData = append(resData, newData)
 	}
@@ -206,10 +206,10 @@ func HandleExCommon(option db.OptionsInfo, server *Server, ctx *gin.Context) (ho
 	} else {
 		for _, host := range coHostData {
 			data := ExperienceDetailCoHost{
-				UserID:       tools.UuidToString(host.UserID),
-				Name:         host.FirstName,
-				ProfilePhoto: host.Photo,
-				IsEmpty:      false,
+				UserID:    tools.UuidToString(host.UserID),
+				Name:      host.FirstName,
+				HostImage: host.Image,
+				IsEmpty:   false,
 			}
 			cohost = append(cohost, data)
 		}
@@ -319,7 +319,7 @@ func HandleExSpaceArea(option db.OptionsInfo, server *Server, ctx *gin.Context) 
 		var spaceData = make(map[string]int)
 		for i := 0; i < len(spaceAreasDB); i++ {
 			spaceData[spaceAreasDB[i].SpaceType] = spaceData[spaceAreasDB[i].SpaceType] + 1
-			photos := tools.HandleDBList(spaceAreasDB[i].Photos)
+			images := tools.HandleDBList(spaceAreasDB[i].Images)
 			beds := tools.HandleDBList(spaceAreasDB[i].Beds)
 			if !tools.ServerListIsEmpty(beds) {
 				numOfBeds += len(beds)
@@ -328,7 +328,7 @@ func HandleExSpaceArea(option db.OptionsInfo, server *Server, ctx *gin.Context) 
 			data := ExperienceSpaceArea{
 				AreaType:    spaceAreasDB[i].SpaceType,
 				SharedSpace: spaceAreasDB[i].SharedSpace,
-				Photos:      photos,
+				Images:      images,
 				Beds:        beds,
 				IsSuite:     spaceAreasDB[i].IsSuite,
 				Name:        name,

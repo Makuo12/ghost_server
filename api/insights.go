@@ -73,7 +73,7 @@ func (server *Server) ListOptionInsight(ctx *gin.Context) {
 		}
 		newData := OptionInsightItem{
 			HostNameOption: data.HostNameOption,
-			CoverImage:     data.CoverImage,
+			MainImage:     data.MainImage,
 			OptionUserID:   tools.UuidToString(data.OptionUserID),
 			MainOptionType: data.MainOptionType,
 			HasName:        true,

@@ -73,7 +73,7 @@ func (q *Queries) GetEventDateDetail(ctx context.Context, eventDateTimeID uuid.U
 }
 
 const getEventDateDetailByOption = `-- name: GetEventDateDetailByOption :one
-SELECT event_date_time_id, start_time, end_time, e_d_d.time_zone, e_d_d.created_at, e_d_d.updated_at, e_d_i.id, event_info_id, start_date, name, publish_check_in_steps, check_in_method, event_dates, e_d_i.deep_link_id, type, e_d_i.is_active, need_bands, need_tickets, absorb_band_charge, status, note, end_date, e_d_i.created_at, e_d_i.updated_at, o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, o_i.time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, photo, public_photo, image, password_changed_at, u.created_at, u.updated_at
+SELECT event_date_time_id, start_time, end_time, e_d_d.time_zone, e_d_d.created_at, e_d_d.updated_at, e_d_i.id, event_info_id, start_date, name, publish_check_in_steps, check_in_method, event_dates, e_d_i.deep_link_id, type, e_d_i.is_active, need_bands, need_tickets, absorb_band_charge, status, note, end_date, e_d_i.created_at, e_d_i.updated_at, o_i.id, co_host_id, option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, o_i.time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, email, phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, image, password_changed_at, u.created_at, u.updated_at
 FROM event_date_details e_d_d
     JOIN event_date_times e_d_i on e_d_i.id = e_d_d.event_date_time_id
     JOIN options_infos o_i on o_i.id = e_d_i.event_info_id
@@ -156,8 +156,6 @@ type GetEventDateDetailByOptionRow struct {
 	DefaultAccountID    string    `json:"default_account_id"`
 	IsActive_3          bool      `json:"is_active_3"`
 	IsDeleted           bool      `json:"is_deleted"`
-	Photo               string    `json:"photo"`
-	PublicPhoto         string    `json:"public_photo"`
 	Image               string    `json:"image"`
 	PasswordChangedAt   time.Time `json:"password_changed_at"`
 	CreatedAt_4         time.Time `json:"created_at_4"`
@@ -236,8 +234,6 @@ func (q *Queries) GetEventDateDetailByOption(ctx context.Context, arg GetEventDa
 		&i.DefaultAccountID,
 		&i.IsActive_3,
 		&i.IsDeleted,
-		&i.Photo,
-		&i.PublicPhoto,
 		&i.Image,
 		&i.PasswordChangedAt,
 		&i.CreatedAt_4,

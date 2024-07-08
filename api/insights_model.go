@@ -7,7 +7,7 @@ type ListOptionInsightParams struct {
 
 type OptionInsightItem struct {
 	HostNameOption string `json:"host_name_option"`
-	CoverImage     string `json:"cover_image"`
+	MainImage     string `json:"main_image"`
 	OptionUserID   string `json:"option_user_id"`
 	HasName        bool   `json:"has_name"`
 	MainOptionType string `json:"main_option_type"`

@@ -1,14 +1,14 @@
 package api
 
 type DateOptionBookedItem struct {
-	ID           string `json:"id"`
-	StartDate    string `json:"start_date"`
-	EndDate      string `json:"end_date"`
-	ProfilePhoto string `json:"profile_photo"`
-	Booked       bool   `json:"booked"`
-	FirstName    string `json:"first_name"`
-	UserID       string `json:"user_id"`
-	IsEmpty      bool   `json:"is_empty"`
+	ID        string `json:"id"`
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
+	UserImage string `json:"user_image"`
+	Booked    bool   `json:"booked"`
+	FirstName string `json:"first_name"`
+	UserID    string `json:"user_id"`
+	IsEmpty   bool   `json:"is_empty"`
 }
 
 type DateEventBookedItem struct {
@@ -33,8 +33,6 @@ type UpdateHostEventDateBookedParams struct {
 	ReasonOne    string `json:"reason_one"`
 	Message      string `json:"message"`
 }
-
-
 
 type UpdateHostEventDateBookedRes struct {
 	StartDate   string `json:"start_date"`

@@ -755,26 +755,27 @@ func (server *Server) RemoveEventDateTime(ctx *gin.Context) {
 	} else {
 		log.Println("at else anybooked ", isBookedAny)
 		// We need to remove all photos in check in steps
-		photos, err := server.store.ListEventCheckInStepPhotos(ctx, eventDateTimeID)
-		log.Println("isBookend any photos ", photos)
-		if err != nil || len(photos) == 0 {
+		images, err := server.store.ListEventCheckInStepImage(ctx, eventDateTimeID)
+		log.Println("isBookend any images ", images)
+		if err != nil || len(images) == 0 {
 			if err != nil {
-				log.Printf("There an error at store.RemoveEventDateDetail at ListEventCheckInStepPhotos: %v, EventInfoID: %v, userID: %v \n", err.Error(), eventDateTimeID, user.ID)
+				log.Printf("There an error at store.RemoveEventDateDetail at ListEventCheckInStepimages: %v, EventInfoID: %v, userID: %v \n", err.Error(), eventDateTimeID, user.ID)
 			}
 			err = server.store.RemoveAllEventCheckInStep(ctx, eventDateTimeID)
 			if err != nil {
 				log.Printf("There an error at store.RemoveEventDateDetail at RemoveAllEventCheckInStep: %v, EventInfoID: %v, userID: %v \n", err.Error(), eventDateTimeID, user.ID)
 			}
 		} else {
-			log.Println("isBookend any photos 66 ", photos)
+			log.Println("isBookend any images 66 ", images)
 			err = server.store.RemoveAllEventCheckInStep(ctx, eventDateTimeID)
 			if err != nil {
 				log.Printf("There an error at store.RemoveEventDateDetail at RemoveAllEventCheckInStep: %v, EventInfoID: %v, userID: %v \n", err.Error(), eventDateTimeID, user.ID)
 			}
-			// Lets remove photos from firebase
-			for _, p := range photos {
+			// Lets remove images from firebase
+			for _, p := range images {
 				if !tools.ServerStringEmpty(p) {
-					err = RemoveFirebasePhoto(server, ctx, p)
+					path, _ := tools.GetImageItem(p)
+					err = RemoveFirebasePhoto(server, ctx, path)
 					if err != nil {
 						log.Printf("There an error at RemoveEventCheckInStep at RemoveFirebasePhoto: %v, eventDateTimeID: %v, userID: %v, photo: %v \n", err.Error(), eventDateTimeID, user.ID, p)
 						continue
