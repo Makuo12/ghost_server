@@ -161,7 +161,9 @@ func RemoveDuplicates(slice []string) []string {
 }
 
 func GetImageItem(image string) (path string, url string) {
+	log.Println("images: ", image)
 	split := strings.Split(image, "*")
+	log.Println("images split: ", split)
 	if len(split) == 2 {
 		path = split[0]
 		url = split[1]
