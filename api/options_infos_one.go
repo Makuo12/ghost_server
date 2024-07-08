@@ -720,61 +720,61 @@ func (server *Server) CreateOptionName(ctx *gin.Context) {
 
 //}
 
-//func (server *Server) CreateOptionPhoto(ctx *gin.Context) {
-//	var req CreateOptionInfoPhotoParams
-//	if err := ctx.ShouldBindJSON(&req); err != nil {
-//		log.Printf("Error at CreateOptionPhoto in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.OptionID)
-//		err = fmt.Errorf("error occurred while taking you back")
-//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-//		return
-//	}
-//	log.Println(req)
-//	requestID, err := tools.StringToUuid(req.OptionID)
-//	if err != nil {
-//		log.Printf("Error at tools.StringToUuid: %v, optionID: %v \n", err.Error(), req.OptionID)
-//		err = fmt.Errorf("error occurred while processing your request")
-//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-//		return
-//	}
-//	user, option, err := HandleGetOptionIncomplete(requestID, ctx, server, false)
-//	if err != nil {
-//		log.Println("error something went wrong 3, ", err)
-//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-//		return
-//	}
-//	optionData, err := server.store.GetOptionInfoPhoto(ctx, option.ID)
-//	if err != nil {
-//		// We expect that it should already exist
-//		log.Println("error something went wrong, ", err)
-//		err = fmt.Errorf("you must have a cover image with additional photos")
-//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-//		return
-//	}
-//	if tools.ServerStringEmpty(optionData.CoverImage) || tools.ServerListIsEmpty(optionData.Photo) {
-//		err = fmt.Errorf("you must have a cover image with additional photos")
-//		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-//		return
-//	}
+func (server *Server) CreateOptionPhoto(ctx *gin.Context) {
+	var req CreateOptionInfoPhotoParams
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Printf("Error at CreateOptionPhoto in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.OptionID)
+		err = fmt.Errorf("error occurred while taking you back")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	log.Println(req)
+	requestID, err := tools.StringToUuid(req.OptionID)
+	if err != nil {
+		log.Printf("Error at tools.StringToUuid: %v, optionID: %v \n", err.Error(), req.OptionID)
+		err = fmt.Errorf("error occurred while processing your request")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	user, option, err := HandleGetOptionIncomplete(requestID, ctx, server, false)
+	if err != nil {
+		log.Println("error something went wrong 3, ", err)
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	optionData, err := server.store.GetOptionInfoPhoto(ctx, option.ID)
+	if err != nil {
+		// We expect that it should already exist
+		log.Println("error something went wrong, ", err)
+		err = fmt.Errorf("you must have a cover image with additional photos")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	if tools.ServerStringEmpty(optionData.MainImage) || tools.ServerListIsEmpty(optionData.Images) || len(optionData.Images) < 2 {
+		err = fmt.Errorf("you must have a cover image with additional photos")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
 
-//	currentState, previousState := utils.PhotoViewState(option.OptionType)
-//	completeOption, err := HandleCompleteOption(currentState, previousState, server, ctx, option, user.ID)
-//	if err != nil {
-//		log.Printf("Error at CreateOptionPhoto in HandleCompleteOption: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
-//	}
-//	res := OptionInfoResponse{
-//		OptionItemType:     "",
-//		Success:            true,
-//		OptionID:           tools.UuidToString(option.ID),
-//		UserOptionID:       tools.UuidToString(option.OptionUserID),
-//		CurrentServerView:  completeOption.CurrentState,
-//		PreviousServerView: completeOption.PreviousState,
-//		MainOptionType:     option.MainOptionType,
-//		OptionType:         option.OptionType,
-//		Currency:           option.Currency,
-//	}
-//	ctx.JSON(http.StatusOK, res)
+	currentState, previousState := utils.PhotoViewState(option.OptionType)
+	completeOption, err := HandleCompleteOption(currentState, previousState, server, ctx, option, user.ID)
+	if err != nil {
+		log.Printf("Error at CreateOptionPhoto in HandleCompleteOption: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+	}
+	res := OptionInfoResponse{
+		OptionItemType:     "",
+		Success:            true,
+		OptionID:           tools.UuidToString(option.ID),
+		UserOptionID:       tools.UuidToString(option.OptionUserID),
+		CurrentServerView:  completeOption.CurrentState,
+		PreviousServerView: completeOption.PreviousState,
+		MainOptionType:     option.MainOptionType,
+		OptionType:         option.OptionType,
+		Currency:           option.Currency,
+	}
+	ctx.JSON(http.StatusOK, res)
 
-//}
+}
 
 func (server *Server) UploadOptionPhoto(ctx *gin.Context) {
 	var req UploadOptionInfoPhotoParams
