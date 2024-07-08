@@ -488,11 +488,10 @@ func RemoveAllPhoto(server *Server, ctx *gin.Context, option db.OptionsInfo) (er
 		return
 	}
 	images := []string{}
-	deletedImages := []string{}
-	notDeletedImages := []string{}
 	images = append(images, photoData.Images...)
 	// delete cover photo
-	err = RemoveFirebasePhoto(server, ctx, photoData.MainImage)
+	path, _ := tools.GetImageItem(photoData.MainImage)
+	err = RemoveFirebasePhoto(server, ctx, path)
 	if err != nil {
 		log.Printf("An error at RemoveAllPhoto in RemoveFirebasePhoto err: %v for optionID: %q", err.Error(), option.ID)
 		err = fmt.Errorf("an error occurred while removing your photos")
@@ -510,36 +509,22 @@ func RemoveAllPhoto(server *Server, ctx *gin.Context, option db.OptionsInfo) (er
 		return
 	}
 	// delete all the photos in the array
-	for i := 0; i < len(images); i++ {
-		path, _ := tools.GetImageItem(images[i])
+	for _, image := range photoData.Images {
+		path, _ := tools.GetImageItem(image)
 		err = RemoveFirebasePhoto(server, ctx, path)
 		if err != nil {
 			log.Printf("An error at RemoveAllPhoto in RemoveFirebasePhoto err: %v for optionID: %q", err.Error(), option.ID)
-
 		} else {
-			deletedImages = append(deletedImages, images[i])
-		}
-
-		if i == len(images)-1 {
-			if len(deletedImages) != len(images) {
-				for j := 0; j < len(images); j++ {
-					found := false
-					for k := 0; k < len(deletedImages); k++ {
-						if deletedImages[j] == images[k] {
-							found = true
-						}
-					}
-					if !found {
-						notDeletedImages = append(notDeletedImages, deletedImages[j])
-					}
+			var newImages []string = []string{}
+			for _, storedImage := range images {
+				if storedImage != image {
+					newImages = append(newImages, storedImage)
 				}
-
 			}
-
+			images = newImages
 		}
-
 	}
-	if len(notDeletedImages) < 1 {
+	if len(images) < 1 {
 		err = server.store.RemoveOptionInfoPhoto(ctx, option.ID)
 		if err != nil {
 			log.Printf("An error at RemoveAllPhoto in RemoveOptionInfoPhoto err: %v for optionID: %q", err.Error(), option.ID)
@@ -551,7 +536,7 @@ func RemoveAllPhoto(server *Server, ctx *gin.Context, option db.OptionsInfo) (er
 	}
 	// we would just update it
 	argPhotos := db.UpdateOptionInfoImagesParams{
-		Images:    notDeletedImages,
+		Images:    images,
 		OptionID: option.ID,
 	}
 	_, err = server.store.UpdateOptionInfoImages(ctx, argPhotos)
