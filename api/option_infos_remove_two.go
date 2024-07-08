@@ -167,6 +167,8 @@ func (server *Server) RemoveOptionPhoto(ctx *gin.Context) {
 	completeOption, err := HandleCompleteOption(utils.Photo, utils.Highlight, server, ctx, option, user.ID)
 	if err != nil {
 		log.Printf("Error at RemoveOptionName in HandleCompleteOption: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 	_, err = server.store.GetOptionInfoPhoto(ctx, option.ID)
 	if err != nil {
@@ -182,8 +184,7 @@ func (server *Server) RemoveOptionPhoto(ctx *gin.Context) {
 		// we want to remove the photo from firebase
 		err = RemoveAllPhoto(server, ctx, option)
 		if err != nil {
-			ctx.JSON(http.StatusBadRequest, errorResponse(err))
-			return
+			log.Printf("Error at RemoveOptionName in RemoveAllPhoto: %v, optionID: %v, userID: %v \n", err.Error(), option.ID, user.ID)
 		}
 	}
 	var res CreateOptionInfoHighlight
