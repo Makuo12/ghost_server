@@ -40,7 +40,7 @@ func HandleFinalOptionReserveDetail(server *Server, ctx context.Context, referen
 	} else {
 		if charge.RequestApproved || charge.CanInstantBook {
 			if charge.IsComplete {
-				err = fmt.Errorf("Your reservation has already been payed for")
+				err = fmt.Errorf("your reservation has already been payed for")
 			}
 			hasResData = false
 			totalFee = tools.IntToMoneyString(charge.TotalFee)
