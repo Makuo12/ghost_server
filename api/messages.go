@@ -256,7 +256,7 @@ func (server *Server) CreateMessage(ctx *gin.Context) {
 		ReceiverID: receiverID,
 		Message:    req.Message,
 		Type:       req.Type,
-		MainImage:      req.Image,
+		MainImage:  req.Image,
 		Read:       false,
 		ParentID:   req.ParentID,
 		Reference:  req.Reference,

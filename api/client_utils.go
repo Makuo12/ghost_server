@@ -690,6 +690,9 @@ func HandleMessage(ctx *connection, payload []byte) (data []byte, hasData bool, 
 			log.Printf("error decoding HandleMessage ctx.server.store.GetMessageWithTime response: %v, user: %v", err, ctx.userID)
 			return
 		}
+		// We a notification to the receiver
+		log.Println("sending using notification")
+		HandleUserIdMessageApn(ctx.ctx, ctx.server, receiverID, msg.Message, ctx.user.FirstName)
 		var mainMsg MessageItem
 		var parentMsg MessageItem
 		var parentEmpty bool
