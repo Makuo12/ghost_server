@@ -20,7 +20,7 @@ type GetAppVersionRes struct {
 }
 
 func (server *Server) GetAppVersion(ctx *gin.Context) {
-	appType := ctx.Param("app_type")
+	appType := ctx.Param("type")
 	version := ctx.Param("version")
 	var channel string
 	var msg string
