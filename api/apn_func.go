@@ -28,9 +28,10 @@ func (server *Server) GetAppVersion(ctx *gin.Context) {
 	case "ios_app":
 		if version == server.config.IOSAppVersion {
 			channel = constants.VERSION_STABLE
-			msg = server.config.IOSAppVersionMsg
+			msg = "none"
 		} else {
 			channel = constants.VERSION_UNSTABLE
+			msg = server.config.IOSAppVersionMsg
 		}
 
 	case "android_app":
