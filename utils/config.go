@@ -6,10 +6,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-//Config stores all the configuration of the application
-//The values are read by viper from a config file or env variables
-//to get the values of the variables and store then in the struct
-//we need to use the unmarshal behavior of viper USING mapstructure
+// Config stores all the configuration of the application
+// The values are read by viper from a config file or env variables
+// to get the values of the variables and store then in the struct
+// we need to use the unmarshal behavior of viper USING mapstructure
 type Config struct {
 	DBSource                      string        `mapstructure:"DB_Source"`
 	MigrationURL                  string        `mapstructure:"MIGRATION_URL"`
@@ -59,11 +59,13 @@ type Config struct {
 	InviteTemplate                string        `mapstructure:"INVITE_TEMPLATE"`
 	TermsOfService                string        `mapstructure:"TERMS_OF_SERVICE"`
 	PrivacyPolicy                 string        `mapstructure:"PRIVACY_POLICY"`
+	IOSAppVersion                 string        `mapstructure:"IOS_APP_VERSION"`
+	IOSAppVersionMsg              string        `mapstructure:"IOS_APP_VERSION_MSG"`
 	OptionMinPriceNaira           int           `mapstructure:"OPTION_MIN_PRICE_NAIRA"`
 	OptionMaxPriceNaira           int           `mapstructure:"OPTION_MAX_PRICE_NAIRA"`
 	EventMinPriceNaira            int           `mapstructure:"EVENT_MIN_PRICE_NAIRA"`
 	EventMaxPriceNaira            int           `mapstructure:"EVENT_MAX_PRICE_NAIRA"`
-	OptionExDayCount int `mapstructure:"OPTION_EX_DAY_COUNT"`
+	OptionExDayCount              int           `mapstructure:"OPTION_EX_DAY_COUNT"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

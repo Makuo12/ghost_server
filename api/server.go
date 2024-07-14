@@ -408,6 +408,9 @@ func (server *Server) setupRouter() {
 	// APN TOKEN
 	router.POST("/users/user/apn/create-detail", server.CreateUserAPNDetail)
 
+	// VERSION
+	router.GET("/users/app/version/:type/:version!", server.GetAppVersion)
+
 	// Webhook
 	router.POST("/webhook/paystack", server.PaystackWebhook)
 	// WEBSOCKET

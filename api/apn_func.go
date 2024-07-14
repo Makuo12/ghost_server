@@ -4,12 +4,46 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
 
+	"github.com/gin-gonic/gin"
+	"github.com/makuo12/ghost_server/constants"
 	"github.com/makuo12/ghost_server/tools"
 
 	"firebase.google.com/go/messaging"
 	"github.com/google/uuid"
 )
+
+type GetAppVersionRes struct {
+	Channel string `json:"channel"`
+	Msg     string `json:"msg"`
+}
+
+func (server *Server) GetAppVersion(ctx *gin.Context) {
+	appType := ctx.Param("app_type")
+	version := ctx.Param("version")
+	var channel string
+	var msg string
+	switch appType {
+	case "ios_app":
+		if version == server.config.IOSAppVersion {
+			channel = constants.VERSION_STABLE
+			msg = server.config.IOSAppVersionMsg
+		} else {
+			channel = constants.VERSION_UNSTABLE
+		}
+
+	case "android_app":
+		err := fmt.Errorf("app not found")
+		ctx.JSON(http.StatusNotFound, errorResponse(err))
+		return
+	}
+	res := GetAppVersionRes{
+		Channel: channel,
+		Msg:     msg,
+	}
+	ctx.JSON(http.StatusOK, res)
+}
 
 func HandleUIDApn(ctx context.Context, server *Server, uID uuid.UUID, title string, msg string) {
 	apns, err := server.store.ListUidAPNDetail(ctx, uID)
