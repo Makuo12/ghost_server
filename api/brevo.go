@@ -55,12 +55,13 @@ func BrevoEmailInvitationCode(ctx context.Context, server *Server, toEmail strin
 	return
 }
 
-func BrevoReservationRequest(ctx context.Context, server *Server, toEmail string, toName string, header string, message string, funcName string, coID uuid.UUID) {
+func BrevoReservationRequest(ctx context.Context, server *Server, toEmail string, toName string, header string, message string, funcName string, coID uuid.UUID, hostEmail string, hostFirstName string, hostLastName string, chargeID string, hostPublicID string, guestEmail string, guestFirstName string, guestLastName string, guestPublicID string) {
 	expire := fmt.Sprintf("This request would expire in %v hours", 48)
 	err := sender.SendReservationRequestBrevo(ctx, server.Cfg, header, message, expire, toEmail, toName, server.config.BrevoReserveRequestTemplate, funcName, server.config.BrevoApiKey)
 	if err != nil {
 		return
 	}
+	sender.SendAdminReservationRequestBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoReserveRequestTemplate, funcName, server.config.BrevoApiKey)
 }
 
 func BrevoAccountChange(ctx context.Context, server *Server, toEmail string, toName string, usernameString string, funcName string, mainHeader string, header string, message string) (err error) {

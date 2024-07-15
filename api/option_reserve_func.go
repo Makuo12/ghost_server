@@ -563,7 +563,7 @@ func HandleOptionReserveRequest(server *Server, ctx context.Context, payMethodRe
 		return
 	}
 	// Send an email notification
-	BrevoReservationRequest(ctx, server, receiver.Email, receiver.FirstName, header, msg, "HandleOptionReserveRequest", user.ID)
+	BrevoReservationRequest(ctx, server, receiver.Email, receiver.FirstName, header, msg, "HandleOptionReserveRequest", user.ID, receiver.Email, receiver.FirstName, receiver.LastName, tools.UuidToString(charge.ID), receiver.UserID.String(), user.Email, user.FirstName, user.LastName, user.UserID.String())
 	//
 	HandleUserIdApn(ctx, server, receiver.UserID, header, msg)
 	// When we create a message we want to create a room is this user and the receiver doesn't have a room

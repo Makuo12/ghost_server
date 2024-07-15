@@ -152,6 +152,15 @@ func HandleOptionUserRequest(req MsgRequestResponseParams, msg db.Message, user 
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
 		}
+		guest, err := server.store.GetUserByUserID(ctx, charge.UserID)
+		if err != nil {
+			log.Printf("Error at HandleOptionUserRequest in GetUserByUserID: %v, MsgID: %v \n", err.Error(), req.MsgID)
+		} else {
+			header := "Reservation approved"
+			msg := fmt.Sprintf("Hey %s,\n your reservation request has just been approved by %s", guest.FirstName, user.FirstName)
+			// We send a notification to the guest to notify them
+			CreateTypeNotification(ctx, server, charge.ID, user.UserID, constants.USER_REQUEST_APPROVE, msg, false, header)
+		}
 
 		// We want to store in redis to make payment
 		timeData := []string{
