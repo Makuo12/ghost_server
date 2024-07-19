@@ -319,6 +319,7 @@ type Querier interface {
 	GetOptionInfoByUserID(ctx context.Context, optionUserID uuid.UUID) (GetOptionInfoByUserIDRow, error)
 	GetOptionInfoCategory(ctx context.Context, optionID uuid.UUID) (OptionsInfosCategory, error)
 	GetOptionInfoCustomer(ctx context.Context, arg GetOptionInfoCustomerParams) (GetOptionInfoCustomerRow, error)
+	GetOptionInfoCustomerWithRef(ctx context.Context, arg GetOptionInfoCustomerWithRefParams) (GetOptionInfoCustomerWithRefRow, error)
 	GetOptionInfoData(ctx context.Context, arg GetOptionInfoDataParams) (GetOptionInfoDataRow, error)
 	GetOptionInfoDetail(ctx context.Context, optionID uuid.UUID) (OptionsInfoDetail, error)
 	GetOptionInfoDetailHighlight(ctx context.Context, optionID uuid.UUID) ([]string, error)

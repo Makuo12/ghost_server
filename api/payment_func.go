@@ -67,7 +67,27 @@ func ObjectOptionPaymentReference(ctx context.Context, server *Server, user db.U
 			return
 		}
 	}
-
+	if err == nil {
+		host, err := server.store.GetOptionInfoUserIDByUserID(ctx, charge.OptionUserID)
+		if err != nil {
+			log.Printf("Error at HandleOptionReserveRequest in GetOptionInfoByUserID: %v optionID: %v referenceID: %v, pay_method_reference: %v\n", err.Error(), charge.OptionUserID, charge.Reference, charge.PaymentReference)
+			err = nil
+		} else {
+			header := "Payment and Reservation confirmed"
+			msg := "Thank you for using Flizzup"
+			checkIn := tools.HandleReadableDate(charge.StartDate, tools.DateDMMYyyy)
+			checkout := tools.HandleReadableDate(charge.EndDate, tools.DateDMMYyyy)
+			BrevoOptionPaymentSuccess(ctx, server, header, msg, "FinalOptionReserveDetail", charge.ID, host.Email, host.FirstName, host.LastName, tools.UuidToString(charge.ID), tools.UuidToString(host.UserID), user.Email, user.FirstName, user.LastName, tools.UuidToString(user.UserID), host.HostNameOption, checkIn, checkout)
+			// Notification for Guest
+			msg = "Payment received, and reservation confirmed! Check your email for further information about your booking, including scheduling an inspection and our 100% refund policy if the property does not match the app's description."
+			header = fmt.Sprintf("Hey %v, booking confirmed", user.FirstName)
+			CreateTypeNotification(ctx, server, charge.ID, user.UserID, constants.OPTION_PAYMENT_SUCCESSFUL, msg, false, header)
+			// Notification for Host
+			msg = fmt.Sprintf("You have a new booking at %v! Check your email for further details.", host.HostNameOption)
+			header = fmt.Sprintf("Hey %v", host.FirstName)
+			CreateTypeNotification(ctx, server, charge.ID, host.UserID, constants.HOST_OPTION_PAYMENT_SUCCESSFUL, msg, false, header)
+		}
+	}
 	// We Store the receipt and snap shot
 	err = HandleOptionReserveComplete(server, ctx, reserveOptionData, referenceCharge, reference, user, message, fromCharge)
 	if err != nil {

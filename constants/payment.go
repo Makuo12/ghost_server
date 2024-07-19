@@ -33,6 +33,10 @@ const OPTION_DATES_UNAVAILABLE = "option_dates_unavailable"
 
 const OPTION_PAYMENT_SUCCESSFUL_NO_RECEIPT = "option_payment_successful_no_receipt"
 
+const OPTION_PAYMENT_SUCCESSFUL = "option_payment_successful"
+
+const HOST_OPTION_PAYMENT_SUCCESSFUL = "host_option_payment_successful"
+
 const INVALID_DEFAULT_ACCOUNT_NUMBER = "invalid_default_account_number"
 
 const NO_DEFAULT_ACCOUNT_NUMBER = "no_default_account_number"

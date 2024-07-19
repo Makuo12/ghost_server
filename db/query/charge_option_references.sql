@@ -55,7 +55,7 @@ RETURNING *;
 
 ---- This is just just used to get information for notification
 -- name: GetChargeOptionReferenceDetailByRef :one
-SELECT co.start_date, co.date_booked, co.id AS charge_id, u.first_name AS user_first_name, us.first_name AS host_first_name, us.user_id AS host_user_id, od.host_name_option, co.end_date, oi.time_zone, co.clean_fee, co.pet_fee, co.guest_fee, co.main_price, co.total_fee, co.service_fee, co.currency, u.default_card AS user_default_card, u.id AS guest_id, co.reference, oi.id AS option_id, oi.option_user_id AS option_user_id
+SELECT co.start_date, co.date_booked, co.id AS charge_id, u.first_name AS user_first_name, u.last_name AS user_last_name, us.first_name AS host_first_name, us.last_name AS host_last_name, us.user_id AS host_user_id, od.host_name_option, co.end_date, oi.time_zone, co.clean_fee, co.pet_fee, co.guest_fee, co.main_price, co.total_fee, co.service_fee, co.currency, u.default_card AS user_default_card, u.id AS guest_id, u.user_id AS guest_user_id, co.reference, oi.id AS option_id, oi.option_user_id AS option_user_id, us.email AS host_email, u.email AS guest_email
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id

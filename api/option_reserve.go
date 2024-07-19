@@ -179,8 +179,28 @@ func (server *Server) FinalOptionReserveDetail(ctx *gin.Context) {
 				SuccessUrl:        successUrl,
 				FailureUrl:        failureUrl,
 			}
+			// We want to send information back to the user
+			host, err := server.store.GetOptionInfoUserIDByUserID(ctx, chargeData.OptionUserID)
+			if err != nil {
+				log.Printf("Error at HandleOptionReserveRequest in GetOptionInfoByUserID: %v optionID: %v referenceID: %v, pay_method_reference: %v\n", err.Error(), chargeData.OptionUserID, chargeData.Reference, chargeData.PaymentReference)
+				err = nil
+			} else {
+				header := "Payment and Reservation confirmed"
+				msg := "Thank you for using Flizzup"
+				checkIn := tools.HandleReadableDate(chargeData.StartDate, tools.DateDMMYyyy)
+				checkout := tools.HandleReadableDate(chargeData.EndDate, tools.DateDMMYyyy)
+				BrevoOptionPaymentSuccess(ctx, server, header, msg, "FinalOptionReserveDetail", chargeData.ID, host.Email, host.FirstName, host.LastName, tools.UuidToString(chargeData.ID), tools.UuidToString(host.UserID), user.Email, user.FirstName, user.LastName, tools.UuidToString(user.UserID), host.HostNameOption, checkIn, checkout)
+				// Notification for Guest
+				msg = "Payment received, and reservation confirmed! Check your email for further information about your booking, including scheduling an inspection and our 100% refund policy if the property does not match the app's description."
+				header = fmt.Sprintf("Hey %v, booking confirmed", user.FirstName)
+				CreateTypeNotification(ctx, server, chargeData.ID, user.UserID, constants.OPTION_PAYMENT_SUCCESSFUL, msg, false, header)
+				// Notification for Host
+				msg = fmt.Sprintf("You have a new booking at %v! Check your email for further details.", host.HostNameOption)
+				header = fmt.Sprintf("Hey %v", host.FirstName)
+				CreateTypeNotification(ctx, server, chargeData.ID, host.UserID, constants.HOST_OPTION_PAYMENT_SUCCESSFUL, msg, false, header)
+			}
 			// Creating snapshot
-			err := HandleOptionReserveComplete(server, ctx, reserveData, refRes, resData.Data.Reference, user, req.Message, fromCharge)
+			err = HandleOptionReserveComplete(server, ctx, reserveData, refRes, resData.Data.Reference, user, req.Message, fromCharge)
 			if err != nil {
 				log.Printf("Error at FinalOptionReserveDetail in HandleOptionReserveStore: %v, cardID: %v, userID: %v \n", err.Error(), cardID, user.ID)
 				err = fmt.Errorf("your payment was successful, but we were unable to create a receipt pls try contacting us because you would need this to verify your self and post vids")
@@ -239,7 +259,7 @@ func (server *Server) FinalOptionReserveVerificationDetail(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	detailRes, hasResData, _, refRes, reserveData, fromCharge, _, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, "no card at 2 factor verification", req.Message)
+	detailRes, hasResData, _, refRes, reserveData, fromCharge, chargeData, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, "no card at 2 factor verification", req.Message)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -264,6 +284,28 @@ func (server *Server) FinalOptionReserveVerificationDetail(ctx *gin.Context) {
 		Paused:            false,
 		PaymentSuccess:    true,
 		PaymentChallenged: false,
+	}
+	// We want to send information back to the user
+	if fromCharge {
+		host, err := server.store.GetOptionInfoUserIDByUserID(ctx, chargeData.OptionUserID)
+		if err != nil {
+			log.Printf("Error at HandleOptionReserveRequest in GetOptionInfoByUserID: %v optionID: %v referenceID: %v, pay_method_reference: %v\n", err.Error(), chargeData.OptionUserID, chargeData.Reference, chargeData.PaymentReference)
+			err = nil
+		} else {
+			header := "Payment and Reservation confirmed"
+			msg := "Thank you for using Flizzup"
+			checkIn := tools.HandleReadableDate(chargeData.StartDate, tools.DateDMMYyyy)
+			checkout := tools.HandleReadableDate(chargeData.EndDate, tools.DateDMMYyyy)
+			BrevoOptionPaymentSuccess(ctx, server, header, msg, "FinalOptionReserveDetail", chargeData.ID, host.Email, host.FirstName, host.LastName, tools.UuidToString(chargeData.ID), tools.UuidToString(host.UserID), user.Email, user.FirstName, user.LastName, tools.UuidToString(user.UserID), host.HostNameOption, checkIn, checkout)
+			// Notification for Guest
+			msg = "Payment received, and reservation confirmed! Check your email for further information about your booking, including scheduling an inspection and our 100% refund policy if the property does not match the app's description."
+			header = fmt.Sprintf("Hey %v, booking confirmed", user.FirstName)
+			CreateTypeNotification(ctx, server, chargeData.ID, user.UserID, constants.OPTION_PAYMENT_SUCCESSFUL, msg, false, header)
+			// Notification for Host
+			msg = fmt.Sprintf("You have a new booking at %v! Check your email for further details.", host.HostNameOption)
+			header = fmt.Sprintf("Hey %v", host.FirstName)
+			CreateTypeNotification(ctx, server, chargeData.ID, host.UserID, constants.HOST_OPTION_PAYMENT_SUCCESSFUL, msg, false, header)
+		}
 	}
 	log.Printf("FinalOptionReserveVerificationDetail sent successfully (%v) id: %v\n", user.Email, user.ID)
 	ctx.JSON(http.StatusOK, res)

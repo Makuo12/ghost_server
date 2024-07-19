@@ -280,6 +280,10 @@ func HandleReadableDates(startTime time.Time, endTime time.Time, format string) 
 	return fmt.Sprintf("%v to %v", ConvertTimeFormat(startTime, format), ConvertTimeFormat(endTime, format))
 }
 
+func HandleReadableDate(startTime time.Time, format string) string {
+	return ConvertTimeFormat(startTime, format)
+}
+
 func ConvertTimeFormat(t time.Time, format string) string {
 	formattedTime := t.Format(format)
 	return formattedTime

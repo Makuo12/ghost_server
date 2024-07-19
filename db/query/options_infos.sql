@@ -244,6 +244,23 @@ FROM options_infos o_i
 WHERE o_i.option_user_id = $1 AND o_i.is_complete = $2 AND o_i.is_active = $3 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND u.is_active = $4;
 
 
+-- name: GetOptionInfoCustomerWithRef :one
+SELECT *
+FROM options_infos o_i
+   JOIN users u on o_i.host_id = u.id
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_infos_status o_i_s on o_i_s.option_id = o_i.id
+   JOIN shortlets s on o_i.id = s.option_id
+   JOIN complete_option_info c_o_i on o_i.id = c_o_i.option_id
+   JOIN options_prices o_p on o_i.id = o_p.option_id
+   JOIN option_availability_settings o_a_s on o_i.id = o_a_s.option_id
+   JOIN option_trip_lengths o_t_l on o_i.id = o_t_l.option_id
+   JOIN option_book_methods o_b_m on o_i.id = o_b_m.option_id
+   JOIN book_requirements b_m on o_i.id = b_m.option_id
+   JOIN charge_option_references cor on cor.option_user_id = o_i.option_user_id
+WHERE cor.reference = $1 AND o_i.is_complete = $2 AND o_i.is_active = $3 AND (o_i_s.status = sqlc.arg(option_status_one) OR o_i_s.status = sqlc.arg(option_status_two)) AND u.is_active = $4;
+
+
 -- name: ListOptionInfoEvent :many
 SELECT o_i.id, o_i.is_complete, o_i.currency, o_i.main_option_type, o_i.created_at, o_i.option_type, o_i_d.host_name_option, c_o_i.current_state, c_o_i.previous_state, o_i_s.status AS option_status, o_i_p.main_image, e_i.event_type, e_i.sub_category_type
 FROM options_infos o_i

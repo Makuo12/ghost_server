@@ -14,6 +14,7 @@ import (
 	"github.com/makuo12/ghost_server/token"
 	"github.com/makuo12/ghost_server/utils"
 	"github.com/makuo12/ghost_server/val"
+	//"github.com/robfig/cron"
 
 	// "strings"
 	//"time"
@@ -25,7 +26,8 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/go-redis/redis/v8"
 	"github.com/google/uuid"
-	//"github.com/robfig/cron/v3"
+
+	"github.com/robfig/cron/v3"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/auth"
@@ -219,9 +221,9 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 			log.Printf("Error at server setup in, validHostEventCancel Register Validation %v", err.Error())
 		}
 	}
-	//ctx := context.Background()
+	ctx := context.Background()
 
-	//job := cron.New()
+	job := cron.New()
 
 	//_, err = job.AddFunc("@every 2m", RemoveOptionInfoAdmin(ctx, server))
 	//if err != nil {
@@ -283,11 +285,11 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	//	log.Printf(" Error at cron at job.AddFunc for DailyHandleSnooze  %v", err.Error())
 	//}
 
-	//// User Request
-	//_, err = job.AddFunc("@every 2m", DailyHandleUserRequest(ctx, server))
-	//if err != nil {
-	//	log.Printf(" Error at cron at job.AddFunc for DailyHandleUserRequest  %v", err.Error())
-	//}
+	// User Request
+	_, err = job.AddFunc("@every 5m", DailyHandleUserRequest(ctx, server))
+	if err != nil {
+		log.Printf(" Error at cron at job.AddFunc for DailyHandleUserRequest  %v", err.Error())
+	}
 
 	//_, err = job.AddFunc("@every 2m", DailyDeactivateCoHost(ctx, server))
 	//if err != nil {

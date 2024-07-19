@@ -645,7 +645,7 @@ func (q *Queries) GetChargeOptionReferenceCheckMethod(ctx context.Context, arg G
 }
 
 const getChargeOptionReferenceDetailByRef = `-- name: GetChargeOptionReferenceDetailByRef :one
-SELECT co.start_date, co.date_booked, co.id AS charge_id, u.first_name AS user_first_name, us.first_name AS host_first_name, us.user_id AS host_user_id, od.host_name_option, co.end_date, oi.time_zone, co.clean_fee, co.pet_fee, co.guest_fee, co.main_price, co.total_fee, co.service_fee, co.currency, u.default_card AS user_default_card, u.id AS guest_id, co.reference, oi.id AS option_id, oi.option_user_id AS option_user_id
+SELECT co.start_date, co.date_booked, co.id AS charge_id, u.first_name AS user_first_name, u.last_name AS user_last_name, us.first_name AS host_first_name, us.last_name AS host_last_name, us.user_id AS host_user_id, od.host_name_option, co.end_date, oi.time_zone, co.clean_fee, co.pet_fee, co.guest_fee, co.main_price, co.total_fee, co.service_fee, co.currency, u.default_card AS user_default_card, u.id AS guest_id, u.user_id AS guest_user_id, co.reference, oi.id AS option_id, oi.option_user_id AS option_user_id, us.email AS host_email, u.email AS guest_email
 FROM charge_option_references co
     JOIN options_infos oi on oi.option_user_id = co.option_user_id
     JOIN options_info_details od on oi.id = od.option_id
@@ -659,7 +659,9 @@ type GetChargeOptionReferenceDetailByRefRow struct {
 	DateBooked      time.Time `json:"date_booked"`
 	ChargeID        uuid.UUID `json:"charge_id"`
 	UserFirstName   string    `json:"user_first_name"`
+	UserLastName    string    `json:"user_last_name"`
 	HostFirstName   string    `json:"host_first_name"`
+	HostLastName    string    `json:"host_last_name"`
 	HostUserID      uuid.UUID `json:"host_user_id"`
 	HostNameOption  string    `json:"host_name_option"`
 	EndDate         time.Time `json:"end_date"`
@@ -673,9 +675,12 @@ type GetChargeOptionReferenceDetailByRefRow struct {
 	Currency        string    `json:"currency"`
 	UserDefaultCard string    `json:"user_default_card"`
 	GuestID         uuid.UUID `json:"guest_id"`
+	GuestUserID     uuid.UUID `json:"guest_user_id"`
 	Reference       string    `json:"reference"`
 	OptionID        uuid.UUID `json:"option_id"`
 	OptionUserID    uuid.UUID `json:"option_user_id"`
+	HostEmail       string    `json:"host_email"`
+	GuestEmail      string    `json:"guest_email"`
 }
 
 // -- This is just just used to get information for notification
@@ -687,7 +692,9 @@ func (q *Queries) GetChargeOptionReferenceDetailByRef(ctx context.Context, refer
 		&i.DateBooked,
 		&i.ChargeID,
 		&i.UserFirstName,
+		&i.UserLastName,
 		&i.HostFirstName,
+		&i.HostLastName,
 		&i.HostUserID,
 		&i.HostNameOption,
 		&i.EndDate,
@@ -701,9 +708,12 @@ func (q *Queries) GetChargeOptionReferenceDetailByRef(ctx context.Context, refer
 		&i.Currency,
 		&i.UserDefaultCard,
 		&i.GuestID,
+		&i.GuestUserID,
 		&i.Reference,
 		&i.OptionID,
 		&i.OptionUserID,
+		&i.HostEmail,
+		&i.GuestEmail,
 	)
 	return i, err
 }

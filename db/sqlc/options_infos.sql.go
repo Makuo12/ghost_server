@@ -1050,6 +1050,354 @@ func (q *Queries) GetOptionInfoCustomer(ctx context.Context, arg GetOptionInfoCu
 	return i, err
 }
 
+const getOptionInfoCustomerWithRef = `-- name: GetOptionInfoCustomerWithRef :one
+SELECT o_i.id, co_host_id, o_i.option_user_id, host_id, o_i.deep_link_id, primary_user_id, o_i.is_active, o_i.is_complete, is_verified, category, category_two, category_three, category_four, is_top_seller, time_zone, o_i.currency, option_img, option_type, main_option_type, o_i.created_at, completed, o_i.updated_at, u.id, u.user_id, firebase_id, public_id, hashed_password, u.deep_link_id, firebase_password, u.email, u.phone_number, first_name, username, last_name, date_of_birth, dial_code, dial_country, current_option_id, u.currency, default_card, default_payout_card, default_account_id, u.is_active, is_deleted, image, password_changed_at, u.created_at, u.updated_at, o_i_d.option_id, des, space_des, guest_access_des, interact_with_guests_des, pets_allowed, other_des, neighborhood_des, get_around_des, host_name_option, option_highlight, o_i_d.created_at, o_i_d.updated_at, o_i_s.option_id, status, status_reason, snooze_start_date, snooze_end_date, unlist_reason, unlist_des, o_i_s.created_at, o_i_s.updated_at, s.option_id, space_type, any_space_shared, guest_welcomed, publish_check_in_steps, year_built, check_in_method, check_in_method_des, property_size, shared_spaces_with, property_size_unit, type_of_shortlet, s.created_at, s.updated_at, c_o_i.option_id, current_state, previous_state, c_o_i.created_at, c_o_i.updated_at, o_p.option_id, price, weekend_price, o_p.created_at, o_p.updated_at, o_a_s.option_id, advance_notice, auto_block_dates, advance_notice_condition, preparation_time, availability_window, o_a_s.created_at, o_a_s.updated_at, o_t_l.option_id, min_stay_day, max_stay_night, manual_approve_request_pass_max, allow_reservation_request, o_t_l.created_at, o_t_l.updated_at, o_b_m.option_id, instant_book, identity_verified, good_track_record, pre_book_msg, o_b_m.created_at, o_b_m.updated_at, b_m.option_id, b_m.email, b_m.phone_number, rules, payment_info, profile_photo, b_m.created_at, b_m.updated_at, cor.id, cor.user_id, cor.option_user_id, discount, main_price, service_fee, total_fee, date_price, guests, date_booked, cor.currency, start_date, end_date, guest_fee, pet_fee, clean_fee, nightly_pet_fee, nightly_guest_fee, can_instant_book, require_request, request_type, reference, payment_reference, request_approved, cor.is_complete, cancelled, cor.created_at, cor.updated_at
+FROM options_infos o_i
+   JOIN users u on o_i.host_id = u.id
+   JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
+   JOIN options_infos_status o_i_s on o_i_s.option_id = o_i.id
+   JOIN shortlets s on o_i.id = s.option_id
+   JOIN complete_option_info c_o_i on o_i.id = c_o_i.option_id
+   JOIN options_prices o_p on o_i.id = o_p.option_id
+   JOIN option_availability_settings o_a_s on o_i.id = o_a_s.option_id
+   JOIN option_trip_lengths o_t_l on o_i.id = o_t_l.option_id
+   JOIN option_book_methods o_b_m on o_i.id = o_b_m.option_id
+   JOIN book_requirements b_m on o_i.id = b_m.option_id
+   JOIN charge_option_references cor on cor.option_user_id = o_i.option_user_id
+WHERE cor.reference = $1 AND o_i.is_complete = $2 AND o_i.is_active = $3 AND (o_i_s.status = $5 OR o_i_s.status = $6) AND u.is_active = $4
+`
+
+type GetOptionInfoCustomerWithRefParams struct {
+	Reference       string `json:"reference"`
+	IsComplete      bool   `json:"is_complete"`
+	IsActive        bool   `json:"is_active"`
+	IsActive_2      bool   `json:"is_active_2"`
+	OptionStatusOne string `json:"option_status_one"`
+	OptionStatusTwo string `json:"option_status_two"`
+}
+
+type GetOptionInfoCustomerWithRefRow struct {
+	ID                          uuid.UUID `json:"id"`
+	CoHostID                    uuid.UUID `json:"co_host_id"`
+	OptionUserID                uuid.UUID `json:"option_user_id"`
+	HostID                      uuid.UUID `json:"host_id"`
+	DeepLinkID                  uuid.UUID `json:"deep_link_id"`
+	PrimaryUserID               uuid.UUID `json:"primary_user_id"`
+	IsActive                    bool      `json:"is_active"`
+	IsComplete                  bool      `json:"is_complete"`
+	IsVerified                  bool      `json:"is_verified"`
+	Category                    string    `json:"category"`
+	CategoryTwo                 string    `json:"category_two"`
+	CategoryThree               string    `json:"category_three"`
+	CategoryFour                string    `json:"category_four"`
+	IsTopSeller                 bool      `json:"is_top_seller"`
+	TimeZone                    string    `json:"time_zone"`
+	Currency                    string    `json:"currency"`
+	OptionImg                   string    `json:"option_img"`
+	OptionType                  string    `json:"option_type"`
+	MainOptionType              string    `json:"main_option_type"`
+	CreatedAt                   time.Time `json:"created_at"`
+	Completed                   time.Time `json:"completed"`
+	UpdatedAt                   time.Time `json:"updated_at"`
+	ID_2                        uuid.UUID `json:"id_2"`
+	UserID                      uuid.UUID `json:"user_id"`
+	FirebaseID                  uuid.UUID `json:"firebase_id"`
+	PublicID                    uuid.UUID `json:"public_id"`
+	HashedPassword              string    `json:"hashed_password"`
+	DeepLinkID_2                uuid.UUID `json:"deep_link_id_2"`
+	FirebasePassword            string    `json:"firebase_password"`
+	Email                       string    `json:"email"`
+	PhoneNumber                 string    `json:"phone_number"`
+	FirstName                   string    `json:"first_name"`
+	Username                    string    `json:"username"`
+	LastName                    string    `json:"last_name"`
+	DateOfBirth                 time.Time `json:"date_of_birth"`
+	DialCode                    string    `json:"dial_code"`
+	DialCountry                 string    `json:"dial_country"`
+	CurrentOptionID             string    `json:"current_option_id"`
+	Currency_2                  string    `json:"currency_2"`
+	DefaultCard                 string    `json:"default_card"`
+	DefaultPayoutCard           string    `json:"default_payout_card"`
+	DefaultAccountID            string    `json:"default_account_id"`
+	IsActive_2                  bool      `json:"is_active_2"`
+	IsDeleted                   bool      `json:"is_deleted"`
+	Image                       string    `json:"image"`
+	PasswordChangedAt           time.Time `json:"password_changed_at"`
+	CreatedAt_2                 time.Time `json:"created_at_2"`
+	UpdatedAt_2                 time.Time `json:"updated_at_2"`
+	OptionID                    uuid.UUID `json:"option_id"`
+	Des                         string    `json:"des"`
+	SpaceDes                    string    `json:"space_des"`
+	GuestAccessDes              string    `json:"guest_access_des"`
+	InteractWithGuestsDes       string    `json:"interact_with_guests_des"`
+	PetsAllowed                 bool      `json:"pets_allowed"`
+	OtherDes                    string    `json:"other_des"`
+	NeighborhoodDes             string    `json:"neighborhood_des"`
+	GetAroundDes                string    `json:"get_around_des"`
+	HostNameOption              string    `json:"host_name_option"`
+	OptionHighlight             []string  `json:"option_highlight"`
+	CreatedAt_3                 time.Time `json:"created_at_3"`
+	UpdatedAt_3                 time.Time `json:"updated_at_3"`
+	OptionID_2                  uuid.UUID `json:"option_id_2"`
+	Status                      string    `json:"status"`
+	StatusReason                string    `json:"status_reason"`
+	SnoozeStartDate             time.Time `json:"snooze_start_date"`
+	SnoozeEndDate               time.Time `json:"snooze_end_date"`
+	UnlistReason                string    `json:"unlist_reason"`
+	UnlistDes                   string    `json:"unlist_des"`
+	CreatedAt_4                 time.Time `json:"created_at_4"`
+	UpdatedAt_4                 time.Time `json:"updated_at_4"`
+	OptionID_3                  uuid.UUID `json:"option_id_3"`
+	SpaceType                   string    `json:"space_type"`
+	AnySpaceShared              bool      `json:"any_space_shared"`
+	GuestWelcomed               int32     `json:"guest_welcomed"`
+	PublishCheckInSteps         bool      `json:"publish_check_in_steps"`
+	YearBuilt                   int32     `json:"year_built"`
+	CheckInMethod               string    `json:"check_in_method"`
+	CheckInMethodDes            string    `json:"check_in_method_des"`
+	PropertySize                int32     `json:"property_size"`
+	SharedSpacesWith            []string  `json:"shared_spaces_with"`
+	PropertySizeUnit            string    `json:"property_size_unit"`
+	TypeOfShortlet              string    `json:"type_of_shortlet"`
+	CreatedAt_5                 time.Time `json:"created_at_5"`
+	UpdatedAt_5                 time.Time `json:"updated_at_5"`
+	OptionID_4                  uuid.UUID `json:"option_id_4"`
+	CurrentState                string    `json:"current_state"`
+	PreviousState               string    `json:"previous_state"`
+	CreatedAt_6                 time.Time `json:"created_at_6"`
+	UpdatedAt_6                 time.Time `json:"updated_at_6"`
+	OptionID_5                  uuid.UUID `json:"option_id_5"`
+	Price                       int64     `json:"price"`
+	WeekendPrice                int64     `json:"weekend_price"`
+	CreatedAt_7                 time.Time `json:"created_at_7"`
+	UpdatedAt_7                 time.Time `json:"updated_at_7"`
+	OptionID_6                  uuid.UUID `json:"option_id_6"`
+	AdvanceNotice               string    `json:"advance_notice"`
+	AutoBlockDates              bool      `json:"auto_block_dates"`
+	AdvanceNoticeCondition      string    `json:"advance_notice_condition"`
+	PreparationTime             string    `json:"preparation_time"`
+	AvailabilityWindow          string    `json:"availability_window"`
+	CreatedAt_8                 time.Time `json:"created_at_8"`
+	UpdatedAt_8                 time.Time `json:"updated_at_8"`
+	OptionID_7                  uuid.UUID `json:"option_id_7"`
+	MinStayDay                  int32     `json:"min_stay_day"`
+	MaxStayNight                int32     `json:"max_stay_night"`
+	ManualApproveRequestPassMax bool      `json:"manual_approve_request_pass_max"`
+	AllowReservationRequest     bool      `json:"allow_reservation_request"`
+	CreatedAt_9                 time.Time `json:"created_at_9"`
+	UpdatedAt_9                 time.Time `json:"updated_at_9"`
+	OptionID_8                  uuid.UUID `json:"option_id_8"`
+	InstantBook                 bool      `json:"instant_book"`
+	IdentityVerified            bool      `json:"identity_verified"`
+	GoodTrackRecord             bool      `json:"good_track_record"`
+	PreBookMsg                  string    `json:"pre_book_msg"`
+	CreatedAt_10                time.Time `json:"created_at_10"`
+	UpdatedAt_10                time.Time `json:"updated_at_10"`
+	OptionID_9                  uuid.UUID `json:"option_id_9"`
+	Email_2                     bool      `json:"email_2"`
+	PhoneNumber_2               bool      `json:"phone_number_2"`
+	Rules                       bool      `json:"rules"`
+	PaymentInfo                 bool      `json:"payment_info"`
+	ProfilePhoto                bool      `json:"profile_photo"`
+	CreatedAt_11                time.Time `json:"created_at_11"`
+	UpdatedAt_11                time.Time `json:"updated_at_11"`
+	ID_3                        uuid.UUID `json:"id_3"`
+	UserID_2                    uuid.UUID `json:"user_id_2"`
+	OptionUserID_2              uuid.UUID `json:"option_user_id_2"`
+	Discount                    string    `json:"discount"`
+	MainPrice                   int64     `json:"main_price"`
+	ServiceFee                  int64     `json:"service_fee"`
+	TotalFee                    int64     `json:"total_fee"`
+	DatePrice                   []string  `json:"date_price"`
+	Guests                      []string  `json:"guests"`
+	DateBooked                  time.Time `json:"date_booked"`
+	Currency_3                  string    `json:"currency_3"`
+	StartDate                   time.Time `json:"start_date"`
+	EndDate                     time.Time `json:"end_date"`
+	GuestFee                    int64     `json:"guest_fee"`
+	PetFee                      int64     `json:"pet_fee"`
+	CleanFee                    int64     `json:"clean_fee"`
+	NightlyPetFee               int64     `json:"nightly_pet_fee"`
+	NightlyGuestFee             int64     `json:"nightly_guest_fee"`
+	CanInstantBook              bool      `json:"can_instant_book"`
+	RequireRequest              bool      `json:"require_request"`
+	RequestType                 string    `json:"request_type"`
+	Reference                   string    `json:"reference"`
+	PaymentReference            string    `json:"payment_reference"`
+	RequestApproved             bool      `json:"request_approved"`
+	IsComplete_2                bool      `json:"is_complete_2"`
+	Cancelled                   bool      `json:"cancelled"`
+	CreatedAt_12                time.Time `json:"created_at_12"`
+	UpdatedAt_12                time.Time `json:"updated_at_12"`
+}
+
+func (q *Queries) GetOptionInfoCustomerWithRef(ctx context.Context, arg GetOptionInfoCustomerWithRefParams) (GetOptionInfoCustomerWithRefRow, error) {
+	row := q.db.QueryRow(ctx, getOptionInfoCustomerWithRef,
+		arg.Reference,
+		arg.IsComplete,
+		arg.IsActive,
+		arg.IsActive_2,
+		arg.OptionStatusOne,
+		arg.OptionStatusTwo,
+	)
+	var i GetOptionInfoCustomerWithRefRow
+	err := row.Scan(
+		&i.ID,
+		&i.CoHostID,
+		&i.OptionUserID,
+		&i.HostID,
+		&i.DeepLinkID,
+		&i.PrimaryUserID,
+		&i.IsActive,
+		&i.IsComplete,
+		&i.IsVerified,
+		&i.Category,
+		&i.CategoryTwo,
+		&i.CategoryThree,
+		&i.CategoryFour,
+		&i.IsTopSeller,
+		&i.TimeZone,
+		&i.Currency,
+		&i.OptionImg,
+		&i.OptionType,
+		&i.MainOptionType,
+		&i.CreatedAt,
+		&i.Completed,
+		&i.UpdatedAt,
+		&i.ID_2,
+		&i.UserID,
+		&i.FirebaseID,
+		&i.PublicID,
+		&i.HashedPassword,
+		&i.DeepLinkID_2,
+		&i.FirebasePassword,
+		&i.Email,
+		&i.PhoneNumber,
+		&i.FirstName,
+		&i.Username,
+		&i.LastName,
+		&i.DateOfBirth,
+		&i.DialCode,
+		&i.DialCountry,
+		&i.CurrentOptionID,
+		&i.Currency_2,
+		&i.DefaultCard,
+		&i.DefaultPayoutCard,
+		&i.DefaultAccountID,
+		&i.IsActive_2,
+		&i.IsDeleted,
+		&i.Image,
+		&i.PasswordChangedAt,
+		&i.CreatedAt_2,
+		&i.UpdatedAt_2,
+		&i.OptionID,
+		&i.Des,
+		&i.SpaceDes,
+		&i.GuestAccessDes,
+		&i.InteractWithGuestsDes,
+		&i.PetsAllowed,
+		&i.OtherDes,
+		&i.NeighborhoodDes,
+		&i.GetAroundDes,
+		&i.HostNameOption,
+		&i.OptionHighlight,
+		&i.CreatedAt_3,
+		&i.UpdatedAt_3,
+		&i.OptionID_2,
+		&i.Status,
+		&i.StatusReason,
+		&i.SnoozeStartDate,
+		&i.SnoozeEndDate,
+		&i.UnlistReason,
+		&i.UnlistDes,
+		&i.CreatedAt_4,
+		&i.UpdatedAt_4,
+		&i.OptionID_3,
+		&i.SpaceType,
+		&i.AnySpaceShared,
+		&i.GuestWelcomed,
+		&i.PublishCheckInSteps,
+		&i.YearBuilt,
+		&i.CheckInMethod,
+		&i.CheckInMethodDes,
+		&i.PropertySize,
+		&i.SharedSpacesWith,
+		&i.PropertySizeUnit,
+		&i.TypeOfShortlet,
+		&i.CreatedAt_5,
+		&i.UpdatedAt_5,
+		&i.OptionID_4,
+		&i.CurrentState,
+		&i.PreviousState,
+		&i.CreatedAt_6,
+		&i.UpdatedAt_6,
+		&i.OptionID_5,
+		&i.Price,
+		&i.WeekendPrice,
+		&i.CreatedAt_7,
+		&i.UpdatedAt_7,
+		&i.OptionID_6,
+		&i.AdvanceNotice,
+		&i.AutoBlockDates,
+		&i.AdvanceNoticeCondition,
+		&i.PreparationTime,
+		&i.AvailabilityWindow,
+		&i.CreatedAt_8,
+		&i.UpdatedAt_8,
+		&i.OptionID_7,
+		&i.MinStayDay,
+		&i.MaxStayNight,
+		&i.ManualApproveRequestPassMax,
+		&i.AllowReservationRequest,
+		&i.CreatedAt_9,
+		&i.UpdatedAt_9,
+		&i.OptionID_8,
+		&i.InstantBook,
+		&i.IdentityVerified,
+		&i.GoodTrackRecord,
+		&i.PreBookMsg,
+		&i.CreatedAt_10,
+		&i.UpdatedAt_10,
+		&i.OptionID_9,
+		&i.Email_2,
+		&i.PhoneNumber_2,
+		&i.Rules,
+		&i.PaymentInfo,
+		&i.ProfilePhoto,
+		&i.CreatedAt_11,
+		&i.UpdatedAt_11,
+		&i.ID_3,
+		&i.UserID_2,
+		&i.OptionUserID_2,
+		&i.Discount,
+		&i.MainPrice,
+		&i.ServiceFee,
+		&i.TotalFee,
+		&i.DatePrice,
+		&i.Guests,
+		&i.DateBooked,
+		&i.Currency_3,
+		&i.StartDate,
+		&i.EndDate,
+		&i.GuestFee,
+		&i.PetFee,
+		&i.CleanFee,
+		&i.NightlyPetFee,
+		&i.NightlyGuestFee,
+		&i.CanInstantBook,
+		&i.RequireRequest,
+		&i.RequestType,
+		&i.Reference,
+		&i.PaymentReference,
+		&i.RequestApproved,
+		&i.IsComplete_2,
+		&i.Cancelled,
+		&i.CreatedAt_12,
+		&i.UpdatedAt_12,
+	)
+	return i, err
+}
+
 const getOptionInfoData = `-- name: GetOptionInfoData :one
 SELECT o_i.id, o_i.is_complete, o_i.currency, o_i.main_option_type, o_i.created_at, o_i.option_type, o_i_d.host_name_option, c_o_i.current_state, c_o_i.previous_state, o_i.is_active
 FROM options_infos o_i
