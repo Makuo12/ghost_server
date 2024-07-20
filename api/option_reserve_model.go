@@ -118,5 +118,5 @@ type InitMethodPaymentRes struct {
 	PaystackBankCharge payment.PaystackBankAccountMainRes `json:"payment_bank_charge"`
 	PaystackPWT        payment.PaystackPWTMainRes         `json:"payment_pwt"`
 	PaystackCard       payment.InitCardChargeRes          `json:"payment_card"`
-	PaystackUSSD       payment.PaystackUSSDRes            `json:"payment_usd"`
+	PaystackUSSD       payment.PaystackUSSDRes            `json:"payment_ussd"`
 }
