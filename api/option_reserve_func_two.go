@@ -352,6 +352,7 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, sender
 		log.Printf("Error at HandleURApproved senderID in tools.StringToUuid: %v, MsgID: %v senderID: %v \n", err.Error(), mid, senderID)
 		return
 	}
+	log.Println("pay 1")
 	charge, err := server.store.GetChargeOptionReferenceDetailByRef(ctx, reference)
 	if err != nil {
 		log.Printf("Error at HandleURApproved senderID in tools.StringToUuid: %v, MsgID: %v senderID: %v \n", err.Error(), mid, senderID)
@@ -359,6 +360,7 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, sender
 		CreateTypeNotification(ctx, server, mid, senderUUID, constants.OPTION_BOOKING_PAYMENT_UNSUCCESSFUL, msgString, false, "Payment unsuccessful")
 		return
 	}
+	log.Println("pay 2")
 	// We want to check if the dates are still available
 	option, err := server.store.GetOptionInfoCustomer(ctx, db.GetOptionInfoCustomerParams{
 		OptionUserID:    charge.OptionUserID,
@@ -375,6 +377,7 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, sender
 		CreateTypeNotification(ctx, server, mid, senderUUID, constants.OPTION_DATES_UNAVAILABLE, msgString, false, header)
 		return
 	}
+	log.Println("pay 3")
 	available, err := HandleChargeDatesAvailable(ctx, server, option, tools.ConvertDateOnlyToString(charge.StartDate), tools.ConvertDateOnlyToString(charge.EndDate), "HandleURApproved")
 	if err != nil || !available {
 		// We handle when dates are not available
@@ -384,7 +387,7 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, sender
 		HandleURApprovedFailed(ctx, server, charge, header, msgString, false)
 		return
 	}
-
+	log.Println("pay 4")
 	header = fmt.Sprintf("Payment for %v unsuccessful", charge.HostNameOption)
 	msgString = fmt.Sprintf("%v has approved your booking request for %v. However, your payment was unable to go through. Please try to complete your payment", firstName, charge.HostNameOption)
 	cardID, err := tools.StringToUuid(charge.UserDefaultCard)
@@ -394,6 +397,7 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, sender
 		HandleURApprovedFailed(ctx, server, charge, header, msgString, true)
 		return
 	}
+	log.Println("pay 4")
 	card, err := server.store.GetCard(ctx, db.GetCardParams{
 		ID:     cardID,
 		UserID: charge.GuestID,
@@ -404,6 +408,7 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, sender
 		HandleURApprovedFailed(ctx, server, charge, header, msgString, true)
 		return
 	}
+	log.Println("pay 5")
 	guest, err := server.store.GetUser(ctx, charge.GuestID)
 	if err != nil {
 		log.Printf("Error at HandleURApproved senderID in GetUser: %v, MsgID: %v senderID: %v \n", err.Error(), mid, senderID)
@@ -411,6 +416,7 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, sender
 		HandleURApprovedFailed(ctx, server, charge, header, msgString, true)
 		return
 	}
+	log.Println("pay 6")
 	if charge.Currency != card.Currency {
 		msgStringData := "selected currency doesn't match card currency"
 		CreateTypeNotification(ctx, server, mid, senderUUID, constants.OPTION_BOOKING_PAYMENT_UNSUCCESSFUL, msgStringData, false, header)
@@ -425,10 +431,12 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, sender
 		HandleURApprovedFailed(ctx, server, charge, header, msgString, true)
 		return
 	}
+	log.Println("pay 7")
 	if !resChallenged {
 		if resData.Data.Status != "success" {
 			CreateTypeNotification(ctx, server, mid, senderUUID, constants.OPTION_BOOKING_PAYMENT_UNSUCCESSFUL, msgString, false, header)
 			HandleURApprovedFailed(ctx, server, charge, header, msgString, true)
+			log.Println("pay 8")
 			return
 		} else {
 			// Payment was successful

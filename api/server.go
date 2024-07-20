@@ -286,7 +286,7 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	//}
 
 	// User Request
-	_, err = job.AddFunc("@every 5m", DailyHandleUserRequest(ctx, server))
+	_, err = job.AddFunc("@every 2m", DailyHandleUserRequest(ctx, server))
 	if err != nil {
 		log.Printf(" Error at cron at job.AddFunc for DailyHandleUserRequest  %v", err.Error())
 	}
