@@ -367,13 +367,12 @@ func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPa
 		} else {
 			//paystackBankCharge = payment.EmptyPaystackBankCharge()
 			paystackPWT = payment.EmptyPaystackPWT()
-			paystackUSSD =  payment.EmptyPaystackUSSD()
+			paystackUSSD = payment.EmptyPaystackUSSD()
 			paystackCard = payment.EmptyPaystackCard()
 			paystackBankCharge = payment.PaystackBankAccountMainRes{
 				Reference:   res.Data.Reference,
 				DisplayText: res.Data.DisplayText,
 			}
-			
 		}
 	case constants.PAYSTACK_PWT:
 		res, errData := payment.HandlePaystackPWT(ctx, server.config.PaystackSecretLiveKey, charge, reference, user.Email)
@@ -382,12 +381,13 @@ func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPa
 		} else {
 			paystackBankCharge = payment.EmptyPaystackBankCharge()
 			//paystackPWT = payment.EmptyPaystackPWT()
-			paystackUSSD =  payment.EmptyPaystackUSSD()
+			paystackUSSD = payment.EmptyPaystackUSSD()
 			paystackCard = payment.EmptyPaystackCard()
 			paystackPWT = payment.PaystackPWTMainRes{
 				Reference:     res.Data.Reference,
 				Slug:          res.Data.Bank.Slug,
 				AccountName:   res.Data.AccountName,
+				BankName:      res.Data.Bank.Name,
 				AccountNumber: res.Data.AccountNumber,
 				ExpiresAt:     res.Data.AccountExpiresAt,
 			}
@@ -399,7 +399,7 @@ func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPa
 		} else {
 			paystackBankCharge = payment.EmptyPaystackBankCharge()
 			paystackPWT = payment.EmptyPaystackPWT()
-			paystackUSSD =  payment.EmptyPaystackUSSD()
+			paystackUSSD = payment.EmptyPaystackUSSD()
 			//paystackCard = payment.EmptyPaystackCard()
 			paystackCard = res
 		}
