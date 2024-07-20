@@ -29,12 +29,6 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	resData, err := payment.HandlePaystackVerifyPayment(ctx, server.config.PaystackSecretLiveKey, req.Reference, user)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
 	chargeData, err := server.store.GetChargeReference(ctx, db.GetChargeReferenceParams{
 		UserID:    user.UserID,
 		Reference: req.Reference,
@@ -44,6 +38,12 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	resData, err := payment.HandlePaystackVerifyPayment(ctx, server.config.PaystackSecretLiveKey, chargeData.PaymentReference, user)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	
 	if !chargeData.IsComplete {
 		chargeData, err = server.store.UpdateChargeReferenceComplete(ctx, db.UpdateChargeReferenceCompleteParams{
 			IsComplete: true,
