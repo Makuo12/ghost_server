@@ -89,12 +89,14 @@ func DailyRemoveEventReserveUser() {
 func DailyHandleUserRequest(ctx context.Context, server *Server) func() {
 	// All the ids are stored in constants.USER_REQUEST_APPROVE
 	return func() {
+		log.Println("At request")
 		ids, err := RedisClient.SMembers(RedisContext, constants.USER_REQUEST_APPROVE).Result()
 		if err != nil {
 			log.Printf("DailyHandleUserRequest in SMembers err:%v\n", err.Error())
 			return
 		}
 		for _, id := range ids {
+			log.Println("At request: ", id)
 			timeData, err := RedisClient.HGetAll(RedisContext, id).Result()
 			if err != nil {
 				log.Printf("DailyHandleUserRequest in HGetAll id: %v, err:%v\n", id, err.Error())
