@@ -169,7 +169,7 @@ func HandleOptionUserRequest(req MsgRequestResponseParams, msg db.Message, user 
 			UserID:    msg.SenderID,
 		})
 		if errUpdate != nil {
-			log.Printf("Error at HandleOptionUserRequest in UpdateChargeOptionReferenceByRef: %v, MsgID: %v \n", err.Error(), req.MsgID)
+			log.Printf("Error at HandleOptionUserRequest in UpdateChargeOptionReferenceByRef: %v, MsgID: %v \n", errUpdate.Error(), req.MsgID)
 			err = fmt.Errorf("your response was recorded, but could not update this request notification")
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
@@ -181,7 +181,7 @@ func HandleOptionUserRequest(req MsgRequestResponseParams, msg db.Message, user 
 			header := "Reservation approved"
 			msg := fmt.Sprintf("Hey %s,\n your reservation request has just been approved by %s", guest.FirstName, user.FirstName)
 			// We send a notification to the guest to notify them
-			CreateTypeNotification(ctx, server, charge.ID, user.UserID, constants.USER_REQUEST_APPROVE, msg, false, header)
+			CreateTypeNotification(ctx, server, charge.ID, guest.UserID, constants.USER_REQUEST_APPROVE, msg, false, header)
 			// We send an email
 			checkIn := tools.HandleReadableDate(option.StartDate, tools.DateDMMYyyy)
 			checkout := tools.HandleReadableDate(option.EndDate, tools.DateDMMYyyy)
