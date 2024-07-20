@@ -349,9 +349,6 @@ func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPay
 		fee = resData.TotalFee
 		reference = arg.Reference
 	}
-	if err != nil {
-		return
-	}
 	_, err = CreateChargeReference(ctx, server, user.UserID, reference, objectReference, hasObjectReference, reason, currency, arg.MainOptionType, fee, "ReservePaymentMethod")
 	if err != nil {
 		return
@@ -367,16 +364,25 @@ func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPa
 		if errData != nil {
 			err = errData
 		} else {
+			//paystackBankCharge = payment.EmptyPaystackBankCharge()
+			paystackPWT = payment.EmptyPaystackPWT()
+			paystackUSSD =  payment.EmptyPaystackUSSD()
+			paystackCard = payment.EmptyPaystackCard()
 			paystackBankCharge = payment.PaystackBankAccountMainRes{
 				Reference:   res.Data.Reference,
 				DisplayText: res.Data.DisplayText,
 			}
+			
 		}
 	case constants.PAYSTACK_PWT:
 		res, errData := payment.HandlePaystackPWT(ctx, server.config.PaystackSecretLiveKey, charge, reference, user.Email)
 		if errData != nil {
 			err = errData
 		} else {
+			paystackBankCharge = payment.EmptyPaystackBankCharge()
+			//paystackPWT = payment.EmptyPaystackPWT()
+			paystackUSSD =  payment.EmptyPaystackUSSD()
+			paystackCard = payment.EmptyPaystackCard()
 			paystackPWT = payment.PaystackPWTMainRes{
 				Reference:     res.Data.Reference,
 				Slug:          res.Data.Bank.Slug,
@@ -390,6 +396,10 @@ func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPa
 		if errData != nil {
 			err = errData
 		} else {
+			paystackBankCharge = payment.EmptyPaystackBankCharge()
+			paystackPWT = payment.EmptyPaystackPWT()
+			paystackUSSD =  payment.EmptyPaystackUSSD()
+			//paystackCard = payment.EmptyPaystackCard()
 			paystackCard = res
 		}
 	case constants.PAYSTACK_USSD:
@@ -397,6 +407,10 @@ func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPa
 		if errData != nil {
 			err = errData
 		} else {
+			paystackBankCharge = payment.EmptyPaystackBankCharge()
+			paystackPWT = payment.EmptyPaystackPWT()
+			//paystackUSSD =  payment.EmptyPaystackUSSD()
+			paystackCard = payment.EmptyPaystackCard()
 			paystackUSSD = payment.PaystackUSSDRes{
 				Reference:   res.Data.Reference,
 				DisplayText: res.Data.DisplayText,
