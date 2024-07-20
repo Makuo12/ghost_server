@@ -98,7 +98,7 @@ func (server *Server) InitMethodPayment(ctx *gin.Context) {
 		return
 	}
 	if req.PaymentType == constants.PAYMENT_METHOD_FOR_RESERVATION {
-		paystackBankCharge, paystackPWT, paystackUSSD, paystackCard, detailRes, hasReqData, _, err := ReservePaymentMethod(ctx, server, req, user)
+		paystackBankCharge, paystackPWT, paystackUSSD, paystackCard, detailRes, hasReqData, _, paymentReference, err := ReservePaymentMethod(ctx, server, req, user)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return
@@ -111,6 +111,7 @@ func (server *Server) InitMethodPayment(ctx *gin.Context) {
 			Reference:          req.Reference,
 			PaymentType:        req.PaymentType,
 			MainOptionType:     req.MainOptionType,
+			PaymentReference:   paymentReference,
 			PaymentMethod:      req.PaymentMethod,
 			PaymentChannel:     req.PaymentChannel,
 			PaystackBankCharge: paystackBankCharge,

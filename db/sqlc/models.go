@@ -184,6 +184,7 @@ type ChargeReference struct {
 	ID                 uuid.UUID `json:"id"`
 	UserID             uuid.UUID `json:"user_id"`
 	Reference          string    `json:"reference"`
+	PaymentReference   string    `json:"payment_reference"`
 	ObjectReference    uuid.UUID `json:"object_reference"`
 	HasObjectReference bool      `json:"has_object_reference"`
 	MainObjectType     string    `json:"main_object_type"`

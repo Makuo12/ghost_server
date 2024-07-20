@@ -511,7 +511,7 @@ func HandleEndPrice(totalDatePrice float64, discountInt int, cleanFee float64, p
 // We want to handle the process of sending a host a reservation request that was made by a guest
 func HandleOptionReserveRequest(server *Server, ctx context.Context, payMethodReference string, reserveData ExperienceReserveOModel, user db.User, msg string) (err error) {
 	// requestApproved bool, isComplete bool would be set to false because no payment has been made just an awaiting request to be sent
-	charge, optionUserID, err := HandleOptionReserveReceipt(server, ctx, reserveData, "none", user, false, false, "HandleOptionReserveRequest")
+	charge, optionUserID, err := HandleOptionReserveReceipt(server, ctx, reserveData, payMethodReference, user, false, false, "HandleOptionReserveRequest")
 	if err != nil {
 		log.Printf("Error at HandleOptionReserveRequest in HandleOptionReserveReceipt: %v optionID: %v referenceID: %v, pay_method_reference: %v\n", err.Error(), optionUserID, charge.Reference, payMethodReference)
 		err = fmt.Errorf("error 300 occur, pls contact us")

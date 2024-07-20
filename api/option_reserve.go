@@ -103,7 +103,7 @@ func (server *Server) FinalOptionReserveDetail(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	detailRes, hasResData, totalFee, refRes, reserveData, fromCharge, chargeData, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, tools.UuidToString(card.ID), req.Message)
+	detailRes, hasResData, totalFee, refRes, reserveData, fromCharge, chargeData, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, tools.UuidToString(card.ID), req.Message, req.Reference)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -259,7 +259,7 @@ func (server *Server) FinalOptionReserveVerificationDetail(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	detailRes, hasResData, _, refRes, reserveData, fromCharge, chargeData, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, "no card at 2 factor verification", req.Message)
+	detailRes, hasResData, _, refRes, reserveData, fromCharge, chargeData, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, "no card at 2 factor verification", req.Message, req.Reference)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -311,15 +311,16 @@ func (server *Server) FinalOptionReserveVerificationDetail(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPaymentParams, user db.User) (paystackBankCharge payment.PaystackBankAccountMainRes, paystackPWT payment.PaystackPWTMainRes, paystackUSSD payment.PaystackUSSDRes, paystackCard payment.InitCardChargeRes, detailRes FinalOptionReserveRequestDetailRes, hasReqData bool, reason string, err error) {
+func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPaymentParams, user db.User) (paystackBankCharge payment.PaystackBankAccountMainRes, paystackPWT payment.PaystackPWTMainRes, paystackUSSD payment.PaystackUSSDRes, paystackCard payment.InitCardChargeRes, detailRes FinalOptionReserveRequestDetailRes, hasReqData bool, reason string, paymentReference string, err error) {
 	var objectReference = uuid.New()
 	var hasObjectReference = false
 	var currency string
 	var fee string
-	var reference string
+	paymentReference = uuid.New().String()
+	//var reference string
 	switch arg.MainOptionType {
 	case "options":
-		detailDataRes, hasResData, totalFee, resRef, resData, fromCharge, chargeData, errData := HandleFinalOptionReserveDetail(server, ctx, arg.Reference, user, arg.Reference, arg.Message)
+		detailDataRes, hasResData, totalFee, _, resData, fromCharge, chargeData, errData := HandleFinalOptionReserveDetail(server, ctx, arg.Reference, user, arg.Reference, arg.Message, paymentReference)
 		if errData != nil {
 			err = errData
 			return
@@ -337,7 +338,7 @@ func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPay
 		reason = constants.USER_OPTION_PAYMENT
 		currency = resData.Currency
 		fee = totalFee
-		reference = resRef
+		//reference = resRef
 	case "events":
 		resData, errData := HandleEventReserveRedisData(tools.UuidToString(user.ID), arg.Reference)
 		if errData != nil {
@@ -347,13 +348,13 @@ func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPay
 		reason = constants.USER_EVENT_PAYMENT
 		currency = resData.Currency
 		fee = resData.TotalFee
-		reference = arg.Reference
+		//reference = arg.Reference
 	}
-	_, err = CreateChargeReference(ctx, server, user.UserID, reference, objectReference, hasObjectReference, reason, currency, arg.MainOptionType, fee, "ReservePaymentMethod")
+	_, err = CreateChargeReference(ctx, server, user.UserID, paymentReference, objectReference, hasObjectReference, reason, currency, arg.MainOptionType, fee, "ReservePaymentMethod")
 	if err != nil {
 		return
 	}
-	paystackBankCharge, paystackPWT, paystackUSSD, paystackCard, err = ReservePaymentChannel(ctx, server, arg, user, fee, reference, reason)
+	paystackBankCharge, paystackPWT, paystackUSSD, paystackCard, err = ReservePaymentChannel(ctx, server, arg, user, fee, paymentReference, reason)
 	return
 }
 

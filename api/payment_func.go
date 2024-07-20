@@ -21,6 +21,7 @@ func CreateChargeReference(ctx context.Context, server *Server, userID uuid.UUID
 		PaymentMedium:      constants.PAYSTACK,
 		PaymentChannel:     constants.PAYSTACK_CARD,
 		Reason:             reason,
+		PaymentReference: paymentReference,
 		MainObjectType:     mainOptionType,
 		Charge:             tools.MoneyStringToInt(fee),
 		Currency:           currency,

@@ -756,6 +756,7 @@ CREATE TABLE "charge_references" (
   "id" uuid UNIQUE PRIMARY KEY DEFAULT (uuid_generate_v4()),
   "user_id" uuid NOT NULL,
   "reference" varchar NOT NULL DEFAULT 'none',
+  "payment_reference" varchar NOT NULL DEFAULT 'none',
   "object_reference" uuid NOT NULL DEFAULT (uuid_generate_v4()),
   "has_object_reference" boolean NOT NULL DEFAULT false,
   "main_object_type" varchar NOT NULL DEFAULT 'none',

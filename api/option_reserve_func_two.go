@@ -27,7 +27,7 @@ func HandleReserveOption(user db.User, server *Server, ctx *gin.Context, startDa
 	return
 }
 
-func HandleFinalOptionReserveDetail(server *Server, ctx context.Context, reference string, user db.User, cardID string, msg string) (res FinalOptionReserveRequestDetailRes, hasResData bool, totalFee string, refRes string, reserveData ExperienceReserveOModel, fromCharge bool, chargeData db.ChargeOptionReference, err error) {
+func HandleFinalOptionReserveDetail(server *Server, ctx context.Context, reference string, user db.User, cardID string, msg string, payMethodReference string) (res FinalOptionReserveRequestDetailRes, hasResData bool, totalFee string, refRes string, reserveData ExperienceReserveOModel, fromCharge bool, chargeData db.ChargeOptionReference, err error) {
 	charge, err := server.store.GetChargeOptionReferenceByRef(ctx, db.GetChargeOptionReferenceByRefParams{
 		Reference: reference,
 		UserID:    user.UserID,
@@ -62,15 +62,15 @@ func HandleFinalOptionReserveDetail(server *Server, ctx context.Context, referen
 	userID := tools.UuidToString(user.ID)
 	reserveData, err = HandleOptionReserveRedisData(userID, reference)
 	if err != nil {
-		log.Printf("Error at FinalOptionReserveDetail in HandleOptionReserveRedisData: %v, cardID: %v, userID: %v \n", err.Error(), cardID, user.ID)
+		log.Printf("Error at FinalOptionReserveDetail in HandleOptionReserveRedisData: %v, payMethodReference: %v, userID: %v \n", err.Error(), payMethodReference, user.ID)
 		err = fmt.Errorf("reference has expired, please try again")
 		return
 	}
 	// We want to handle request reservations
 	if !reserveData.CanInstantBook || reserveData.RequireRequest {
-		err = HandleOptionReserveRequest(server, ctx, cardID, reserveData, user, msg)
+		err = HandleOptionReserveRequest(server, ctx, payMethodReference, reserveData, user, msg)
 		if err != nil {
-			log.Printf("Error at FinalOptionReserveDetail in HandleOptionReserveRequest: %v, cardID: %v, userID: %v \n", err.Error(), cardID, user.ID)
+			log.Printf("Error at FinalOptionReserveDetail in HandleOptionReserveRequest: %v, payMethodReference: %v, userID: %v \n", err.Error(), payMethodReference, user.ID)
 			err = fmt.Errorf("your reservation request was unsuccessful")
 			return
 		}

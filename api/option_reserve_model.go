@@ -113,6 +113,7 @@ type InitMethodPaymentRes struct {
 	PaymentType        string                             `json:"payment_type" binding:"required"`
 	MainOptionType     string                             `json:"main_option_type" binding:"required"`
 	PaymentMethod      string                             `json:"payment_method"`
+	PaymentReference   string                             `json:"payment_reference"`
 	PaymentChannel     string                             `json:"payment_channel"`
 	PaystackBankCharge payment.PaystackBankAccountMainRes `json:"payment_bank_charge"`
 	PaystackPWT        payment.PaystackPWTMainRes         `json:"payment_pwt"`

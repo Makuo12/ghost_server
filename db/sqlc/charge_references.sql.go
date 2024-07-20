@@ -23,9 +23,10 @@ INSERT INTO charge_references (
     reason,
     charge,
     currency,
+    payment_reference,
     is_complete
-) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-RETURNING id, user_id, reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at
+) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+RETURNING id, user_id, reference, payment_reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at
 `
 
 type CreateChargeReferenceParams struct {
@@ -39,6 +40,7 @@ type CreateChargeReferenceParams struct {
 	Reason             string    `json:"reason"`
 	Charge             int64     `json:"charge"`
 	Currency           string    `json:"currency"`
+	PaymentReference   string    `json:"payment_reference"`
 	IsComplete         bool      `json:"is_complete"`
 }
 
@@ -54,6 +56,7 @@ func (q *Queries) CreateChargeReference(ctx context.Context, arg CreateChargeRef
 		arg.Reason,
 		arg.Charge,
 		arg.Currency,
+		arg.PaymentReference,
 		arg.IsComplete,
 	)
 	var i ChargeReference
@@ -61,6 +64,7 @@ func (q *Queries) CreateChargeReference(ctx context.Context, arg CreateChargeRef
 		&i.ID,
 		&i.UserID,
 		&i.Reference,
+		&i.PaymentReference,
 		&i.ObjectReference,
 		&i.HasObjectReference,
 		&i.MainObjectType,
@@ -77,7 +81,7 @@ func (q *Queries) CreateChargeReference(ctx context.Context, arg CreateChargeRef
 }
 
 const getChargeReference = `-- name: GetChargeReference :one
-SELECT id, user_id, reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at 
+SELECT id, user_id, reference, payment_reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at 
 FROM charge_references
 WHERE user_id = $1 AND reference = $2
 `
@@ -94,6 +98,7 @@ func (q *Queries) GetChargeReference(ctx context.Context, arg GetChargeReference
 		&i.ID,
 		&i.UserID,
 		&i.Reference,
+		&i.PaymentReference,
 		&i.ObjectReference,
 		&i.HasObjectReference,
 		&i.MainObjectType,
@@ -115,7 +120,7 @@ SET
     is_complete = $1,
     updated_at = NOW()
 WHERE user_id = $2 AND reference = $3
-RETURNING id, user_id, reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at
+RETURNING id, user_id, reference, payment_reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at
 `
 
 type UpdateChargeReferenceCompleteParams struct {
@@ -131,6 +136,7 @@ func (q *Queries) UpdateChargeReferenceComplete(ctx context.Context, arg UpdateC
 		&i.ID,
 		&i.UserID,
 		&i.Reference,
+		&i.PaymentReference,
 		&i.ObjectReference,
 		&i.HasObjectReference,
 		&i.MainObjectType,
