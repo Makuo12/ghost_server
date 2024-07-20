@@ -326,7 +326,7 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	//}
 
 	// Start the cron scheduler
-	//job.Start()
+	job.Start()
 
 	server.setupRouter()
 
