@@ -119,6 +119,10 @@ func (server *Server) InitMethodPayment(ctx *gin.Context) {
 			PaystackCard:       paystackCard,
 			PaystackUSSD:       paystackUSSD,
 		}
+		fmt.Println("paystack: ", res)
+		fmt.Println("PaystackPWT: ", paystackPWT)
+		fmt.Println("PaystackCard: ", paystackCard)
+		fmt.Println("PaystackUSSD: ", paystackUSSD)
 		ctx.JSON(http.StatusOK, res)
 		return
 	}
