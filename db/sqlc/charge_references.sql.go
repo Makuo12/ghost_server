@@ -114,6 +114,16 @@ func (q *Queries) GetChargeReference(ctx context.Context, arg GetChargeReference
 	return i, err
 }
 
+const removeChargeReferenceComplete = `-- name: RemoveChargeReferenceComplete :exec
+DELETE FROM charge_references
+WHERE reference = $1
+`
+
+func (q *Queries) RemoveChargeReferenceComplete(ctx context.Context, reference string) error {
+	_, err := q.db.Exec(ctx, removeChargeReferenceComplete, reference)
+	return err
+}
+
 const updateChargeReferenceComplete = `-- name: UpdateChargeReferenceComplete :one
 UPDATE charge_references 
 SET

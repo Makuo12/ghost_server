@@ -538,6 +538,7 @@ type Querier interface {
 	RemoveCancelPolicy(ctx context.Context, optionID uuid.UUID) error
 	RemoveCard(ctx context.Context, arg RemoveCardParams) error
 	RemoveChargeOptionReference(ctx context.Context, id uuid.UUID) error
+	RemoveChargeReferenceComplete(ctx context.Context, reference string) error
 	RemoveChargeReview(ctx context.Context, chargeID uuid.UUID) error
 	RemoveChargeReviewTwo(ctx context.Context, chargeID uuid.UUID) error
 	RemoveCheckInOutDetail(ctx context.Context, optionID uuid.UUID) error

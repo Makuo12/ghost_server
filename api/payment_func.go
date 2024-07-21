@@ -12,6 +12,12 @@ import (
 )
 
 func CreateChargeReference(ctx context.Context, server *Server, userID uuid.UUID, reference string, paymentReference string, objectReference uuid.UUID, hasObjectReference bool, reason string, currency string, mainOptionType string, fee string, funcName string) (charge db.ChargeReference, err error) {
+	// Delete the any charge reference that uses the reference
+	err = server.store.RemoveChargeReferenceComplete(ctx, reference)
+	if err != nil {
+		log.Printf("Error at %v at CreateChargeReference, RemoveChargeReferenceComplete err %v\n", funcName, err.Error())
+		err = nil
+	}
 	// userID of type user.UserID
 	charge, err = server.store.CreateChargeReference(ctx, db.CreateChargeReferenceParams{
 		UserID:             userID,
@@ -21,7 +27,7 @@ func CreateChargeReference(ctx context.Context, server *Server, userID uuid.UUID
 		PaymentMedium:      constants.PAYSTACK,
 		PaymentChannel:     constants.PAYSTACK_CARD,
 		Reason:             reason,
-		PaymentReference: paymentReference,
+		PaymentReference:   paymentReference,
 		MainObjectType:     mainOptionType,
 		Charge:             tools.MoneyStringToInt(fee),
 		Currency:           currency,

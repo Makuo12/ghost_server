@@ -28,3 +28,7 @@ SET
     updated_at = NOW()
 WHERE user_id = $2 AND reference = $3
 RETURNING *;
+
+-- name: RemoveChargeReferenceComplete :exec
+DELETE FROM charge_references
+WHERE reference = $1;
