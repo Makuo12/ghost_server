@@ -13,7 +13,7 @@ import (
 
 func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 	var req payment.ReferencePayment
-	log.Println("Reference: ", req.Reference)
+	
 	// If chargeData.MainObjectType is either options or events then we want willRefund to be true because when it gets to chargeData.MainObjectType if we are making payment it turns to false
 	var willRefund bool = true
 	var successReservation bool = false
@@ -24,6 +24,7 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	log.Println("Reference: ", req.Reference)
 	user, err := HandleGetUser(ctx, server)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

@@ -58,7 +58,7 @@ func HandlePaystackVerifyPayment(ctx context.Context, paystackKey, reference str
 	// We check to see if the transaction failed
 	if resData.Data.Status != "success" {
 		log.Printf("Error at HandlePaystackVerifyPayment payment did not go through")
-		err = fmt.Errorf("there was an error while verifying your card. Please try again if the error continues try using another card or help center")
+		err = fmt.Errorf(resData.Data.GatewayResponse)
 		return
 	}
 	log.Printf("reference %v\n", resData.Data.Reference)
