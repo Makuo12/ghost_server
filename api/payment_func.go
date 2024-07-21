@@ -11,11 +11,11 @@ import (
 	"github.com/makuo12/ghost_server/tools"
 )
 
-func CreateChargeReference(ctx context.Context, server *Server, userID uuid.UUID, paymentReference string, objectReference uuid.UUID, hasObjectReference bool, reason string, currency string, mainOptionType string, fee string, funcName string) (charge db.ChargeReference, err error) {
+func CreateChargeReference(ctx context.Context, server *Server, userID uuid.UUID, reference string, paymentReference string, objectReference uuid.UUID, hasObjectReference bool, reason string, currency string, mainOptionType string, fee string, funcName string) (charge db.ChargeReference, err error) {
 	// userID of type user.UserID
 	charge, err = server.store.CreateChargeReference(ctx, db.CreateChargeReferenceParams{
 		UserID:             userID,
-		Reference:          paymentReference,
+		Reference:          reference,
 		ObjectReference:    objectReference,
 		HasObjectReference: hasObjectReference,
 		PaymentMedium:      constants.PAYSTACK,
@@ -33,7 +33,7 @@ func CreateChargeReference(ctx context.Context, server *Server, userID uuid.UUID
 	return
 }
 
-func ObjectOptionPaymentReference(ctx context.Context, server *Server, user db.User, reference string, objectReference uuid.UUID, amount int, currency string, message string) (success bool, err error) {
+func ObjectOptionPaymentReference(ctx context.Context, server *Server, user db.User, reference string, paymentReference string, objectReference uuid.UUID, amount int, currency string, message string) (success bool, err error) {
 	var fromCharge bool
 	var reserveOptionData ExperienceReserveOModel
 	var referenceCharge string
@@ -54,7 +54,7 @@ func ObjectOptionPaymentReference(ctx context.Context, server *Server, user db.U
 		}
 		if amount != tools.ConvertToPaystackCharge(reserveOptionData.TotalFee) {
 			// If amount is not equal we send back a refund and an error
-			HandleInitRefund(ctx, server, user, reference, objectReference, false, "options", constants.USER_OPTION_INVALID_PAYMENT_AMOUNT, tools.IntToMoneyString(int64(amount)), currency, "ObjectOptionPaymentReference")
+			HandleInitRefund(ctx, server, user, reference, paymentReference, objectReference, false, "options", constants.USER_OPTION_INVALID_PAYMENT_AMOUNT, tools.IntToMoneyString(int64(amount)), currency, "ObjectOptionPaymentReference")
 			err = fmt.Errorf("amount payed is not the total amount for the listing")
 			return
 		}
@@ -63,7 +63,7 @@ func ObjectOptionPaymentReference(ctx context.Context, server *Server, user db.U
 		referenceCharge = charge.Reference
 		if amount != int(charge.TotalFee) {
 			// If amount is not equal we send back a refund and an error
-			HandleInitRefund(ctx, server, user, reference, objectReference, true, "options", constants.USER_OPTION_INVALID_PAYMENT_AMOUNT, tools.IntToMoneyString(int64(amount)), currency, "ObjectOptionPaymentReference")
+			HandleInitRefund(ctx, server, user, reference, paymentReference, objectReference, true, "options", constants.USER_OPTION_INVALID_PAYMENT_AMOUNT, tools.IntToMoneyString(int64(amount)), currency, "ObjectOptionPaymentReference")
 			err = fmt.Errorf("amount payed is not the total amount for the listing")
 			return
 		}
@@ -99,7 +99,7 @@ func ObjectOptionPaymentReference(ctx context.Context, server *Server, user db.U
 
 }
 
-func ObjectEventPaymentReference(ctx context.Context, server *Server, user db.User, reference string, objectReference uuid.UUID, amount int, currency string, message string) (success bool, err error) {
+func ObjectEventPaymentReference(ctx context.Context, server *Server, user db.User, reference string, paymentReference string, objectReference uuid.UUID, amount int, currency string, message string) (success bool, err error) {
 	// A reservation request can never be created for a ticket so we don't need to check for a chargeEventReference
 	reserveEventData, err := HandleEventReserveRedisData(tools.UuidToString(user.UserID), reference)
 	if err != nil {
@@ -109,7 +109,7 @@ func ObjectEventPaymentReference(ctx context.Context, server *Server, user db.Us
 	}
 	if amount != tools.ConvertToPaystackCharge(reserveEventData.TotalFee) {
 		// If amount is not equal we send back a refund and an error
-		HandleInitRefund(ctx, server, user, reference, objectReference, false, "events", constants.USER_OPTION_INVALID_PAYMENT_AMOUNT, tools.IntToMoneyString(int64(amount)), currency, "ObjectEventPaymentReference")
+		HandleInitRefund(ctx, server, user, reference, paymentReference, objectReference, false, "events", constants.USER_OPTION_INVALID_PAYMENT_AMOUNT, tools.IntToMoneyString(int64(amount)), currency, "ObjectEventPaymentReference")
 		err = fmt.Errorf("amount payed is not the total amount for the event")
 		return
 	}

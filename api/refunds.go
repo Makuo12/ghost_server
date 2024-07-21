@@ -18,8 +18,8 @@ import (
 	"github.com/google/uuid"
 )
 
-func HandleInitRefund(ctx context.Context, server *Server, user db.User, referenceString string, objectReference uuid.UUID, hasObjectReference bool, mainOption string, reason string, amount string, currency string, funcName string) {
-	charge, err := CreateChargeReference(ctx, server, user.UserID, referenceString, objectReference, hasObjectReference, reason, currency, mainOption, amount, "HandleInitRefund")
+func HandleInitRefund(ctx context.Context, server *Server, user db.User, referenceString string, paymentReference string, objectReference uuid.UUID, hasObjectReference bool, mainOption string, reason string, amount string, currency string, funcName string) {
+	charge, err := CreateChargeReference(ctx, server, user.UserID, referenceString, paymentReference, objectReference, hasObjectReference, reason, currency, mainOption, amount, "HandleInitRefund")
 	if err != nil {
 		log.Printf("Error at FuncName: %v HandleInitRefund in CreateChargeReference: %v, reference: %v, userID: %v \n", funcName, err.Error(), referenceString, user.ID)
 		return

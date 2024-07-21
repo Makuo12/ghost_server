@@ -350,7 +350,7 @@ func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPay
 		fee = resData.TotalFee
 		//reference = arg.Reference
 	}
-	_, err = CreateChargeReference(ctx, server, user.UserID, paymentReference, objectReference, hasObjectReference, reason, currency, arg.MainOptionType, fee, "ReservePaymentMethod")
+	_, err = CreateChargeReference(ctx, server, user.UserID, arg.Reference, paymentReference, objectReference, hasObjectReference, reason, currency, arg.MainOptionType, fee, "ReservePaymentMethod")
 	if err != nil {
 		return
 	}

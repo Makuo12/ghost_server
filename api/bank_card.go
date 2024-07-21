@@ -129,8 +129,9 @@ func (server *Server) InitCardCharge(ctx *gin.Context) {
 		reason = constants.ADD_CARD_REASON
 		err = nil
 	}
+	reference := tools.UuidToString(uuid.New())
 	paymentReference := tools.UuidToString(uuid.New())
-	_, err = CreateChargeReference(ctx, server, user.UserID, paymentReference, objectReference, hasObjectReference, reason, req.Currency, "none", charge, "InitCardCharge")
+	_, err = CreateChargeReference(ctx, server, user.UserID, reference, paymentReference, objectReference, hasObjectReference, reason, req.Currency, "none", charge, "InitCardCharge")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return

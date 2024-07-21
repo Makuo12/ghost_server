@@ -13,7 +13,7 @@ import (
 
 func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 	var req payment.ReferencePayment
-
+	log.Println("Reference: ", req.Reference)
 	// If chargeData.MainObjectType is either options or events then we want willRefund to be true because when it gets to chargeData.MainObjectType if we are making payment it turns to false
 	var willRefund bool = true
 	var successReservation bool = false
@@ -54,12 +54,12 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 	switch chargeData.MainObjectType {
 	case "options":
 		willRefund = false
-		success, errData := ObjectOptionPaymentReference(ctx, server, user, chargeData.Reference, chargeData.ObjectReference, int(chargeData.Charge), chargeData.Currency, req.Message)
+		success, errData := ObjectOptionPaymentReference(ctx, server, user, chargeData.Reference, chargeData.PaymentReference, chargeData.ObjectReference, int(chargeData.Charge), chargeData.Currency, req.Message)
 		err = errData
 		successReservation = success
 	case "events":
 		willRefund = false
-		success, errData := ObjectEventPaymentReference(ctx, server, user, chargeData.Reference, chargeData.ObjectReference, int(chargeData.Charge), chargeData.Currency, req.Message)
+		success, errData := ObjectEventPaymentReference(ctx, server, user, chargeData.Reference, chargeData.PaymentReference, chargeData.ObjectReference, int(chargeData.Charge), chargeData.Currency, req.Message)
 		err = errData
 		successReservation = success
 	}
