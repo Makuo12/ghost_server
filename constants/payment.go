@@ -5,13 +5,13 @@ const ADD_CARD_REASON = "add_card_reason"
 const PAY_CARD_REASON = "pay_card_reason"
 
 // this stores data in redis in the format date_id
-const PAYOUT_CHARGE_DATE_IDS = "payout_charge_date_ids"
+//const PAYOUT_CHARGE_DATE_IDS = "payout_charge_date_ids"
 
-const REFUND_CHARGE_DATE_IDS = "refund_charge_date_ids"
+//const REFUND_CHARGE_DATE_IDS = "refund_charge_date_ids"
 
-const WEBHOOK_PAYSTACK_TRANSFER_REFERENCE = "WEBHOOK_PAYSTACK_TRANSFER_REFERENCE"
+//const WEBHOOK_PAYSTACK_TRANSFER_REFERENCE = "WEBHOOK_PAYSTACK_TRANSFER_REFERENCE"
 
-const WEBHOOK_PAYSTACK_REFUND_REFERENCE = "WEBHOOK_PAYSTACK_REFUND_REFERENCE"
+//const WEBHOOK_PAYSTACK_REFUND_REFERENCE = "WEBHOOK_PAYSTACK_REFUND_REFERENCE"
 
 const TRANSFER_ACTION = "transfer_ACTION"
 

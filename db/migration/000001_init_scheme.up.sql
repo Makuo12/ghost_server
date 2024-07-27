@@ -2,7 +2,6 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "cube";
 CREATE EXTENSION IF NOT EXISTS "earthdistance";
 
-
 CREATE TABLE "users" (
   "id" uuid UNIQUE PRIMARY KEY NOT NULL DEFAULT (uuid_generate_v4()),
   "user_id" uuid UNIQUE NOT NULL DEFAULT (uuid_generate_v4()),
@@ -789,7 +788,8 @@ CREATE TABLE "main_refunds" (
   "host_percent" int NOT NULL,
   "charge_type" varchar NOT NULL,
   "type" varchar NOT NULL,
-  "is_payed" bool NOT NULL DEFAULT false,
+  "status" varchar NOT NULL DEFAULT 'not_started',
+  "is_payed" boolean NOT NULL DEFAULT false,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -800,9 +800,10 @@ CREATE TABLE "refunds" (
   "send_medium" varchar NOT NULL,
   "amount" bigint NOT NULL,
   "user_id" uuid NOT NULL,
+  "refund_id" varchar NOT NULL DEFAULT 'none',
   "amount_payed" bigint NOT NULL,
   "time_paid" timestamptz NOT NULL DEFAULT (now()),
-  "is_complete" bool NOT NULL DEFAULT false,
+  "is_complete" boolean NOT NULL DEFAULT false,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
   "updated_at" timestamptz NOT NULL DEFAULT (now())
 );
@@ -813,6 +814,8 @@ CREATE TABLE "refund_payouts" (
   "service_fee" bigint NOT NULL,
   "user_id" uuid NOT NULL,
   "time_paid" timestamptz NOT NULL DEFAULT (now()),
+  "blocked" boolean NOT NULL DEFAULT false,
+  "status" varchar NOT NULL DEFAULT 'not_started',
   "currency" varchar NOT NULL,
   "account_number" varchar NOT NULL DEFAULT 'none',
   "is_complete" bool NOT NULL DEFAULT false,
@@ -827,6 +830,8 @@ CREATE TABLE "main_payouts" (
   "time_paid" timestamptz NOT NULL DEFAULT (now()),
   "service_fee" bigint NOT NULL,
   "currency" varchar NOT NULL,
+  "status" varchar NOT NULL DEFAULT 'not_started',
+  "blocked" boolean NOT NULL DEFAULT false,
   "account_number" varchar NOT NULL DEFAULT 'none',
   "is_complete" bool NOT NULL DEFAULT false,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
@@ -1033,6 +1038,7 @@ CREATE TABLE "request_notifies" (
   "same_price" boolean NOT NULL,
   "price" bigint NOT NULL,
   "item_id" varchar NOT NULL,
+  "status" varchar NOT NULL DEFAULT 'normal',
   "approved" boolean NOT NULL DEFAULT false,
   "cancelled" boolean NOT NULL DEFAULT false,
   "created_at" timestamptz NOT NULL DEFAULT (now()),
@@ -1611,3 +1617,5 @@ ALTER TABLE "single_rooms" ADD FOREIGN KEY ("user_one") REFERENCES "users" ("use
 ALTER TABLE "single_rooms" ADD FOREIGN KEY ("user_two") REFERENCES "users" ("user_id");
 
 ALTER TABLE "notifications" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
+
+ALTER TABLE "option_book_methods" ADD FOREIGN KEY ("good_track_record") REFERENCES "event_date_tickets" ("event_date_time_id");

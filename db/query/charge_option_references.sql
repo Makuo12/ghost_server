@@ -412,6 +412,14 @@ ORDER BY co.end_date DESC
 LIMIT $4
 OFFSET $5;
 
+-- name: GetChargeOptionReferencePayment :one
+SELECT mp.status AS main_payout_status, rp.status AS refund_payout_status, mr.status AS main_refund_status
+FROM charge_option_references co
+LEFT JOIN main_payouts mp on mp.charge_id = co.id
+LEFT JOIN main_refunds mr on mr.charge_id = co.id
+LEFT JOIN refund_payouts rp on rp.charge_id = co.id
+WHERE co.id = $1;
+
 
 -- name: RemoveChargeOptionReference :exec
 DELETE FROM charge_option_references

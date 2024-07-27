@@ -170,6 +170,55 @@ func (q *Queries) ListRequestNotifyID(ctx context.Context, arg ListRequestNotify
 	return items, nil
 }
 
+const listRequestNotifyPayment = `-- name: ListRequestNotifyPayment :many
+SELECT cor.id AS charge_id, rn.m_id, u.first_name AS guest_first_name, u.user_id AS guest_user_id, hu.first_name AS host_first_name, hu.user_id AS host_user_id, cor.reference 
+FROM request_notifies rn
+JOIN messages m on m.id = rn.m_id
+JOIN charge_option_references cor on cor.reference = m.reference
+JOIN users u on u.user_id = cor.user_id
+JOIN options_infos oi on oi.option_user_id = cor.option_user_id
+JOIN users hu on hu.id = oi.host_id
+WHERE rn.status = "request_payment"
+`
+
+type ListRequestNotifyPaymentRow struct {
+	ChargeID       uuid.UUID `json:"charge_id"`
+	MID            uuid.UUID `json:"m_id"`
+	GuestFirstName string    `json:"guest_first_name"`
+	GuestUserID    uuid.UUID `json:"guest_user_id"`
+	HostFirstName  string    `json:"host_first_name"`
+	HostUserID     uuid.UUID `json:"host_user_id"`
+	Reference      string    `json:"reference"`
+}
+
+func (q *Queries) ListRequestNotifyPayment(ctx context.Context) ([]ListRequestNotifyPaymentRow, error) {
+	rows, err := q.db.Query(ctx, listRequestNotifyPayment)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListRequestNotifyPaymentRow{}
+	for rows.Next() {
+		var i ListRequestNotifyPaymentRow
+		if err := rows.Scan(
+			&i.ChargeID,
+			&i.MID,
+			&i.GuestFirstName,
+			&i.GuestUserID,
+			&i.HostFirstName,
+			&i.HostUserID,
+			&i.Reference,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateRequestNotify = `-- name: UpdateRequestNotify :one
 UPDATE request_notifies
 SET 
@@ -180,9 +229,10 @@ SET
     item_id = COALESCE($5, item_id),
     approved = COALESCE($6, approved),
     cancelled = COALESCE($7, cancelled),
+    status = COALESCE($8, status),
     updated_at = NOW()
-WHERE m_id = $8 
-RETURNING m_id, start_date, end_date, has_price, same_price, price, item_id, approved, cancelled, created_at, updated_at
+WHERE m_id = $9 
+RETURNING m_id, start_date, end_date, has_price, same_price, price, item_id, status, approved, cancelled, created_at, updated_at
 `
 
 type UpdateRequestNotifyParams struct {
@@ -193,6 +243,7 @@ type UpdateRequestNotifyParams struct {
 	ItemID    pgtype.Text `json:"item_id"`
 	Approved  pgtype.Bool `json:"approved"`
 	Cancelled pgtype.Bool `json:"cancelled"`
+	Status    pgtype.Text `json:"status"`
 	MID       uuid.UUID   `json:"m_id"`
 }
 
@@ -205,6 +256,7 @@ func (q *Queries) UpdateRequestNotify(ctx context.Context, arg UpdateRequestNoti
 		arg.ItemID,
 		arg.Approved,
 		arg.Cancelled,
+		arg.Status,
 		arg.MID,
 	)
 	var i RequestNotify
@@ -216,6 +268,7 @@ func (q *Queries) UpdateRequestNotify(ctx context.Context, arg UpdateRequestNoti
 		&i.SamePrice,
 		&i.Price,
 		&i.ItemID,
+		&i.Status,
 		&i.Approved,
 		&i.Cancelled,
 		&i.CreatedAt,

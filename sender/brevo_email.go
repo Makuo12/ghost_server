@@ -35,7 +35,7 @@ func SendEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName string
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -76,7 +76,7 @@ func SendInviteEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName 
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -115,7 +115,7 @@ func SendCoHostDeactivateBrevo(ctx context.Context, cfg *brevo.Configuration, co
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -155,7 +155,7 @@ func SendReservationRequestBrevo(ctx context.Context, cfg *brevo.Configuration, 
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -197,7 +197,7 @@ func SendAdminReservationRequestBrevo(ctx context.Context, cfg *brevo.Configurat
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -215,7 +215,7 @@ func SendAdminReservationRequestBrevo(ctx context.Context, cfg *brevo.Configurat
 //	//cfg := brevo.NewConfiguration()
 //	////Configure API key authorization: api-key
 //	//cfg.AddDefaultHeader("api-key", appKey)
-	
+
 //	var paramsData map[string]any = params
 //	br := brevo.NewAPIClient(cfg)
 //	body := brevo.SendSmtpEmail{
@@ -226,7 +226,7 @@ func SendAdminReservationRequestBrevo(ctx context.Context, cfg *brevo.Configurat
 //		},
 //		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 //			Name:  "team",
-//			Email: "support@flizzup.com",
+//			Email: "info@flizzup.com",
 //		},
 //		Params: paramsData,
 //	}

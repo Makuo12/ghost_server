@@ -131,17 +131,16 @@ func (server *Server) CreateOptionUserCancel(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	payoutIDs, err := RedisClient.SMembers(RedisContext, constants.PAYOUT_CHARGE_DATE_IDS).Result()
+	chargeID, err := tools.StringToUuid(req.ChargeID)
 	if err != nil {
-		log.Printf("Error at CreateOptionUserCancel Payouts RedisClient.SMembers: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
+		log.Printf("Error at CreateOptionUserCancel at tools.StringToUuid: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
 		err = fmt.Errorf("error occurred while processing your request")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	refundIDs, err := RedisClient.SMembers(RedisContext, constants.REFUND_CHARGE_DATE_IDS).Result()
+	// Before a user can cancel we need to ensure that payment is not already been processed or refund is not already been processed
+	err = CheckPaymentProgress(ctx, server, chargeID)
 	if err != nil {
-		log.Printf("Error at CreateOptionUserCancel Refunds RedisClient.SMembers: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
-		err = fmt.Errorf("error occurred while processing your request")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -150,14 +149,8 @@ func (server *Server) CreateOptionUserCancel(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	chargeID, err := tools.StringToUuid(req.ChargeID)
-	if err != nil {
-		log.Printf("Error at CreateOptionUserCancel at tools.StringToUuid: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
-		err = fmt.Errorf("error occurred while processing your request")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	msg, err := HandleOptionUserCancel(ctx, server, user, req, "CreateOptionUserCancel", chargeID, payoutIDs, refundIDs)
+	
+	msg, err := HandleOptionUserCancel(ctx, server, user, req, "CreateOptionUserCancel", chargeID)
 	if err != nil {
 		log.Printf("Error at CreateOptionUserCancel at HandleOptionUserCancel: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -177,20 +170,7 @@ func (server *Server) CreateEventUserCancel(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	payoutIDs, err := RedisClient.SMembers(RedisContext, constants.PAYOUT_CHARGE_DATE_IDS).Result()
-	if err != nil {
-		log.Printf("Error at CreateEventUserCancel Payouts RedisClient.SMembers: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
-		err = fmt.Errorf("error occurred while processing your request")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	refundIDs, err := RedisClient.SMembers(RedisContext, constants.REFUND_CHARGE_DATE_IDS).Result()
-	if err != nil {
-		log.Printf("Error at CreateEventUserCancel Refunds RedisClient.SMembers: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
-		err = fmt.Errorf("error occurred while processing your request")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+	
 	user, err := HandleGetUser(ctx, server)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -203,7 +183,13 @@ func (server *Server) CreateEventUserCancel(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	msg, err := HandleEventUserCancel(ctx, server, user, req, "CreateEventUserCancel", chargeID, payoutIDs, refundIDs)
+	// Before a user can cancel we need to ensure that payment is not already been processed or refund is not already been processed
+	err = CheckPaymentProgress(ctx, server, chargeID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	msg, err := HandleEventUserCancel(ctx, server, user, req, "CreateEventUserCancel", chargeID)
 	if err != nil {
 		log.Printf("Error at CreateEventUserCancel at HandleOptionUserCancel: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -235,21 +221,6 @@ func (server *Server) CreateOptionHostCancel(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	payoutIDs, err := RedisClient.SMembers(RedisContext, constants.PAYOUT_CHARGE_DATE_IDS).Result()
-	if err != nil {
-		log.Printf("Error at CreateOptionHostCancel Payouts RedisClient.SMembers: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
-		err = fmt.Errorf("error occurred while processing your request")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	refundIDs, err := RedisClient.SMembers(RedisContext, constants.REFUND_CHARGE_DATE_IDS).Result()
-	if err != nil {
-		log.Printf("Error at CreateOptionHostCancel Refunds RedisClient.SMembers: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
-		err = fmt.Errorf("error occurred while processing your request")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
 	chargeID, err := tools.StringToUuid(req.ChargeID)
 	if err != nil {
 		log.Printf("Error at CreateOptionHostCancel at tools.StringToUuid: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
@@ -257,7 +228,13 @@ func (server *Server) CreateOptionHostCancel(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	msg, err := HandleOptionHostCancel(ctx, server, user, req, "CreateOptionHostCancel", chargeID, payoutIDs, refundIDs)
+	// Before a user can cancel we need to ensure that payment is not already been processed or refund is not already been processed
+	err = CheckPaymentProgress(ctx, server, chargeID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	msg, err := HandleOptionHostCancel(ctx, server, user, req, "CreateOptionHostCancel", chargeID)
 	if err != nil {
 		log.Printf("Error at CreateOptionHostCancel at HandleOptionUserCancel: %v, ChargeID: %v \n", err.Error(), req.ChargeID)
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

@@ -17,6 +17,7 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 	// If chargeData.MainObjectType is either options or events then we want willRefund to be true because when it gets to chargeData.MainObjectType if we are making payment it turns to false
 	var willRefund bool = true
 	var successReservation bool = false
+	var chargeType = constants.CHARGE_REFERENCE
 	var cardData payment.CardAddResponse = payment.GetFakeCardRes()
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		log.Printf("Error at VerifyPaymentReference in ShouldBindJSON: %v, currency: %v \n", err.Error(), req.Reference)
@@ -55,11 +56,13 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 	switch chargeData.MainObjectType {
 	case "options":
 		willRefund = false
+		chargeType = constants.CHARGE_OPTION_REFERENCE
 		success, errData := ObjectOptionPaymentReference(ctx, server, user, chargeData.Reference, chargeData.PaymentReference, chargeData.ObjectReference, int(chargeData.Charge), chargeData.Currency, req.Message)
 		err = errData
 		successReservation = success
 	case "events":
 		willRefund = false
+		chargeType = constants.CHARGE_TICKET_REFERENCE
 		success, errData := ObjectEventPaymentReference(ctx, server, user, chargeData.Reference, chargeData.PaymentReference, chargeData.ObjectReference, int(chargeData.Charge), chargeData.Currency, req.Message)
 		err = errData
 		successReservation = success
@@ -69,7 +72,7 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 		return
 	}
 	if req.AddCard {
-		cardData, err = CreateCard(ctx, server, resData, user, willRefund, req.Type, chargeData.ID, chargeData.Currency)
+		cardData, err = CreateCard(ctx, server, resData, user, willRefund, req.Type, chargeData.ID, chargeData.Currency, chargeType)
 		// If willRefund is true that means we are not making any payment
 		if err != nil && willRefund {
 			log.Printf("error at VerifyPaymentReference at CreateCard for userID: %v, err: %v\n", user.UserID, err.Error())

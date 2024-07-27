@@ -13,7 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func HandleOptionUserCancel(ctx context.Context, server *Server, user db.User, req CreateUserOptionCancellationParams, funcName string, chargeID uuid.UUID, payoutRedisIDs []string, refundRedisIDs []string) (msg string, err error) {
+func HandleOptionUserCancel(ctx context.Context, server *Server, user db.User, req CreateUserOptionCancellationParams, funcName string, chargeID uuid.UUID) (msg string, err error) {
 	// We want to make sure charge ID is not in payoutsRedisIDs, refundRedisIDs
 	if req.ReasonOne == "other" && tools.ServerStringEmpty(req.ReasonTwo) {
 		err = fmt.Errorf("please give a detailed reason even though you selected other")
@@ -23,7 +23,7 @@ func HandleOptionUserCancel(ctx context.Context, server *Server, user db.User, r
 			req.ReasonTwo = "none"
 		}
 	}
-	charge, refund, hostPayout, err := GetOptionUserCancelChargeRefund(ctx, server, user, funcName, chargeID, payoutRedisIDs, refundRedisIDs)
+	charge, refund, hostPayout, err := GetOptionUserCancelChargeRefund(ctx, server, user, funcName, chargeID)
 	if err != nil {
 		log.Printf("FuncName: %v. There an error at HandleOptionUserCancel at GetOptionUserCancelChargeRefund: %v, chargeID: %v, userID: %v \n", funcName, err.Error(), chargeID, user.ID)
 		err = fmt.Errorf("could not cancel your booking as an error occurred")
@@ -85,7 +85,7 @@ func HandleOptionUserCancel(ctx context.Context, server *Server, user db.User, r
 	return
 }
 
-func HandleOptionHostCancel(ctx context.Context, server *Server, user db.User, req CreateHostOptionCancellationParams, funcName string, chargeID uuid.UUID, payoutRedisIDs []string, refundRedisIDs []string) (msg string, err error) {
+func HandleOptionHostCancel(ctx context.Context, server *Server, user db.User, req CreateHostOptionCancellationParams, funcName string, chargeID uuid.UUID) (msg string, err error) {
 	if req.ReasonOne == "other" && tools.ServerStringEmpty(req.ReasonTwo) {
 		err = fmt.Errorf("please give a detailed reason even though you selected other")
 		return
@@ -101,7 +101,7 @@ func HandleOptionHostCancel(ctx context.Context, server *Server, user db.User, r
 		err = fmt.Errorf("could not find the guest for the booking. Please try again later or try contacting us")
 		return
 	}
-	charge, refund, hostPayout, err := GetOptionHostCancelChargeRefund(ctx, server, user, "HandleOptionHostCancel", chargeID, payoutRedisIDs, refundRedisIDs, userID)
+	charge, refund, hostPayout, err := GetOptionHostCancelChargeRefund(ctx, server, user, "HandleOptionHostCancel", chargeID, userID)
 	if err != nil {
 		return
 	}
@@ -152,7 +152,7 @@ func HandleOptionHostCancel(ctx context.Context, server *Server, user db.User, r
 	return
 }
 
-func HandleEventUserCancel(ctx context.Context, server *Server, user db.User, req CreateUserEventCancellationParams, funcName string, chargeID uuid.UUID, payoutRedisIDs []string, refundRedisIDs []string) (msg string, err error) {
+func HandleEventUserCancel(ctx context.Context, server *Server, user db.User, req CreateUserEventCancellationParams, funcName string, chargeID uuid.UUID) (msg string, err error) {
 	if req.ReasonOne == "other" && tools.ServerStringEmpty(req.ReasonTwo) {
 		err = fmt.Errorf("please give a detailed reason even though you selected other")
 		return
@@ -161,7 +161,7 @@ func HandleEventUserCancel(ctx context.Context, server *Server, user db.User, re
 			req.ReasonTwo = "none"
 		}
 	}
-	charge, refund, hostPayout, err := GetEventUserCancelChargeRefund(ctx, server, user, "HandleEventUserCancel", chargeID, payoutRedisIDs, refundRedisIDs)
+	charge, refund, hostPayout, err := GetEventUserCancelChargeRefund(ctx, server, user, "HandleEventUserCancel", chargeID)
 	if err != nil {
 		return
 	}

@@ -68,6 +68,7 @@ func (q *Queries) CreatePayout(ctx context.Context, arg CreatePayoutParams) (Pay
 const listPayout = `-- name: ListPayout :many
 SELECT id, payout_ids, user_id, send_medium, parent_type, amount, amount_payed, account_number, time_paid, transfer_code, is_complete, created_at, updated_at
 FROM payouts
+WHERE is_complete = false
 `
 
 func (q *Queries) ListPayout(ctx context.Context) ([]Payout, error) {

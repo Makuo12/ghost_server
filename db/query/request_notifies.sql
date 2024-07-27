@@ -34,6 +34,16 @@ FROM options_infos o_i
     JOIN options_info_details o_i_d on o_i.id = o_i_d.option_id
 WHERE o_i.option_user_id = $1;
 
+-- name: ListRequestNotifyPayment :many
+SELECT cor.id AS charge_id, rn.m_id, u.first_name AS guest_first_name, u.user_id AS guest_user_id, hu.first_name AS host_first_name, hu.user_id AS host_user_id, cor.reference 
+FROM request_notifies rn
+JOIN messages m on m.id = rn.m_id
+JOIN charge_option_references cor on cor.reference = m.reference
+JOIN users u on u.user_id = cor.user_id
+JOIN options_infos oi on oi.option_user_id = cor.option_user_id
+JOIN users hu on hu.id = oi.host_id
+WHERE rn.status = "request_payment";
+
 
 -- name: UpdateRequestNotify :one
 UPDATE request_notifies
@@ -45,6 +55,7 @@ SET
     item_id = COALESCE(sqlc.narg(item_id), item_id),
     approved = COALESCE(sqlc.narg(approved), approved),
     cancelled = COALESCE(sqlc.narg(cancelled), cancelled),
+    status = COALESCE(sqlc.narg(status), status),
     updated_at = NOW()
 WHERE m_id = sqlc.arg(m_id) 
 RETURNING *;

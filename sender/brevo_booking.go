@@ -35,7 +35,7 @@ import (
 //		},
 //		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 //			Name:  "team",
-//			Email: "support@flizzup.com",
+//			Email: "info@flizzup.com",
 //		},
 //		Params: paramsData,
 //	}
@@ -76,7 +76,7 @@ func SendAdminReservationRequestDisapprovedBrevo(ctx context.Context, cfg *brevo
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -117,7 +117,7 @@ func SendPaymentSuccessBrevo(ctx context.Context, cfg *brevo.Configuration, head
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -159,7 +159,7 @@ func SendAdminPaymentSuccessBrevo(ctx context.Context, cfg *brevo.Configuration,
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -200,7 +200,7 @@ func SendAdminPaymentSuccessBrevo(ctx context.Context, cfg *brevo.Configuration,
 //		},
 //		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 //			Name:  "team",
-//			Email: "support@flizzup.com",
+//			Email: "info@flizzup.com",
 //		},
 //		Params: paramsData,
 //	}
@@ -242,7 +242,7 @@ func SendAdminPaymentFailedBrevo(ctx context.Context, cfg *brevo.Configuration, 
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -283,7 +283,7 @@ func SendAdminPaymentFailedBrevo(ctx context.Context, cfg *brevo.Configuration, 
 //		},
 //		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 //			Name:  "team",
-//			Email: "support@flizzup.com",
+//			Email: "info@flizzup.com",
 //		},
 //		Params: paramsData,
 //	}
@@ -325,7 +325,7 @@ func SendAdminReservationRequestApprovedBrevo(ctx context.Context, cfg *brevo.Co
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -369,7 +369,7 @@ func SendOptionPaymentSuccessBrevo(ctx context.Context, cfg *brevo.Configuration
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -414,7 +414,7 @@ func SendOptionHostPaymentSuccessBrevo(ctx context.Context, cfg *brevo.Configura
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -426,7 +426,6 @@ func SendOptionHostPaymentSuccessBrevo(ctx context.Context, cfg *brevo.Configura
 	fmt.Println("SendOptionPaymentSuccessBrevo, response:", resp, "SendTransacEmail object", obj, "funcName: ", funcName)
 	return
 }
-
 
 func SendReservationRequestApprovedBrevo(ctx context.Context, cfg *brevo.Configuration, header string, hostOptionName string, hostName string, guestFirstName string, checkIn string, checkout string, adminPhoneNumber string, adminContactEmail string, message string, toEmail string, toName string, templateID string, funcName string, appKey string) (err error) {
 	//cfg := brevo.NewConfiguration()
@@ -459,7 +458,7 @@ func SendReservationRequestApprovedBrevo(ctx context.Context, cfg *brevo.Configu
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -503,7 +502,7 @@ func SendReservationRequestDisapprovedBrevo(ctx context.Context, cfg *brevo.Conf
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -515,8 +514,6 @@ func SendReservationRequestDisapprovedBrevo(ctx context.Context, cfg *brevo.Conf
 	fmt.Println("SendOptionPaymentSuccessBrevo, response:", resp, "SendTransacEmail object", obj, "funcName: ", funcName)
 	return
 }
-
-
 
 func SendDateUnavailableBrevo(ctx context.Context, cfg *brevo.Configuration, header string, hostOptionName string, hostName string, guestFirstName string, checkIn string, checkout string, adminPhoneNumber string, adminContactEmail string, message string, toEmail string, toName string, templateID string, funcName string, appKey string) (err error) {
 	//cfg := brevo.NewConfiguration()
@@ -549,7 +546,7 @@ func SendDateUnavailableBrevo(ctx context.Context, cfg *brevo.Configuration, hea
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}
@@ -593,7 +590,7 @@ func SendPaymentFailedBrevo(ctx context.Context, cfg *brevo.Configuration, heade
 		},
 		ReplyTo: &brevo.SendSmtpEmailReplyTo{
 			Name:  "team",
-			Email: "support@flizzup.com",
+			Email: "info@flizzup.com",
 		},
 		Params: paramsData,
 	}

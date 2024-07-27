@@ -1,17 +1,16 @@
 package api
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
-	"net/http"
-	"strings"
 	"time"
 
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/makuo12/ghost_server/constants"
 	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/payment"
+	"github.com/makuo12/ghost_server/payout"
 	"github.com/makuo12/ghost_server/tools"
 	"github.com/makuo12/ghost_server/utils"
 
@@ -33,23 +32,19 @@ func HandleInitRefund(ctx context.Context, server *Server, user db.User, referen
 	})
 	if err != nil {
 		log.Printf("Error at FuncName: %v HandleInitRefund in CreateMainRefund: %v, reference: %v, userID: %v \n", funcName, err.Error(), referenceString, user.ID)
+		return
 	}
-	return
 }
 
-func DailyHandleRefund(ctx context.Context, server *Server) func() {
+func DailyHandleSendRefund(ctx context.Context, server *Server) func() {
 	return func() {
-		redisRefundDateIDs, err := RedisClient.SMembers(RedisContext, constants.REFUND_CHARGE_DATE_IDS).Result()
-		if err != nil {
-			log.Printf("Error at DailyHandlePayouts in SMembers err:%v\n", err.Error())
-		}
-		HandleOptionMainRefund(ctx, server, redisRefundDateIDs)
-		HandleTicketMainRefund(ctx, server, redisRefundDateIDs)
-		HandleAddCardRefund(ctx, server, redisRefundDateIDs)
+		HandleOptionMainRefund(ctx, server)
+		HandleTicketMainRefund(ctx, server)
+		HandleAddCardRefund(ctx, server)
 	}
 }
 
-func HandleAddCardRefund(ctx context.Context, server *Server, redisRefunds []string) {
+func HandleAddCardRefund(ctx context.Context, server *Server) {
 	refunds, err := server.store.ListMainRefundWithCharge(ctx, false)
 	if err != nil || len(refunds) == 0 {
 		if err != nil {
@@ -59,16 +54,19 @@ func HandleAddCardRefund(ctx context.Context, server *Server, redisRefunds []str
 		url := "https://api.paystack.co/refund"
 		bearer := "Bearer " + server.config.PaystackSecretLiveKey
 		for _, r := range refunds {
-			err := HandleMainRefund(ctx, server, r.ChargeID, uuid.New(), r.UID, "0", "0", r.Reference, url, bearer, int(r.UserPercent), int(r.HostPercent), r.Currency, redisRefunds)
-			if err != nil {
-				log.Printf("HandleAddCardRefund in HandleMainRefund err:%v\n", err.Error())
+			if r.Status == "not_started" {
+				err := HandleMainRefund(ctx, server, r.ChargeID, uuid.New(), r.UID, "0", "0", r.Reference, url, bearer, int(r.UserPercent), int(r.HostPercent), r.Currency)
+				if err != nil {
+					log.Printf("HandleAddCardRefund in HandleMainRefund err:%v\n", err.Error())
+				}
 			}
+
 		}
 	}
 
 }
 
-func HandleOptionMainRefund(ctx context.Context, server *Server, redisRefunds []string) {
+func HandleOptionMainRefund(ctx context.Context, server *Server) {
 	refunds, err := server.store.ListOptionMainRefundWithCharge(ctx, false)
 	if err != nil || len(refunds) == 0 {
 		if err != nil {
@@ -78,15 +76,18 @@ func HandleOptionMainRefund(ctx context.Context, server *Server, redisRefunds []
 		url := "https://api.paystack.co/refund"
 		bearer := "Bearer " + server.config.PaystackSecretLiveKey
 		for _, r := range refunds {
-			err := HandleMainRefund(ctx, server, r.ChargeID, r.HostID, r.UID, tools.IntToMoneyString(r.ServiceFee), tools.IntToMoneyString(r.TotalFee), r.PaymentReference, url, bearer, int(r.UserPercent), int(r.HostPercent), r.Currency, redisRefunds)
-			if err != nil {
-				log.Printf("HandleOptionMainRefund in HandleMainRefund err:%v\n", err.Error())
+			if r.Status == "not_started" {
+				err := HandleMainRefund(ctx, server, r.ChargeID, r.HostID, r.UID, tools.IntToMoneyString(r.ServiceFee), tools.IntToMoneyString(r.TotalFee), r.PaymentReference, url, bearer, int(r.UserPercent), int(r.HostPercent), r.Currency)
+				if err != nil {
+					log.Printf("HandleOptionMainRefund in HandleMainRefund err:%v\n", err.Error())
+				}
 			}
+
 		}
 	}
 }
 
-func HandleTicketMainRefund(ctx context.Context, server *Server, redisRefunds []string) {
+func HandleTicketMainRefund(ctx context.Context, server *Server) {
 	refunds, err := server.store.ListTicketMainRefundWithCharge(ctx, false)
 	if err != nil || len(refunds) == 0 {
 		if err != nil {
@@ -96,97 +97,55 @@ func HandleTicketMainRefund(ctx context.Context, server *Server, redisRefunds []
 		url := "https://api.paystack.co/refund"
 		bearer := "Bearer " + server.config.PaystackSecretLiveKey
 		for _, r := range refunds {
-			err := HandleMainRefund(ctx, server, r.ChargeID, r.HostID, r.UID, tools.IntToMoneyString(r.ServiceFee), tools.IntToMoneyString(r.TotalFee), r.PaymentReference, url, bearer, int(r.UserPercent), int(r.HostPercent), r.Currency, redisRefunds)
-			if err != nil {
-				log.Printf("HandleTicketMainRefund in HandleMainRefund err:%v\n", err.Error())
+			if r.Status == "not_started" {
+				err := HandleMainRefund(ctx, server, r.ChargeID, r.HostID, r.UID, tools.IntToMoneyString(r.ServiceFee), tools.IntToMoneyString(r.TotalFee), r.PaymentReference, url, bearer, int(r.UserPercent), int(r.HostPercent), r.Currency)
+				if err != nil {
+					log.Printf("HandleTicketMainRefund in HandleMainRefund err:%v\n", err.Error())
+				}
 			}
+
 		}
 	}
 }
 
-func HandleMainRefund(ctx context.Context, server *Server, chargeID uuid.UUID, hostID uuid.UUID, uID uuid.UUID, serviceFee string, totalFee string, paymentReference, url string, bearer string, userPercent int, hostPercent int, currency string, redisRefunds []string) error {
-	_, exist := GetRedisChargeID(redisRefunds, chargeID)
-	if exist {
-		log.Printf("ChargeID:%v is currently in redis so cannot resend the refund\n", chargeID)
-		return nil
-	}
-	buf := new(bytes.Buffer)
-	var resData = RefundData{}
+func HandleMainRefund(ctx context.Context, server *Server, chargeID uuid.UUID, hostID uuid.UUID, uID uuid.UUID, serviceFee string, totalFee string, paymentReference string, url string, bearer string, userPercent int, hostPercent int, currency string) error {
 	if userPercent == 0 {
 		HandleRefundPayoutDB(ctx, server, chargeID, hostID, int(hostPercent), serviceFee, totalFee, "HandleMainRefund", currency)
 		return nil
 	}
-	if userPercent == 100 {
-		err := json.NewEncoder(buf).Encode(FullRefundParams{
-			Transaction: paymentReference,
-		})
-		if err != nil {
-			return err
-		}
-	} else {
-		amountAfterPercent := tools.ConvertFloatToString(float64(userPercent/100) * tools.ConvertStringToFloat(totalFee))
-
-		err := json.NewEncoder(buf).Encode(PartialRefundParams{
-			Transaction: paymentReference,
-			Amount:      tools.ConvertToPaystackPayout(amountAfterPercent),
-		})
-		if err != nil {
-			return err
-		}
-	}
-	request, err := http.NewRequest("POST", url, buf)
+	resData, err := payment.HandlePaystackCreateRefund(paymentReference, url, userPercent, totalFee, bearer)
 	if err != nil {
-		log.Printf("error at %v in http.NewRequest %v \n", "HandleMainRefund", err.Error())
-		err = fmt.Errorf("there was an internal server error while verifying your card. If this error continues contact help center")
 		return err
 	}
-	request.Header.Add("Authorization", bearer)
-	// Send req using http Client
-	clientSide := &http.Client{}
-	res, err := clientSide.Do(request)
+	// Has we have made the refund request, we now update the main refund
+	_, err = server.store.UpdateMainRefund(ctx, db.UpdateMainRefundParams{
+		ChargeID: chargeID,
+		Status: pgtype.Text{
+			String: "processing",
+			Valid:  true,
+		},
+	})
 	if err != nil {
-		log.Printf("error at %v in clientSide.Do %v \n", "HandleMainRefund", err.Error())
-		err = fmt.Errorf("there was an internal server error while verifying your card. Please do not try the again as we'll take a look at the problem then email you later")
-		return err
-	}
-	defer res.Body.Close()
-	log.Println("resCode", res.StatusCode)
-	if res.StatusCode == 400 {
-		err = fmt.Errorf("user payment method could not go through")
-		return err
-	}
-	if res == nil {
-		err = fmt.Errorf("there was an internal server error while verifying your card. Please do not try the again as we'll take a look at the problem then email you later")
-		return err
-	}
-	err = json.NewDecoder(res.Body).Decode(&resData)
-	if err != nil {
+		header := "Error at HandleMainRefund for UpdateMainRefund"
+		message := fmt.Sprintf("Error occurred at HandleMainRefund in UpdateMainRefund err: %v, for chargeID: %v", err.Error(), chargeID)
 		log.Printf("error at HandleMainRefund in json.NewDecoder %v \n", err.Error())
-		return err
+		BrevoErrorMessage(ctx, server, header, message, "HandleMainRefund")
 	}
-	log.Printf("main refund response %v\n", resData.Data)
-	date := tools.ConvertTimeToString(time.Now())
-	date_id := fmt.Sprintf("%v&%v", date, chargeID)
-	// We store it in redis
-	// We want to store the charge id in redis for refunds
-	err = RedisClient.SAdd(RedisContext, constants.REFUND_CHARGE_DATE_IDS, date_id).Err()
-	if err != nil {
-		log.Printf("error at HandleMainRefund in RedisClient.SAdd %v \n", err.Error())
-		err = nil
-	}
-	HandleRefundDB(ctx, server, chargeID, uID, "paystack", resData.Data.Amount, paymentReference, "HandleMainRefund")
+	refundID := fmt.Sprint("%v", resData.Data.ID)
+	HandleRefundDB(ctx, server, chargeID, uID, "paystack", resData.Data.Amount, paymentReference, "HandleMainRefund", refundID)
 	HandleRefundPayoutDB(ctx, server, chargeID, hostID, int(hostPercent), serviceFee, totalFee, "HandleMainRefund", currency)
 	return nil
 
 }
 
-func HandleRefundDB(ctx context.Context, server *Server, chargeID uuid.UUID, uID uuid.UUID, sendMedium string, amount int, paymentReference string, funcName string) {
+func HandleRefundDB(ctx context.Context, server *Server, chargeID uuid.UUID, uID uuid.UUID, sendMedium string, amount int, paymentReference string, funcName string, refundID string) {
 	_, err := server.store.CreateRefund(ctx, db.CreateRefundParams{
 		ChargeID:   chargeID,
 		Reference:  paymentReference,
 		SendMedium: sendMedium,
 		UserID:     uID,
 		Amount:     int64(amount),
+		RefundID:   refundID,
 	})
 	if err != nil {
 		log.Printf("FuncName: %v. There an error at HandleRefundDB at server.store.CreateRefund: %v, chargeID: %v \n", funcName, err.Error(), chargeID)
@@ -230,44 +189,72 @@ func HandleRefundPayoutDB(ctx context.Context, server *Server, chargeID uuid.UUI
 	}
 }
 
-func HandleRefundSuccess(ctx context.Context, server *Server, data map[string]string, reference string, funcName string, redisIDs []string) {
-	split := strings.Split(reference, "&")
-	if len(split) != 2 {
+func HandleRefundSuccess(ctx context.Context, server *Server, funcName string, amountPaid int, paymentReference string, timePaid time.Time) {
+	// Let update it directly to the database
+	refundData, err := server.store.UpdateRefund(ctx, db.UpdateRefundParams{
+		IsComplete: pgtype.Bool{
+			Bool:  true,
+			Valid: true,
+		},
+		TimePaid: pgtype.Timestamptz{
+			Time:  timePaid,
+			Valid: true,
+		},
+		AmountPayed: pgtype.Int8{
+			Int64: int64(amountPaid),
+			Valid: true,
+		},
+		Reference: paymentReference,
+	})
+	if err != nil {
+		header := "Error at HandleRefundWebhook"
+		msg := fmt.Sprintf("Error at HandleRefundWebhook at UpdateRefund err: %v", err)
+		log.Printf("Error at HandleRefundWebhook in SMembers err:%v\n", err.Error())
+		BrevoErrorMessage(ctx, server, header, msg, "HandleRefundWebhook")
+	}
+
+	_, err = server.store.UpdateMainRefund(ctx, db.UpdateMainRefundParams{
+		HasPaid: pgtype.Bool{
+			Valid: true,
+			Bool:  true,
+		},
+		Status: pgtype.Text{
+			Valid:  true,
+			String: "completed",
+		},
+		ChargeID: refundData.ChargeID,
+	})
+
+}
+
+func HandleDailyRefundUpdate(ctx context.Context, server *Server) {
+	dbRefunds, err := server.store.ListMainRefundProcessing(ctx)
+	if err != nil || len(dbRefunds) == 0 {
+		if err != nil {
+			header := "Error at HandleDailyRefundUpdate"
+			msg := fmt.Sprintf("Error at HandleDailyRefundUpdate at ListMainRefundProcessing err: %v", err)
+			log.Printf("Error at HandleDailyRefundUpdate in SMembers err:%v\n", err.Error())
+			BrevoErrorMessage(ctx, server, header, msg, "HandleDailyRefundUpdate")
+		}
 		return
 	}
-	mainReference := split[1]
-	refund, err := server.store.UpdateRefund(ctx, db.UpdateRefundParams{
-		IsComplete: true,
-		TimePaid:   time.Now(),
-		Reference:  mainReference,
-	})
-	if err != nil {
-		log.Printf("Error at funcName: %v, HandleRefundSuccess in store.UpdateRefund err:%v, mainReference: %v\n", funcName, err.Error(), mainReference)
-	}
-	// We want to update main_payout chargeIDs
-	_, err = server.store.UpdateMainRefund(ctx, db.UpdateMainRefundParams{
-		IsPayed:  true,
-		ChargeID: refund.ChargeID,
-	})
-	if err != nil {
-		log.Printf("Error at funcName: %v, HandleRefundSuccess in UpdateMainRefund err:%v, mainReference: %v\n", funcName, err.Error(), mainReference)
-	}
-	// Get Redis ids to remove
-	rCID, exist := GetRedisChargeID(redisIDs, refund.ChargeID)
-	if exist {
-		err := RedisClient.SRem(RedisContext, constants.REFUND_CHARGE_DATE_IDS, rCID).Err()
-		if err != nil {
-			log.Println("This redis  HandleRefundSuccess items were not removed from redis even though payout was unsuccessful", refund.ChargeID)
+	for _, dbRefund := range dbRefunds {
+		paystackRefund, err := payout.HandlePaystackFetchRefund(ctx, server.config.PaystackSecretLiveKey, HandleSqlNullString(dbRefund.RefundID))
+		if paystackRefund.Data.Status != "processed" {
+			continue
 		}
-	}
-	// We want to remove the data and mainReference from redis
-	err = RedisClient.Del(RedisContext, reference).Err()
-	if err != nil {
-		log.Printf("Error at funcName: %v, HandleRefundSuccess in RedisClient.Del err:%v, reference: %v\n", funcName, err.Error(), reference)
-	}
-	err = RedisClient.SRem(RedisContext, constants.WEBHOOK_PAYSTACK_REFUND_REFERENCE, reference).Err()
-	if err != nil {
-		log.Printf("Error at funcName: %v, HandleRefundSuccess in RedisClient.SRem err:%v, reference: %v\n", funcName, err.Error(), reference)
+		if err != nil {
+			log.Printf("Error at HandleDailyRefundUpdate in HandlePaystackFetchRefund err:%v\n", err.Error())
+			continue
+		}
+		timePaid, err := tools.ConvertStringToTime(paystackRefund.Data.RefundedAt)
+		if err != nil {
+			timePaid = time.Now().UTC()
+			err = nil
+		}
+		HandleRefundSuccess(ctx, server, "HandleDailyRefundUpdate", paystackRefund.Data.Amount, paystackRefund.Data.TransactionReference, timePaid)
 	}
 
 }
+
+

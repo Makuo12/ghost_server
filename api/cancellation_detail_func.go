@@ -14,7 +14,7 @@ import (
 	"github.com/google/uuid"
 )
 
-func GetOptionUserCancelChargeRefund(ctx context.Context, server *Server, user db.User, funcName string, chargeID uuid.UUID, payoutRedisIDs []string, refundRedisIDs []string) (charge db.GetChargeOptionReferenceByUserIDRow, refund int, hostPayout int, err error) {
+func GetOptionUserCancelChargeRefund(ctx context.Context, server *Server, user db.User, funcName string, chargeID uuid.UUID) (charge db.GetChargeOptionReferenceByUserIDRow, refund int, hostPayout int, err error) {
 	charge, err = server.store.GetChargeOptionReferenceByUserID(ctx, db.GetChargeOptionReferenceByUserIDParams{
 		UserID:     user.UserID,
 		Cancelled:  false,
@@ -35,11 +35,7 @@ func GetOptionUserCancelChargeRefund(ctx context.Context, server *Server, user d
 	// Lets check if the guest has refund available
 	startDate := tools.ConvertToTimeZoneTwo(charge.StartDate, charge.TimeZone)
 	cancelPolicy, exist := val.GetCancelPolicy(charge.CancelPolicyOne)
-	if ChargeIDInPay(refundRedisIDs, chargeID) {
-		err = fmt.Errorf("your cancellation cannot be made because the booking's refund is currently processing")
-		return
-	}
-	if charge.MainPayoutComplete || ChargeIDInPay(payoutRedisIDs, chargeID) {
+	if charge.MainPayoutComplete {
 		refund = 0
 		hostPayout = 0
 	} else {
@@ -73,7 +69,7 @@ func GetOptionUserCancelChargeRefund(ctx context.Context, server *Server, user d
 	return
 }
 
-func GetOptionHostCancelChargeRefund(ctx context.Context, server *Server, user db.User, funcName string, chargeID uuid.UUID, payoutRedisIDs []string, refundRedisIDs []string, userID uuid.UUID) (charge db.GetChargeOptionReferenceByHostIDRow, refund int, hostPayout int, err error) {
+func GetOptionHostCancelChargeRefund(ctx context.Context, server *Server, user db.User, funcName string, chargeID uuid.UUID, userID uuid.UUID) (charge db.GetChargeOptionReferenceByHostIDRow, refund int, hostPayout int, err error) {
 	charge, err = server.store.GetChargeOptionReferenceByHostID(ctx, db.GetChargeOptionReferenceByHostIDParams{
 		UserID:     userID,
 		Cancelled:  false,
@@ -86,6 +82,10 @@ func GetOptionHostCancelChargeRefund(ctx context.Context, server *Server, user d
 		err = fmt.Errorf("could not find this booking. Please try again later or try contacting us")
 		return
 	}
+	err = CheckPaymentProgress(ctx, server, chargeID)
+	if err != nil {
+		return
+	}
 	// Once a host is paid you cannot perform a cancel
 	switch true {
 	case charge.MainPayoutComplete:
@@ -93,12 +93,6 @@ func GetOptionHostCancelChargeRefund(ctx context.Context, server *Server, user d
 		return
 	case time.Now().After(charge.StartDate):
 		err = fmt.Errorf("your cancellation cannot be made because your guest has already started staying")
-		return
-	case ChargeIDInPay(payoutRedisIDs, chargeID):
-		err = fmt.Errorf("your cancellation cannot be made because your payment is currently being processed")
-		return
-	case ChargeIDInPay(refundRedisIDs, chargeID):
-		err = fmt.Errorf("your cancellation cannot be made because a refund is currently being processed")
 		return
 	case time.Now().After(charge.EndDate.Add(time.Hour * -10)):
 		err = fmt.Errorf("your cancellation cannot be made because your guest stay is already coming to an end")
@@ -111,7 +105,7 @@ func GetOptionHostCancelChargeRefund(ctx context.Context, server *Server, user d
 
 }
 
-func GetEventUserCancelChargeRefund(ctx context.Context, server *Server, user db.User, funcName string, chargeID uuid.UUID, payoutRedisIDs []string, refundRedisIDs []string) (charge db.GetChargeTicketReferenceByUserIDRow, refund int, hostPayout int, err error) {
+func GetEventUserCancelChargeRefund(ctx context.Context, server *Server, user db.User, funcName string, chargeID uuid.UUID) (charge db.GetChargeTicketReferenceByUserIDRow, refund int, hostPayout int, err error) {
 	charge, err = server.store.GetChargeTicketReferenceByUserID(ctx, db.GetChargeTicketReferenceByUserIDParams{
 		UserID:     user.UserID,
 		Cancelled:  false,
@@ -132,12 +126,11 @@ func GetEventUserCancelChargeRefund(ctx context.Context, server *Server, user db
 	// Lets check if the guest has refund available
 	startDate := tools.ConvertToTimeZoneTwo(charge.StartDate, charge.TimeZone)
 	cancelPolicy, exist := val.GetCancelPolicy(charge.CancelPolicyOne)
-	log.Println("cancel policy", cancelPolicy)
-	if ChargeIDInPay(refundRedisIDs, chargeID) {
-		err = fmt.Errorf("your cancellation cannot be made because the booking's refund is currently processing")
+	err = CheckPaymentProgress(ctx, server, chargeID)
+	if err != nil {
 		return
 	}
-	if charge.MainPayoutComplete || ChargeIDInPay(payoutRedisIDs, chargeID) {
+	if charge.MainPayoutComplete {
 		log.Println("here one ", charge.MainPayoutComplete)
 		refund = 0
 		hostPayout = 0

@@ -57,9 +57,10 @@ INSERT INTO refunds (
     send_medium,
     user_id,
     amount,
-    amount_payed
-) VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING charge_id, reference, send_medium, amount, user_id, amount_payed, time_paid, is_complete, created_at, updated_at
+    amount_payed,
+    refund_id
+) VALUES ($1, $2, $3, $4, $5, $6, $7)
+RETURNING charge_id, reference, send_medium, amount, user_id, refund_id, amount_payed, time_paid, is_complete, created_at, updated_at
 `
 
 type CreateRefundParams struct {
@@ -69,6 +70,7 @@ type CreateRefundParams struct {
 	UserID      uuid.UUID `json:"user_id"`
 	Amount      int64     `json:"amount"`
 	AmountPayed int64     `json:"amount_payed"`
+	RefundID    string    `json:"refund_id"`
 }
 
 func (q *Queries) CreateRefund(ctx context.Context, arg CreateRefundParams) (Refund, error) {
@@ -79,6 +81,7 @@ func (q *Queries) CreateRefund(ctx context.Context, arg CreateRefundParams) (Ref
 		arg.UserID,
 		arg.Amount,
 		arg.AmountPayed,
+		arg.RefundID,
 	)
 	var i Refund
 	err := row.Scan(
@@ -87,6 +90,7 @@ func (q *Queries) CreateRefund(ctx context.Context, arg CreateRefundParams) (Ref
 		&i.SendMedium,
 		&i.Amount,
 		&i.UserID,
+		&i.RefundID,
 		&i.AmountPayed,
 		&i.TimePaid,
 		&i.IsComplete,
@@ -98,7 +102,6 @@ func (q *Queries) CreateRefund(ctx context.Context, arg CreateRefundParams) (Ref
 
 const listRefund = `-- name: ListRefund :many
 SELECT
-
     re.amount, re.time_paid, od.host_name_option, oi.main_option_type, u.first_name AS host_name, ct.grade, co.cancelled AS option_cancelled, ct.cancelled AS ticket_cancelled, co.end_date AS option_end_date, cd.end_date AS event_end_date, co.start_date AS option_start_date, cd.start_date AS event_start_date, mp.type, co.currency AS option_currency, ce.currency AS event_currency
 FROM refunds AS re
 JOIN main_payouts AS mp ON mp.charge_id = re.charge_id
@@ -201,21 +204,32 @@ func (q *Queries) RemoveRefund(ctx context.Context, chargeID uuid.UUID) error {
 
 const updateRefund = `-- name: UpdateRefund :one
 UPDATE refunds
-SET is_complete = $1,
-    time_paid = $2,
+SET 
+    is_complete = COALESCE($2, is_complete),
+    time_paid = COALESCE($3, time_paid),
+    amount_payed = COALESCE($4, amount_payed),
+    refund_id = COALESCE($5, refund_id),
     updated_at = NOW()
-WHERE reference = $3
-RETURNING charge_id, reference, send_medium, amount, user_id, amount_payed, time_paid, is_complete, created_at, updated_at
+WHERE reference = $1
+RETURNING charge_id, reference, send_medium, amount, user_id, refund_id, amount_payed, time_paid, is_complete, created_at, updated_at
 `
 
 type UpdateRefundParams struct {
-	IsComplete bool      `json:"is_complete"`
-	TimePaid   time.Time `json:"time_paid"`
-	Reference  string    `json:"reference"`
+	Reference   string             `json:"reference"`
+	IsComplete  pgtype.Bool        `json:"is_complete"`
+	TimePaid    pgtype.Timestamptz `json:"time_paid"`
+	AmountPayed pgtype.Int8        `json:"amount_payed"`
+	RefundID    pgtype.Text        `json:"refund_id"`
 }
 
 func (q *Queries) UpdateRefund(ctx context.Context, arg UpdateRefundParams) (Refund, error) {
-	row := q.db.QueryRow(ctx, updateRefund, arg.IsComplete, arg.TimePaid, arg.Reference)
+	row := q.db.QueryRow(ctx, updateRefund,
+		arg.Reference,
+		arg.IsComplete,
+		arg.TimePaid,
+		arg.AmountPayed,
+		arg.RefundID,
+	)
 	var i Refund
 	err := row.Scan(
 		&i.ChargeID,
@@ -223,6 +237,7 @@ func (q *Queries) UpdateRefund(ctx context.Context, arg UpdateRefundParams) (Ref
 		&i.SendMedium,
 		&i.Amount,
 		&i.UserID,
+		&i.RefundID,
 		&i.AmountPayed,
 		&i.TimePaid,
 		&i.IsComplete,

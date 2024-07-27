@@ -184,3 +184,17 @@ func GetImageListItem(images []string) ([]string, []string) {
 	}
 	return myPaths, myUrls
 }
+
+
+
+func ContainItem(match string, input string) bool {
+	lowerInput := strings.ToLower(input)
+	return strings.Contains(lowerInput, match)
+}
+
+func Capitalize(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	return strings.ToUpper(string(s[0])) + s[1:]
+}

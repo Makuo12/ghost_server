@@ -731,9 +731,9 @@ func HandleOptionReserveReceipt(server *Server, ctx context.Context, reserveData
 	}
 	switch utils.PayoutCurrency {
 	case utils.NGN:
-		servicePercent = tools.ConvertStringToFloat(server.config.LocServiceEventHostPercent)
+		servicePercent = tools.ConvertStringToFloat(server.config.LocServiceOptionHostPercent)
 	default:
-		servicePercent = tools.ConvertStringToFloat(server.config.IntServiceEventHostPercent)
+		servicePercent = tools.ConvertStringToFloat(server.config.IntServiceOptionHostPercent)
 	}
 	serviceFee = (servicePercent / 100) * amount
 	payoutAmount = amount - serviceFee

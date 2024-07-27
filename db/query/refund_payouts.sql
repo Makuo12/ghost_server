@@ -13,15 +13,17 @@ RETURNING *;
 SELECT r_p.charge_id, us.id AS host_id, us.user_id AS host_user_id, us.default_account_id AS host_default_account_id, us.first_name AS host_name, r_p.amount, r_p.currency
 FROM refund_payouts r_p
     JOIN users us on us.id = r_p.user_id
-WHERE r_p.is_complete = $1;
+WHERE r_p.is_complete = $1 AND r_p.status = $2 AND r_p.blocked = false;
 
 -- name: UpdateRefundPayout :exec
 UPDATE refund_payouts
-SET is_complete = $1,
-    account_number = $2,
-    time_paid = $3,
+SET is_complete = COALESCE(sqlc.narg(is_complete), is_complete),
+    account_number = COALESCE(sqlc.narg(account_number), account_number),
+    time_paid = COALESCE(sqlc.narg(time_paid), time_paid),
+    status = COALESCE(sqlc.narg(status), status),
+    blocked = COALESCE(sqlc.narg(blocked), blocked),
     updated_at = NOW()
-WHERE charge_id = $4;
+WHERE charge_id = $1;
 
 
 -- name: ListRefundPayout :many

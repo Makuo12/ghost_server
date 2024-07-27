@@ -9,8 +9,21 @@ INSERT INTO main_refunds (
 RETURNING user_percent, host_percent;
 
 
+-- name: ListMainRefundProcessing :many
+SELECT c_o_r.total_fee, c_o_r.service_fee, us.default_account_id, us.id AS host_id, c_o_r.currency, m_r.charge_id, us.user_id AS host_user_id, c_o_r.start_date, us.first_name, c_o_r.payment_reference, m_r.user_percent, m_r.host_percent, u.id AS u_id, m_r.status, r.refund_id
+FROM main_refunds m_r
+    LEFT JOIN refunds r on r.charge_id = m_r.charge_id
+    LEFT JOIN charge_option_references c_o_r on m_r.charge_id = c_o_r.id
+    LEFT JOIN charge_references c_r on m_r.charge_id = c_r.id
+    LEFT JOIN charge_ticket_references c_t_r on c_t_r.id = m_r.charge_id
+    LEFT JOIN options_infos o_i on o_i.option_user_id = c_o_r.option_user_id
+    LEFT JOIN users u on u.user_id = c_o_r.user_id
+    LEFT JOIN users us on o_i.host_id = us.id
+WHERE m_r.status = 'processing';
+
+
 -- name: ListOptionMainRefundWithCharge :many
-SELECT c_o_r.total_fee, c_o_r.service_fee, us.default_account_id, us.id AS host_id, c_o_r.currency, m_r.charge_id, us.user_id AS host_user_id, c_o_r.start_date, us.first_name, c_o_r.payment_reference, m_r.user_percent, m_r.host_percent, u.id AS u_id
+SELECT c_o_r.total_fee, c_o_r.service_fee, us.default_account_id, us.id AS host_id, c_o_r.currency, m_r.charge_id, us.user_id AS host_user_id, c_o_r.start_date, us.first_name, c_o_r.payment_reference, m_r.user_percent, m_r.host_percent, u.id AS u_id, m_r.status
 FROM main_refunds m_r
     JOIN charge_option_references c_o_r on m_r.charge_id = c_o_r.id
     JOIN options_infos o_i on o_i.option_user_id = c_o_r.option_user_id
@@ -19,7 +32,7 @@ FROM main_refunds m_r
 WHERE m_r.is_payed = sqlc.arg(refund_complete) AND m_r.charge_type = 'charge_option_reference';
 
 -- name: ListMainRefundWithCharge :many
-SELECT c_r.currency, m_r.charge_id, c_r.reference, m_r.user_percent, u.id AS u_id, m_r.host_percent
+SELECT c_r.currency, m_r.charge_id, c_r.reference, m_r.user_percent, u.id AS u_id, m_r.host_percent, m_r.status
 FROM main_refunds m_r
     JOIN charge_references c_r on m_r.charge_id = c_r.id
     JOIN users u on u.user_id = c_r.user_id
@@ -28,13 +41,14 @@ WHERE m_r.is_payed = sqlc.arg(refund_complete) AND m_r.charge_type = 'charge_ref
 -- name: UpdateMainRefund :one
 UPDATE main_refunds
 SET 
-    is_payed = $1,
+    is_payed = COALESCE(sqlc.narg(has_paid), has_paid),
+    status = COALESCE(sqlc.narg(status), status),
     updated_at = NOW()
-WHERE charge_id = $2
+WHERE charge_id = $1
 RETURNING *;
 
 -- name: ListTicketMainRefundWithCharge :many
-SELECT c_t_r.price AS total_fee, c_t_r.service_fee, us.default_account_id, us.id AS host_id, c_e_r.currency, m_r.charge_id, us.user_id AS host_user_id, us.first_name, c_d_r.start_date, c_d_r.end_date, c_e_r.payment_reference, m_r.user_percent, m_r.host_percent, u.id AS u_id
+SELECT c_t_r.price AS total_fee, c_t_r.service_fee, us.default_account_id, us.id AS host_id, c_e_r.currency, m_r.charge_id, us.user_id AS host_user_id, us.first_name, c_d_r.start_date, c_d_r.end_date, c_e_r.payment_reference, m_r.user_percent, m_r.host_percent, u.id AS u_id,m_r.status
 FROM main_refunds m_r
     JOIN charge_ticket_references c_t_r on c_t_r.id = m_r.charge_id
     JOIN charge_date_references c_d_r on c_d_r.id = c_t_r.charge_date_id

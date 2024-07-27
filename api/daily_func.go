@@ -11,7 +11,7 @@ import (
 	"github.com/makuo12/ghost_server/tools"
 )
 
-// This function remove the reserve option stored in redis
+// This function remove the reserve option stored in redis (important)
 func DailyRemoveOptionReserveUser() {
 	// All the references are stored in constants.REMOVE_OPTION_RESERVE_USER
 	refs, err := RedisClient.SMembers(RedisContext, constants.REMOVE_OPTION_RESERVE_USER).Result()
@@ -50,6 +50,7 @@ func DailyRemoveOptionReserveUser() {
 	}
 }
 
+// This function remove the reserve event stored in redis (important)
 func DailyRemoveEventReserveUser() {
 	// All the references are stored in constants.REMOVE_EVENT_RESERVE_USER
 	refs, err := RedisClient.SMembers(RedisContext, constants.REMOVE_EVENT_RESERVE_USER).Result()
@@ -89,42 +90,18 @@ func DailyRemoveEventReserveUser() {
 func DailyHandleUserRequest(ctx context.Context, server *Server) func() {
 	// All the ids are stored in constants.USER_REQUEST_APPROVE
 	return func() {
-		log.Println("At request")
-		ids, err := RedisClient.SMembers(RedisContext, constants.USER_REQUEST_APPROVE).Result()
+		requests, err := server.store.ListRequestNotifyPayment(ctx)
 		if err != nil {
-			log.Printf("DailyHandleUserRequest in SMembers err:%v\n", err.Error())
+			log.Printf("DailyHandleUserRequest in ListRequestNotifyPayment, err:%v\n", err.Error())
 			return
 		}
-		for _, id := range ids {
-			log.Println("At request: ", id)
-			timeData, err := RedisClient.HGetAll(RedisContext, id).Result()
-			if err != nil {
-				log.Printf("DailyHandleUserRequest in HGetAll id: %v, err:%v\n", id, err.Error())
-				return
-			}
-			t, err := tools.ConvertStringToTime(timeData[constants.TIME])
-			if err != nil {
-				log.Printf("DailyHandleUserRequest in ConvertStringToTime id: %v, %v err:%v, time: \n", id, err.Error(), timeData[constants.TIME])
-				continue
-			}
-			mID, err := tools.StringToUuid(timeData[constants.MID])
-			if err != nil {
-				log.Printf("DailyHandleUserRequest in tools.StringToUuid id: %v, %v err:%v, time: \n", id, err.Error(), timeData[constants.TIME])
-				continue
-			}
-			// We run this after an hour
-			// If the time in redis after the current time then we run the function
-			if time.Now().Add(time.Hour * 1).After(t) {
-				HandleURApproved(ctx, server, mID, timeData[constants.SENDER_ID], timeData[constants.RECEIVER_ID], timeData[constants.FIRSTNAME], timeData[constants.REFERENCE])
-				err = RedisClient.Del(RedisContext, id).Err()
-				if err != nil {
-					log.Printf("DailyHandleUserRequest in RedisClient.Del id: %v, err:%v\n", id, err.Error())
-				}
-
-			}
+		for _, r := range requests {
+			HandleURApproved(ctx, server, r.MID, r.Reference, r.ChargeID, r.GuestFirstName, r.HostFirstName, r.GuestUserID, r.HostUserID)
+			
 		}
 	}
 }
+
 
 func DailyHandleSnooze(ctx context.Context, server *Server) func() {
 	// All the ids are stored in constants.USER_REQUEST_APPROVE
@@ -262,5 +239,12 @@ func DailyValidatedChargeOption(ctx context.Context, server *Server) func() {
 				}
 			}
 		}
+	}
+}
+
+func DailyHandleUpdateRefund(ctx context.Context, server *Server) func() {
+	// All the ids are stored in constants.USER_REQUEST_APPROVE
+	return func() {
+		HandleDailyRefundUpdate(ctx, server)
 	}
 }

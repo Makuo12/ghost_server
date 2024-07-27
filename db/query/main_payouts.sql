@@ -19,7 +19,7 @@ FROM main_payouts mp
     JOIN charge_option_references co ON mp.charge_id = co.id
     JOIN options_infos oi ON oi.option_user_id = co.option_user_id
     JOIN users u ON oi.host_id = u.id
-WHERE mp.is_complete = sqlc.arg(payout_complete) AND co.is_complete = sqlc.arg(charge_payment_complete) AND co.cancelled = sqlc.arg(charge_cancelled) AND NOW() + INTERVAL '1 hour' > (co.start_date + INTERVAL '38 hours') AND mp.type = 'charge_option_reference';
+WHERE mp.is_complete = sqlc.arg(payout_complete) AND co.is_complete = sqlc.arg(charge_payment_complete) AND co.cancelled = sqlc.arg(charge_cancelled) AND NOW() + INTERVAL '1 hour' > (co.start_date + INTERVAL '38 hours') AND mp.type = 'charge_option_reference' AND mp.status = sqlc.arg(payout_status) AND mp.blocked = false;
 
 
 -- name: ListOptionMainPayout :many
@@ -51,17 +51,19 @@ FROM main_payouts mp
     JOIN charge_event_references ce ON ce.id = cd.charge_event_id
     JOIN options_infos oi ON oi.option_user_id = ce.option_user_id
     JOIN users u ON oi.host_id = u.id
-WHERE mp.is_complete = sqlc.arg(payout_complete) AND ce.is_complete = sqlc.arg(charge_payment_complete) AND ct.cancelled = sqlc.arg(charge_cancelled) AND NOW() + INTERVAL '1 hour' < (cd.end_date + INTERVAL '40 hours') AND mp.type = 'charge_ticket_reference';
+WHERE mp.is_complete = sqlc.arg(payout_complete) AND ce.is_complete = sqlc.arg(charge_payment_complete) AND ct.cancelled = sqlc.arg(charge_cancelled) AND NOW() + INTERVAL '1 hour' < (cd.end_date + INTERVAL '40 hours') AND mp.type = 'charge_ticket_reference' AND mp.status = sqlc.arg(payout_status) AND mp.blocked = false;
 
 
 
 -- name: UpdateMainPayout :exec
 UPDATE main_payouts
-SET is_complete = $1,
-    account_number = $2,
-    time_paid = $3,
+SET is_complete = COALESCE(sqlc.narg(is_complete), is_complete),
+    account_number = COALESCE(sqlc.narg(account_number), account_number),
+    time_paid = COALESCE(sqlc.narg(time_paid), time_paid),
+    status = COALESCE(sqlc.narg(status), status),
+    blocked = COALESCE(sqlc.narg(blocked), blocked),
     updated_at = NOW()
-WHERE charge_id = $4;
+WHERE charge_id = $1;
 
 
 -- name: ListOptionMainPayoutInsights :many

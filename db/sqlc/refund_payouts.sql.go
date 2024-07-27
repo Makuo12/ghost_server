@@ -60,7 +60,7 @@ INSERT INTO refund_payouts (
     currency,
     service_fee
 ) VALUES ($1, $2, $3, $4, $5)
-RETURNING charge_id, amount, service_fee, user_id, time_paid, currency, account_number, is_complete, created_at, updated_at
+RETURNING charge_id, amount, service_fee, user_id, time_paid, blocked, status, currency, account_number, is_complete, created_at, updated_at
 `
 
 type CreateRefundPayoutParams struct {
@@ -86,6 +86,8 @@ func (q *Queries) CreateRefundPayout(ctx context.Context, arg CreateRefundPayout
 		&i.ServiceFee,
 		&i.UserID,
 		&i.TimePaid,
+		&i.Blocked,
+		&i.Status,
 		&i.Currency,
 		&i.AccountNumber,
 		&i.IsComplete,
@@ -194,8 +196,13 @@ const listRefundPayoutWithUser = `-- name: ListRefundPayoutWithUser :many
 SELECT r_p.charge_id, us.id AS host_id, us.user_id AS host_user_id, us.default_account_id AS host_default_account_id, us.first_name AS host_name, r_p.amount, r_p.currency
 FROM refund_payouts r_p
     JOIN users us on us.id = r_p.user_id
-WHERE r_p.is_complete = $1
+WHERE r_p.is_complete = $1 AND r_p.status = $2 AND r_p.blocked = false
 `
+
+type ListRefundPayoutWithUserParams struct {
+	IsComplete bool   `json:"is_complete"`
+	Status     string `json:"status"`
+}
 
 type ListRefundPayoutWithUserRow struct {
 	ChargeID             uuid.UUID `json:"charge_id"`
@@ -207,8 +214,8 @@ type ListRefundPayoutWithUserRow struct {
 	Currency             string    `json:"currency"`
 }
 
-func (q *Queries) ListRefundPayoutWithUser(ctx context.Context, isComplete bool) ([]ListRefundPayoutWithUserRow, error) {
-	rows, err := q.db.Query(ctx, listRefundPayoutWithUser, isComplete)
+func (q *Queries) ListRefundPayoutWithUser(ctx context.Context, arg ListRefundPayoutWithUserParams) ([]ListRefundPayoutWithUserRow, error) {
+	rows, err := q.db.Query(ctx, listRefundPayoutWithUser, arg.IsComplete, arg.Status)
 	if err != nil {
 		return nil, err
 	}
@@ -246,26 +253,32 @@ func (q *Queries) RemoveRefundPayout(ctx context.Context, chargeID uuid.UUID) er
 
 const updateRefundPayout = `-- name: UpdateRefundPayout :exec
 UPDATE refund_payouts
-SET is_complete = $1,
-    account_number = $2,
-    time_paid = $3,
+SET is_complete = COALESCE($2, is_complete),
+    account_number = COALESCE($3, account_number),
+    time_paid = COALESCE($4, time_paid),
+    status = COALESCE($5, status),
+    blocked = COALESCE($6, blocked),
     updated_at = NOW()
-WHERE charge_id = $4
+WHERE charge_id = $1
 `
 
 type UpdateRefundPayoutParams struct {
-	IsComplete    bool      `json:"is_complete"`
-	AccountNumber string    `json:"account_number"`
-	TimePaid      time.Time `json:"time_paid"`
-	ChargeID      uuid.UUID `json:"charge_id"`
+	ChargeID      uuid.UUID          `json:"charge_id"`
+	IsComplete    pgtype.Bool        `json:"is_complete"`
+	AccountNumber pgtype.Text        `json:"account_number"`
+	TimePaid      pgtype.Timestamptz `json:"time_paid"`
+	Status        pgtype.Text        `json:"status"`
+	Blocked       pgtype.Bool        `json:"blocked"`
 }
 
 func (q *Queries) UpdateRefundPayout(ctx context.Context, arg UpdateRefundPayoutParams) error {
 	_, err := q.db.Exec(ctx, updateRefundPayout,
+		arg.ChargeID,
 		arg.IsComplete,
 		arg.AccountNumber,
 		arg.TimePaid,
-		arg.ChargeID,
+		arg.Status,
+		arg.Blocked,
 	)
 	return err
 }

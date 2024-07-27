@@ -1,54 +1,20 @@
 package api
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"math"
-	"net/http"
-	"strings"
-	"time"
-
-	"github.com/makuo12/ghost_server/constants"
-	db "github.com/makuo12/ghost_server/db/sqlc"
-	"github.com/makuo12/ghost_server/tools"
-	"github.com/makuo12/ghost_server/utils"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/makuo12/ghost_server/constants"
+	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/payout"
+	"github.com/makuo12/ghost_server/tools"
+	"github.com/makuo12/ghost_server/utils"
 )
-
-func ChargeIDInPay(dateIDs []string, chargeID uuid.UUID) bool {
-	cID := tools.UuidToString(chargeID)
-	// If charge is in payout but 4 days have pasted we want to log it our to be aware
-
-	for _, date_id := range dateIDs {
-		dateIDsSplit := strings.Split(date_id, "&")
-		if len(dateIDsSplit) == 2 {
-			date, err := tools.ConvertStringToTime(dateIDsSplit[0])
-			if err != nil {
-				log.Printf("chargeIDInPayout tools.ConvertStringToTime err:%v\n", err.Error())
-				continue
-			}
-			id := dateIDsSplit[1]
-			if id == cID {
-				if time.Now().After(date.Add(time.Hour * 96)) {
-					// We log it out and return true
-					log.Printf("for chargeID %v check if payment was made because it has passed for days and it is still in redis. redis id: %v\n", chargeID, date_id)
-				}
-				return true
-			}
-		} else {
-			if date_id == cID {
-				return true
-			}
-		}
-
-	}
-	return false
-}
 
 func TransferAmount(amounts []float64) float64 {
 	var totalAmount float64
@@ -90,14 +56,15 @@ func TransferRecipient(ctx context.Context, server *Server, hostID uuid.UUID, ho
 		err = errors.New("no valid account number")
 		msg := fmt.Sprintf("Hey %v, Please try adding a default payout method as we could not make payout to your account.", hostName)
 		CreateTypeNotification(ctx, server, uuid.New(), hostUserID, constants.NO_DEFAULT_ACCOUNT_NUMBER, msg, true, "No payout method")
+		// Need to send an email
 	}
 	return
 }
 
-func HandleOptionPayoutData(server *Server, dollarToNaira string, dollarToCAD string, data db.ListOptionMainPayoutWithChargeRow, payout PayoutData) (res PayoutData, err error) {
-	payoutIDs := append(payout.ChargeIDs, data.ChargeID)
-	newAmounts := append(payout.Amounts, tools.ConvertStringToFloat(tools.IntToMoneyString(data.Amount)))
-	res = PayoutData{
+func HandleOptionPayoutData(server *Server, dollarToNaira string, dollarToCAD string, data db.ListOptionMainPayoutWithChargeRow, payoutData payout.PayoutData) (res payout.PayoutData, err error) {
+	payoutIDs := append(payoutData.ChargeIDs, data.ChargeID)
+	newAmounts := append(payoutData.Amounts, tools.ConvertStringToFloat(tools.IntToMoneyString(data.Amount)))
+	res = payout.PayoutData{
 		ChargeIDs:            payoutIDs,
 		HostID:               data.HostID,
 		HostDefaultAccountID: data.DefaultAccountID,
@@ -108,10 +75,10 @@ func HandleOptionPayoutData(server *Server, dollarToNaira string, dollarToCAD st
 	return
 }
 
-func HandleEventPayoutData(server *Server, dollarToNaira string, dollarToCAD string, data db.ListTicketMainPayoutWithChargeRow, payout PayoutData) (res PayoutData) {
-	payoutIDs := append(payout.ChargeIDs, data.ChargeID)
-	newAmounts := append(payout.Amounts, tools.ConvertStringToFloat(tools.IntToMoneyString(data.Amount)))
-	res = PayoutData{
+func HandleEventPayoutData(server *Server, dollarToNaira string, dollarToCAD string, data db.ListTicketMainPayoutWithChargeRow, payoutData payout.PayoutData) (res payout.PayoutData) {
+	payoutIDs := append(payoutData.ChargeIDs, data.ChargeID)
+	newAmounts := append(payoutData.Amounts, tools.ConvertStringToFloat(tools.IntToMoneyString(data.Amount)))
+	res = payout.PayoutData{
 		ChargeIDs:            payoutIDs,
 		HostID:               data.HostID,
 		HostDefaultAccountID: data.DefaultAccountID,
@@ -122,13 +89,14 @@ func HandleEventPayoutData(server *Server, dollarToNaira string, dollarToCAD str
 	return
 }
 
-func GetEventPayout(ctx context.Context, server *Server, dollarToNaira string, dollarToCAD string, redisDateIDs []string) (map[uuid.UUID]PayoutData, error) {
-	var payouts = make(map[uuid.UUID]PayoutData)
+func GetEventPayout(ctx context.Context, server *Server, dollarToNaira string, dollarToCAD string) (map[uuid.UUID]payout.PayoutData, error) {
+	var payouts = make(map[uuid.UUID]payout.PayoutData)
 	// Lets handle Event payouts
 	eventCharges, err := server.store.ListTicketMainPayoutWithCharge(ctx, db.ListTicketMainPayoutWithChargeParams{
 		PayoutComplete:        false,
 		ChargePaymentComplete: true,
 		ChargeCancelled:       false,
+		PayoutStatus:          "not_started",
 	})
 	if err != nil || len(eventCharges) == 0 {
 		if err != nil {
@@ -137,24 +105,21 @@ func GetEventPayout(ctx context.Context, server *Server, dollarToNaira string, d
 	} else {
 		// If no error we start making payouts
 		for v := 0; v < len(eventCharges); v++ {
-			if ChargeIDInPay(redisDateIDs, eventCharges[v].ChargeID) {
-				continue
-			}
 			data := HandleEventPayoutData(server, dollarToNaira, dollarToCAD, eventCharges[v], payouts[eventCharges[v].HostID])
-
 			payouts[eventCharges[v].HostID] = data
 		}
 	}
 	return payouts, nil
 }
 
-func GetOptionPayout(ctx context.Context, server *Server, dollarToNaira string, dollarToCAD string, redisDateIDs []string) (map[uuid.UUID]PayoutData, error) {
-	var payouts = make(map[uuid.UUID]PayoutData)
+func GetOptionPayout(ctx context.Context, server *Server, dollarToNaira string, dollarToCAD string) (map[uuid.UUID]payout.PayoutData, error) {
+	var payouts = make(map[uuid.UUID]payout.PayoutData)
 	// Lets handle Option payouts
 	optionCharges, err := server.store.ListOptionMainPayoutWithCharge(ctx, db.ListOptionMainPayoutWithChargeParams{
 		PayoutComplete:        false,
 		ChargePaymentComplete: true,
 		ChargeCancelled:       false,
+		PayoutStatus:          "not_started",
 	})
 	if err != nil || len(optionCharges) == 0 {
 		if err != nil {
@@ -163,9 +128,7 @@ func GetOptionPayout(ctx context.Context, server *Server, dollarToNaira string, 
 	} else {
 		// If no error we start making payouts
 		for v := 0; v < len(optionCharges); v++ {
-			if ChargeIDInPay(redisDateIDs, optionCharges[v].ChargeID) {
-				continue
-			}
+			// for each user we have a payout.PayoutData
 			data, err := HandleOptionPayoutData(server, dollarToNaira, dollarToCAD, optionCharges[v], payouts[optionCharges[v].HostID])
 			if err != nil {
 				log.Printf("GetOptionPayout in HandleOptionPayoutData err:%v\n", err.Error())
@@ -177,46 +140,13 @@ func GetOptionPayout(ctx context.Context, server *Server, dollarToNaira string, 
 	return payouts, nil
 }
 
-func AddPayoutChargeIDsToRedis(chargeIDs []uuid.UUID) (err error) {
-	var data = []string{}
-	for _, id := range chargeIDs {
-		date := tools.ConvertTimeToString(time.Now())
-		date_id := fmt.Sprintf("%v&%v", date, id)
-		data = append(data, date_id)
-	}
-	// We store it in redis
-	err = RedisClient.SAdd(RedisContext, constants.PAYOUT_CHARGE_DATE_IDS, data).Err()
-	if err != nil {
-		log.Printf("GetOptionPayout in RedisClient.SAdd err:%v\n", err.Error())
-	}
-	return
-}
-func RemovePayoutChargeIDsFromRedis(chargeIDs []uuid.UUID) {
-	var data = []string{}
-	for _, id := range chargeIDs {
-		date := tools.ConvertTimeToString(time.Now())
-		date_id := fmt.Sprintf("%v&%v", date, id)
-		data = append(data, date_id)
-	}
-	// We store it in redis
-	err := RedisClient.SRem(RedisContext, constants.PAYOUT_CHARGE_DATE_IDS, data).Err()
-	if err != nil {
-		log.Printf("GetOptionPayout in RedisClient.SAdd err:%v\n", err.Error())
-	}
-}
-
-func HandleBulkTransfer(ctx context.Context, server *Server, payouts map[uuid.UUID]PayoutData, payoutType string) (BulkTransferRequest, map[uuid.UUID]PayoutData) {
-	var transfers []Transfer
-	var resPayouts = make(map[uuid.UUID]PayoutData)
+func HandleBulkTransfer(ctx context.Context, server *Server, payouts map[uuid.UUID]payout.PayoutData, payoutType string) (payout.BulkTransferRequest, map[uuid.UUID]payout.PayoutData) {
+	var transfers []payout.Transfer
+	var resPayouts = make(map[uuid.UUID]payout.PayoutData)
 	for k, v := range payouts {
 		accountNum, recipient, err := TransferRecipient(ctx, server, v.HostID, v.HostUserID, v.HostDefaultAccountID, v.HostName)
 		if err != nil {
 			log.Printf("HandleBulkTransfer in TransferRecipient err:%v, hostID: %v\n", err.Error(), v.HostID)
-			continue
-		}
-		err = AddPayoutChargeIDsToRedis(v.ChargeIDs)
-		if err != nil {
-			log.Printf("HandleBulkTransfer in AddPayoutChargeIDsToRedis err:%v, hostID: %v\n", err.Error(), v.HostID)
 			continue
 		}
 		amount := TransferAmount(v.Amounts)
@@ -229,7 +159,7 @@ func HandleBulkTransfer(ctx context.Context, server *Server, payouts map[uuid.UU
 			amount += 50
 		}
 		paystackAmount := tools.ConvertToPaystackPayout(tools.ConvertFloatToString(amount))
-		payout, err := server.store.CreatePayout(ctx, db.CreatePayoutParams{
+		payoutData, err := server.store.CreatePayout(ctx, db.CreatePayoutParams{
 			PayoutIds:     v.ChargeIDs,
 			SendMedium:    "paystack",
 			UserID:        v.HostID,
@@ -240,24 +170,22 @@ func HandleBulkTransfer(ctx context.Context, server *Server, payouts map[uuid.UU
 		})
 		if err != nil {
 			log.Printf("HandleBulkTransfer in TransferRecipient err:%v, hostID: %v\n", err.Error(), v.HostID)
-			RemovePayoutChargeIDsFromRedis(v.ChargeIDs)
 			continue
 		}
-		reference := tools.UuidToString(payout.ID)
+		reference := tools.UuidToString(payoutData.ID)
 
 		reason := fmt.Sprintf("%v payout", v.HostName)
-		data := Transfer{
+		data := payout.Transfer{
 			Amount:    paystackAmount,
 			Reference: reference,
 			Reason:    reason,
 			Recipient: recipient,
 		}
 		transfers = append(transfers, data)
-		newData := PayoutData{v.ChargeIDs, v.HostID, v.HostUserID, v.HostDefaultAccountID, v.HostName, v.Amounts, reference}
+		newData := payout.PayoutData{ChargeIDs: v.ChargeIDs, HostID: v.HostID, HostUserID: v.HostUserID, HostDefaultAccountID: v.HostDefaultAccountID, HostName: v.HostName, Amounts: v.Amounts, PayoutID: reference}
 		resPayouts[k] = newData
-
 	}
-	bulkTransfer := BulkTransferRequest{
+	bulkTransfer := payout.BulkTransferRequest{
 		Currency:  utils.NGN,
 		Source:    "balance",
 		Transfers: transfers,
@@ -265,105 +193,77 @@ func HandleBulkTransfer(ctx context.Context, server *Server, payouts map[uuid.UU
 	return bulkTransfer, resPayouts
 }
 
-func TransferByPaystack(ctx context.Context, server *Server, bulkTransfer BulkTransferRequest) (resItem TransferQueueResponse, err error) {
-	url := "https://api.paystack.co/transfer/bulk"
-	var bearer = "Bearer " + server.config.PaystackSecretLiveKey
-	var resData = &TransferQueueResponse{}
-	buf := new(bytes.Buffer)
-	err = json.NewEncoder(buf).Encode(bulkTransfer)
-	if err != nil {
-		return
-	}
-	request, err := http.NewRequest("POST", url, buf)
-	if err != nil {
-		log.Printf("error at %v in http.NewRequest %v \n", "TransferByPaystack", err.Error())
-		err = fmt.Errorf("there was an internal server error while verifying your card. If this error continues contact help center")
-		return
-	}
-	request.Header.Add("Authorization", bearer)
-	// Send req using http Client
-	clientSide := &http.Client{}
-	res, err := clientSide.Do(request)
-	if err != nil {
-		log.Printf("error at %v in clientSide.Do %v \n", "TransferByPaystack", err.Error())
-		err = fmt.Errorf("there was an internal server error while verifying your card. Please do not try the again as we'll take a look at the problem then email you later")
-		return
-	}
-	defer res.Body.Close()
-	if res.StatusCode >= 400 {
-		err = fmt.Errorf("user payout method could not go through")
-		return
-	}
-	if res == nil {
-		err = fmt.Errorf("there was an internal server error while verifying your card. Please do not try the again as we'll take a look at the problem then email you later")
-		return
-	}
-	err = json.NewDecoder(res.Body).Decode(&resData)
-	if err != nil {
-		log.Printf("error at TransferByPaystack in json.NewDecoder %v \n", err.Error())
-		return
-	}
-	resItem = *resData
-	return
-
-}
-
-func GetPayoutByReference(resPayouts map[uuid.UUID]PayoutData, reference string) (PayoutData, bool) {
-	for _, v := range resPayouts {
-		if v.PayoutID == reference {
-			return v, true
-		}
-	}
-	return PayoutData{}, false
-}
-
-func GetListRedisChargePayoutIDToRemove(redisDateIDs []string, chargeIDs []uuid.UUID) (redisRemoveDateIDs []string) {
-	for _, chargeID := range chargeIDs {
-		for _, r := range redisDateIDs {
-			rSplit := strings.Split(r, "&")
-			if len(rSplit) == 2 {
-				id := rSplit[1]
-				if id == tools.UuidToString(chargeID) {
-					redisRemoveDateIDs = append(redisRemoveDateIDs, r)
-					break
-				}
-			}
-
-		}
-	}
-	return
-}
-
-func GetRedisChargeID(redisDateIDs []string, chargeID uuid.UUID) (redisChargeDateID string, exist bool) {
-	for _, r := range redisDateIDs {
-		rSplit := strings.Split(r, "&")
-		if len(rSplit) == 2 {
-			id := rSplit[1]
-			if id == tools.UuidToString(chargeID) {
-				redisChargeDateID = r
-				exist = true
-				return
-			}
-		}
-
-	}
-	return
-}
-
 // HandlePayoutRes this function remove redis date_ids that payout was not successful
-func HandlePayoutRes(res TransferQueueResponse, redisDateIDs []string, resPayouts map[uuid.UUID]PayoutData) {
-	for _, t := range res.Data {
-		if t.Status != "received" {
-			data, exist := GetPayoutByReference(resPayouts, t.Reference)
-			if exist {
-				// Get Redis ids to remove
-				removeIDs := GetListRedisChargePayoutIDToRemove(redisDateIDs, data.ChargeIDs)
-				if len(removeIDs) > 0 {
-					err := RedisClient.SRem(RedisContext, constants.PAYOUT_CHARGE_DATE_IDS, removeIDs).Err()
-					if err != nil {
-						log.Println("This redis items were not removed from redis even though payout was unsuccessful", removeIDs)
-					}
-				}
+func HandlePayoutRes(ctx context.Context, server *Server, res payout.TransferQueueResponse, resPayouts map[uuid.UUID]payout.PayoutData) {
+	// Setup the transfer codes
+	for _, transfer := range res.Data {
+		id, err := tools.StringToUuid(transfer.Reference)
+		if err != nil {
+			log.Printf("error at HandlePayoutRes in StringToUuid %v \n", err.Error())
+			continue
+		}
+		_, err = server.store.UpdatePayout(ctx, db.UpdatePayoutParams{
+			TransferCode: pgtype.Text{
+				String: transfer.TransferCode,
+				Valid:  true,
+			},
+			ID: id,
+		})
+		if err != nil {
+			log.Printf("error at HandlePayoutRes in UpdatePayout %v \n", err.Error())
+			continue
+		}
+	}
+	for _, value := range resPayouts {
+		// We want to update all the chargeIDs to be processing
+		for _, chargeID := range value.ChargeIDs {
+			err := server.store.UpdateMainPayout(ctx, db.UpdateMainPayoutParams{
+				Status: pgtype.Text{
+					String: "processing",
+					Valid:  true,
+				},
+				ChargeID: chargeID,
+			})
+			if err != nil {
+				log.Printf("error at HandlePayoutRes in UpdateMainPayout %v \n", err.Error())
+			}
+		}
+	}
+}
+
+
+func HandleRefundPayoutRes(ctx context.Context, server *Server, res payout.TransferQueueResponse, resPayouts map[uuid.UUID]payout.PayoutData) {
+	// Setup the transfer codes
+	for _, transfer := range res.Data {
+		id, err := tools.StringToUuid(transfer.Reference)
+		if err != nil {
+			log.Printf("error at HandlePayoutRes in StringToUuid %v \n", err.Error())
+			continue
+		}
+		_, err = server.store.UpdatePayout(ctx, db.UpdatePayoutParams{
+			TransferCode: pgtype.Text{
+				String: transfer.TransferCode,
+				Valid:  true,
+			},
+			ID: id,
+		})
+		if err != nil {
+			log.Printf("error at HandlePayoutRes in UpdatePayout %v \n", err.Error())
+			continue
+		}
+	}
+	for _, value := range resPayouts {
+		// We want to update all the chargeIDs to be processing
+		for _, chargeID := range value.ChargeIDs {
+			err := server.store.UpdateRefundPayout(ctx, db.UpdateRefundPayoutParams{
+				Status: pgtype.Text{
+					String: "processing",
+					Valid:  true,
+				},
+				ChargeID: chargeID,
+			})
+			if err != nil {
+				log.Printf("error at HandlePayoutRes in UpdateRefundPayout %v \n", err.Error())
 			}
 		}
 	}

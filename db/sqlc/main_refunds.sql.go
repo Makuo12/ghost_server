@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createMainRefund = `-- name: CreateMainRefund :one
@@ -49,8 +50,75 @@ func (q *Queries) CreateMainRefund(ctx context.Context, arg CreateMainRefundPara
 	return i, err
 }
 
+const listMainRefundProcessing = `-- name: ListMainRefundProcessing :many
+SELECT c_o_r.total_fee, c_o_r.service_fee, us.default_account_id, us.id AS host_id, c_o_r.currency, m_r.charge_id, us.user_id AS host_user_id, c_o_r.start_date, us.first_name, c_o_r.payment_reference, m_r.user_percent, m_r.host_percent, u.id AS u_id, m_r.status, r.refund_id
+FROM main_refunds m_r
+    LEFT JOIN refunds r on r.charge_id = m_r.charge_id
+    LEFT JOIN charge_option_references c_o_r on m_r.charge_id = c_o_r.id
+    LEFT JOIN charge_references c_r on m_r.charge_id = c_r.id
+    LEFT JOIN charge_ticket_references c_t_r on c_t_r.id = m_r.charge_id
+    LEFT JOIN options_infos o_i on o_i.option_user_id = c_o_r.option_user_id
+    LEFT JOIN users u on u.user_id = c_o_r.user_id
+    LEFT JOIN users us on o_i.host_id = us.id
+WHERE m_r.status = 'processing'
+`
+
+type ListMainRefundProcessingRow struct {
+	TotalFee         pgtype.Int8 `json:"total_fee"`
+	ServiceFee       pgtype.Int8 `json:"service_fee"`
+	DefaultAccountID pgtype.Text `json:"default_account_id"`
+	HostID           pgtype.UUID `json:"host_id"`
+	Currency         pgtype.Text `json:"currency"`
+	ChargeID         uuid.UUID   `json:"charge_id"`
+	HostUserID       pgtype.UUID `json:"host_user_id"`
+	StartDate        pgtype.Date `json:"start_date"`
+	FirstName        pgtype.Text `json:"first_name"`
+	PaymentReference pgtype.Text `json:"payment_reference"`
+	UserPercent      int32       `json:"user_percent"`
+	HostPercent      int32       `json:"host_percent"`
+	UID              pgtype.UUID `json:"u_id"`
+	Status           string      `json:"status"`
+	RefundID         pgtype.Text `json:"refund_id"`
+}
+
+func (q *Queries) ListMainRefundProcessing(ctx context.Context) ([]ListMainRefundProcessingRow, error) {
+	rows, err := q.db.Query(ctx, listMainRefundProcessing)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListMainRefundProcessingRow{}
+	for rows.Next() {
+		var i ListMainRefundProcessingRow
+		if err := rows.Scan(
+			&i.TotalFee,
+			&i.ServiceFee,
+			&i.DefaultAccountID,
+			&i.HostID,
+			&i.Currency,
+			&i.ChargeID,
+			&i.HostUserID,
+			&i.StartDate,
+			&i.FirstName,
+			&i.PaymentReference,
+			&i.UserPercent,
+			&i.HostPercent,
+			&i.UID,
+			&i.Status,
+			&i.RefundID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listMainRefundWithCharge = `-- name: ListMainRefundWithCharge :many
-SELECT c_r.currency, m_r.charge_id, c_r.reference, m_r.user_percent, u.id AS u_id, m_r.host_percent
+SELECT c_r.currency, m_r.charge_id, c_r.reference, m_r.user_percent, u.id AS u_id, m_r.host_percent, m_r.status
 FROM main_refunds m_r
     JOIN charge_references c_r on m_r.charge_id = c_r.id
     JOIN users u on u.user_id = c_r.user_id
@@ -64,6 +132,7 @@ type ListMainRefundWithChargeRow struct {
 	UserPercent int32     `json:"user_percent"`
 	UID         uuid.UUID `json:"u_id"`
 	HostPercent int32     `json:"host_percent"`
+	Status      string    `json:"status"`
 }
 
 func (q *Queries) ListMainRefundWithCharge(ctx context.Context, refundComplete bool) ([]ListMainRefundWithChargeRow, error) {
@@ -82,6 +151,7 @@ func (q *Queries) ListMainRefundWithCharge(ctx context.Context, refundComplete b
 			&i.UserPercent,
 			&i.UID,
 			&i.HostPercent,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}
@@ -94,7 +164,7 @@ func (q *Queries) ListMainRefundWithCharge(ctx context.Context, refundComplete b
 }
 
 const listOptionMainRefundWithCharge = `-- name: ListOptionMainRefundWithCharge :many
-SELECT c_o_r.total_fee, c_o_r.service_fee, us.default_account_id, us.id AS host_id, c_o_r.currency, m_r.charge_id, us.user_id AS host_user_id, c_o_r.start_date, us.first_name, c_o_r.payment_reference, m_r.user_percent, m_r.host_percent, u.id AS u_id
+SELECT c_o_r.total_fee, c_o_r.service_fee, us.default_account_id, us.id AS host_id, c_o_r.currency, m_r.charge_id, us.user_id AS host_user_id, c_o_r.start_date, us.first_name, c_o_r.payment_reference, m_r.user_percent, m_r.host_percent, u.id AS u_id, m_r.status
 FROM main_refunds m_r
     JOIN charge_option_references c_o_r on m_r.charge_id = c_o_r.id
     JOIN options_infos o_i on o_i.option_user_id = c_o_r.option_user_id
@@ -117,6 +187,7 @@ type ListOptionMainRefundWithChargeRow struct {
 	UserPercent      int32     `json:"user_percent"`
 	HostPercent      int32     `json:"host_percent"`
 	UID              uuid.UUID `json:"u_id"`
+	Status           string    `json:"status"`
 }
 
 func (q *Queries) ListOptionMainRefundWithCharge(ctx context.Context, refundComplete bool) ([]ListOptionMainRefundWithChargeRow, error) {
@@ -142,6 +213,7 @@ func (q *Queries) ListOptionMainRefundWithCharge(ctx context.Context, refundComp
 			&i.UserPercent,
 			&i.HostPercent,
 			&i.UID,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}
@@ -154,7 +226,7 @@ func (q *Queries) ListOptionMainRefundWithCharge(ctx context.Context, refundComp
 }
 
 const listTicketMainRefundWithCharge = `-- name: ListTicketMainRefundWithCharge :many
-SELECT c_t_r.price AS total_fee, c_t_r.service_fee, us.default_account_id, us.id AS host_id, c_e_r.currency, m_r.charge_id, us.user_id AS host_user_id, us.first_name, c_d_r.start_date, c_d_r.end_date, c_e_r.payment_reference, m_r.user_percent, m_r.host_percent, u.id AS u_id
+SELECT c_t_r.price AS total_fee, c_t_r.service_fee, us.default_account_id, us.id AS host_id, c_e_r.currency, m_r.charge_id, us.user_id AS host_user_id, us.first_name, c_d_r.start_date, c_d_r.end_date, c_e_r.payment_reference, m_r.user_percent, m_r.host_percent, u.id AS u_id,m_r.status
 FROM main_refunds m_r
     JOIN charge_ticket_references c_t_r on c_t_r.id = m_r.charge_id
     JOIN charge_date_references c_d_r on c_d_r.id = c_t_r.charge_date_id
@@ -180,6 +252,7 @@ type ListTicketMainRefundWithChargeRow struct {
 	UserPercent      int32     `json:"user_percent"`
 	HostPercent      int32     `json:"host_percent"`
 	UID              uuid.UUID `json:"u_id"`
+	Status           string    `json:"status"`
 }
 
 func (q *Queries) ListTicketMainRefundWithCharge(ctx context.Context, refundComplete bool) ([]ListTicketMainRefundWithChargeRow, error) {
@@ -206,6 +279,7 @@ func (q *Queries) ListTicketMainRefundWithCharge(ctx context.Context, refundComp
 			&i.UserPercent,
 			&i.HostPercent,
 			&i.UID,
+			&i.Status,
 		); err != nil {
 			return nil, err
 		}
@@ -229,19 +303,21 @@ func (q *Queries) RemoveMainRefunds(ctx context.Context, chargeID uuid.UUID) err
 const updateMainRefund = `-- name: UpdateMainRefund :one
 UPDATE main_refunds
 SET 
-    is_payed = $1,
+    is_payed = COALESCE($2, has_paid),
+    status = COALESCE($3, status),
     updated_at = NOW()
-WHERE charge_id = $2
-RETURNING charge_id, user_percent, host_percent, charge_type, type, is_payed, created_at, updated_at
+WHERE charge_id = $1
+RETURNING charge_id, user_percent, host_percent, charge_type, type, status, is_payed, created_at, updated_at
 `
 
 type UpdateMainRefundParams struct {
-	IsPayed  bool      `json:"is_payed"`
-	ChargeID uuid.UUID `json:"charge_id"`
+	ChargeID uuid.UUID   `json:"charge_id"`
+	HasPaid  pgtype.Bool `json:"has_paid"`
+	Status   pgtype.Text `json:"status"`
 }
 
 func (q *Queries) UpdateMainRefund(ctx context.Context, arg UpdateMainRefundParams) (MainRefund, error) {
-	row := q.db.QueryRow(ctx, updateMainRefund, arg.IsPayed, arg.ChargeID)
+	row := q.db.QueryRow(ctx, updateMainRefund, arg.ChargeID, arg.HasPaid, arg.Status)
 	var i MainRefund
 	err := row.Scan(
 		&i.ChargeID,
@@ -249,6 +325,7 @@ func (q *Queries) UpdateMainRefund(ctx context.Context, arg UpdateMainRefundPara
 		&i.HostPercent,
 		&i.ChargeType,
 		&i.Type,
+		&i.Status,
 		&i.IsPayed,
 		&i.CreatedAt,
 		&i.UpdatedAt,

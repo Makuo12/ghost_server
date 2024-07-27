@@ -334,9 +334,12 @@ func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPay
 		if fromCharge {
 			objectReference = chargeData.ID
 			hasObjectReference = true
+			currency = chargeData.Currency
+		} else {
+			currency = resData.Currency
 		}
 		reason = constants.USER_OPTION_PAYMENT
-		currency = resData.Currency
+		
 		fee = totalFee
 		//reference = resRef
 	case "events":
@@ -346,7 +349,6 @@ func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPay
 			return
 		}
 		reason = constants.USER_EVENT_PAYMENT
-		currency = resData.Currency
 		fee = resData.TotalFee
 		//reference = arg.Reference
 	}

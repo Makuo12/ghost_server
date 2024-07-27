@@ -1,15 +1,18 @@
-package api
+package payment
 
-type FullRefundParams struct {
+
+
+
+type PaystackFullRefundParams struct {
 	Transaction string `json:"transaction"`
 }
 
-type PartialRefundParams struct {
+type PaystackPartialRefundParams struct {
 	Transaction string `json:"transaction"`
 	Amount      int    `json:"amount"`
 }
 
-type RefundData struct {
+type PaystackCreateRefundData struct {
 	Status  bool   `json:"status"`
 	Message string `json:"message"`
 	Data    struct {
@@ -60,5 +63,3 @@ type RefundData struct {
 		UpdatedAt      string `json:"updatedAt"`
 	} `json:"data"`
 }
-
-

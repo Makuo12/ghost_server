@@ -28,6 +28,7 @@ type Config struct {
 	BrevoOptionPaymentSuccess                  string        `mapstructure:"BREVO_OPTION_PAYMENT_SUCCESS"`
 	BrevoOptionHostPaymentSuccess              string        `mapstructure:"BREVO_OPTION_HOST_PAYMENT_SUCCESS"`
 	BrevoReservationRequestDisapprovedTemplate string        `mapstructure:"BREVO_RESERVE_REQUEST_DISAPPROVED_TEMPLATE"`
+	BrevoErrorMessage string `mapstructure:"BREVO_ERROR_MESSAGE"`
 	BrevoReserveAcceptedTemplate               string        `mapstructure:"BREVO_RESERVE_REQUEST_ACCEPTED_TEMPLATE"`
 	BrevoPaymentFailed                         string        `mapstructure:"BREVO_PAYMENT_FAILED"`
 	AccessTokenDuration                        time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
@@ -77,6 +78,7 @@ type Config struct {
 	OptionExDayCount                           int           `mapstructure:"OPTION_EX_DAY_COUNT"`
 	AdminPhoneNumber                           string        `mapstructure:"ADMIN_PHONE_NUMBER"`
 	AdminEmail                                 string        `mapstructure:"ADMIN_EMAIL"`
+	
 }
 
 func LoadConfig(path string) (config Config, err error) {

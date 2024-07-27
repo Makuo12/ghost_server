@@ -187,7 +187,7 @@ func (server *Server) InitRemoveCard(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
-func CreateCard(ctx context.Context, server *Server, resData payment.PaystackVerifyResponse, user db.User, willRefund bool, cardStoreType string, chargeID uuid.UUID, currency string) (res payment.CardAddResponse, err error) {
+func CreateCard(ctx context.Context, server *Server, resData payment.PaystackVerifyResponse, user db.User, willRefund bool, cardStoreType string, chargeID uuid.UUID, currency string, chargeType string) (res payment.CardAddResponse, err error) {
 	accountName := fmt.Sprintf("%v", resData.Data.Authorization.AccountName)
 	argsCard := db.CreateCardParams{
 		UserID:            user.ID,
@@ -208,7 +208,7 @@ func CreateCard(ctx context.Context, server *Server, resData payment.PaystackVer
 	}
 	card, err := server.store.CreateCard(ctx, argsCard)
 	if err != nil {
-		log.Printf("Error at VerifyPaymentReference in CreateCard. Error is %v for AuthorizationCode: %v and user: %v \n", err, resData.Data.Authorization.AuthorizationCode, user.ID)
+		log.Printf("Error at CreateCard in CreateCard. Error is %v for AuthorizationCode: %v and user: %v \n", err, resData.Data.Authorization.AuthorizationCode, user.ID)
 		err = fmt.Errorf("there was an error while verifying your card. Please don't try just again we are working on it")
 		return
 	}
@@ -223,7 +223,7 @@ func CreateCard(ctx context.Context, server *Server, resData payment.PaystackVer
 			ID: user.ID,
 		})
 		if err != nil {
-			log.Printf("Error at VerifyPaymentReference payout in UpdateUser. Error is %v for DefaultID: %v and user: %v \n", err, card.ID, user.ID)
+			log.Printf("Error at CreateCard payout in UpdateUser. Error is %v for DefaultID: %v and user: %v \n", err, card.ID, user.ID)
 		}
 
 	case "payment":
@@ -235,27 +235,29 @@ func CreateCard(ctx context.Context, server *Server, resData payment.PaystackVer
 			ID: user.ID,
 		})
 		if err != nil {
-			log.Printf("Error at VerifyPaymentReference payment in UpdateUser. Error is %v for DefaultID: %v and user: %v \n", err, card.ID, user.ID)
+			log.Printf("Error at CreateCard payment in UpdateUser. Error is %v for DefaultID: %v and user: %v \n", err, card.ID, user.ID)
 		}
 
 	}
 
-	// We create a refund to send all the money back
-	_, err = server.store.CreateMainRefund(ctx, db.CreateMainRefundParams{
-		ChargeID:    chargeID,
-		UserPercent: 100,
-		HostPercent: 0,
-		ChargeType:  constants.CHARGE_REFERENCE,
-		Type:        constants.ADD_CARD,
-	})
+	if willRefund {
+		// We create a refund to send all the money back
+		_, err = server.store.CreateMainRefund(ctx, db.CreateMainRefundParams{
+			ChargeID:    chargeID,
+			UserPercent: 100,
+			HostPercent: 0,
+			ChargeType:  chargeType,
+			Type:        constants.ADD_CARD,
+		})
 
-	if err != nil {
-		log.Printf("Error at VerifyPaymentReference in CreateMainRefund. Error is %v for AuthorizationCode: %v and user: %v \n", err, resData.Data.Authorization.AuthorizationCode, user.ID)
-	}
-	// If card is not reusable then we send an error
-	if !resData.Data.Authorization.Reusable {
-		err = fmt.Errorf("there was an error while verifying your card. Please note that this card is not reusable so it cannot be used as a payment method. You would be sent your charge refund shortly")
-		return
+		if err != nil {
+			log.Printf("Error at CreateCard in CreateMainRefund. Error is %v for AuthorizationCode: %v and user: %v \n", err, resData.Data.Authorization.AuthorizationCode, user.ID)
+		}
+		// If card is not reusable then we send an error
+		if !resData.Data.Authorization.Reusable {
+			err = fmt.Errorf("there was an error while verifying your card. Please note that this card is not reusable so it cannot be used as a payment method. You would be sent your charge refund shortly")
+			return
+		}
 	}
 
 	resCard := payment.CardDetailResponse{

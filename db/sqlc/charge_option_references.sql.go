@@ -795,6 +795,28 @@ func (q *Queries) GetChargeOptionReferenceHelp(ctx context.Context, arg GetCharg
 	return info, err
 }
 
+const getChargeOptionReferencePayment = `-- name: GetChargeOptionReferencePayment :one
+SELECT mp.status AS main_payout_status, rp.status AS refund_payout_status, mr.status AS main_refund_status
+FROM charge_option_references co
+LEFT JOIN main_payouts mp on mp.charge_id = co.id
+LEFT JOIN main_refunds mr on mr.charge_id = co.id
+LEFT JOIN refund_payouts rp on rp.charge_id = co.id
+WHERE co.id = $1
+`
+
+type GetChargeOptionReferencePaymentRow struct {
+	MainPayoutStatus   pgtype.Text `json:"main_payout_status"`
+	RefundPayoutStatus pgtype.Text `json:"refund_payout_status"`
+	MainRefundStatus   pgtype.Text `json:"main_refund_status"`
+}
+
+func (q *Queries) GetChargeOptionReferencePayment(ctx context.Context, id uuid.UUID) (GetChargeOptionReferencePaymentRow, error) {
+	row := q.db.QueryRow(ctx, getChargeOptionReferencePayment, id)
+	var i GetChargeOptionReferencePaymentRow
+	err := row.Scan(&i.MainPayoutStatus, &i.RefundPayoutStatus, &i.MainRefundStatus)
+	return i, err
+}
+
 const getChargeOptionReferenceReceipt = `-- name: GetChargeOptionReferenceReceipt :one
 SELECT od.host_name_option, co.discount, co.main_price, co.service_fee, co.total_fee, co.date_price, co.currency, co.guest_fee, co.pet_fee, co.clean_fee, co.nightly_pet_fee, co.nightly_guest_fee
 FROM charge_option_references co

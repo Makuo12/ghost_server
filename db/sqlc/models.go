@@ -496,6 +496,8 @@ type MainPayout struct {
 	TimePaid      time.Time `json:"time_paid"`
 	ServiceFee    int64     `json:"service_fee"`
 	Currency      string    `json:"currency"`
+	Status        string    `json:"status"`
+	Blocked       bool      `json:"blocked"`
 	AccountNumber string    `json:"account_number"`
 	IsComplete    bool      `json:"is_complete"`
 	CreatedAt     time.Time `json:"created_at"`
@@ -508,6 +510,7 @@ type MainRefund struct {
 	HostPercent int32     `json:"host_percent"`
 	ChargeType  string    `json:"charge_type"`
 	Type        string    `json:"type"`
+	Status      string    `json:"status"`
 	IsPayed     bool      `json:"is_payed"`
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
@@ -839,6 +842,7 @@ type Refund struct {
 	SendMedium  string    `json:"send_medium"`
 	Amount      int64     `json:"amount"`
 	UserID      uuid.UUID `json:"user_id"`
+	RefundID    string    `json:"refund_id"`
 	AmountPayed int64     `json:"amount_payed"`
 	TimePaid    time.Time `json:"time_paid"`
 	IsComplete  bool      `json:"is_complete"`
@@ -852,6 +856,8 @@ type RefundPayout struct {
 	ServiceFee    int64     `json:"service_fee"`
 	UserID        uuid.UUID `json:"user_id"`
 	TimePaid      time.Time `json:"time_paid"`
+	Blocked       bool      `json:"blocked"`
+	Status        string    `json:"status"`
 	Currency      string    `json:"currency"`
 	AccountNumber string    `json:"account_number"`
 	IsComplete    bool      `json:"is_complete"`
@@ -879,6 +885,7 @@ type RequestNotify struct {
 	SamePrice bool      `json:"same_price"`
 	Price     int64     `json:"price"`
 	ItemID    string    `json:"item_id"`
+	Status    string    `json:"status"`
 	Approved  bool      `json:"approved"`
 	Cancelled bool      `json:"cancelled"`
 	CreatedAt time.Time `json:"created_at"`

@@ -24,4 +24,5 @@ RETURNING payout_ids, user_id, parent_type, account_number, time_paid;
 
 -- name: ListPayout :many
 SELECT *
-FROM payouts;
+FROM payouts
+WHERE is_complete = false;

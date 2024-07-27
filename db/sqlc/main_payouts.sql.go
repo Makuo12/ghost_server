@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const countOptionMainPayout = `-- name: CountOptionMainPayout :one
@@ -74,7 +75,7 @@ func (q *Queries) CreateMainPayout(ctx context.Context, arg CreateMainPayoutPara
 }
 
 const getMainPayout = `-- name: GetMainPayout :one
-SELECT charge_id, type, amount, time_paid, service_fee, currency, account_number, is_complete, created_at, updated_at
+SELECT charge_id, type, amount, time_paid, service_fee, currency, status, blocked, account_number, is_complete, created_at, updated_at
 FROM main_payouts
 WHERE charge_id = $1
 `
@@ -89,6 +90,8 @@ func (q *Queries) GetMainPayout(ctx context.Context, chargeID uuid.UUID) (MainPa
 		&i.TimePaid,
 		&i.ServiceFee,
 		&i.Currency,
+		&i.Status,
+		&i.Blocked,
 		&i.AccountNumber,
 		&i.IsComplete,
 		&i.CreatedAt,
@@ -307,13 +310,14 @@ FROM main_payouts mp
     JOIN charge_option_references co ON mp.charge_id = co.id
     JOIN options_infos oi ON oi.option_user_id = co.option_user_id
     JOIN users u ON oi.host_id = u.id
-WHERE mp.is_complete = $1 AND co.is_complete = $2 AND co.cancelled = $3 AND NOW() + INTERVAL '1 hour' > (co.start_date + INTERVAL '38 hours') AND mp.type = 'charge_option_reference'
+WHERE mp.is_complete = $1 AND co.is_complete = $2 AND co.cancelled = $3 AND NOW() + INTERVAL '1 hour' > (co.start_date + INTERVAL '38 hours') AND mp.type = 'charge_option_reference' AND mp.status = $4 AND mp.blocked = false
 `
 
 type ListOptionMainPayoutWithChargeParams struct {
-	PayoutComplete        bool `json:"payout_complete"`
-	ChargePaymentComplete bool `json:"charge_payment_complete"`
-	ChargeCancelled       bool `json:"charge_cancelled"`
+	PayoutComplete        bool   `json:"payout_complete"`
+	ChargePaymentComplete bool   `json:"charge_payment_complete"`
+	ChargeCancelled       bool   `json:"charge_cancelled"`
+	PayoutStatus          string `json:"payout_status"`
 }
 
 type ListOptionMainPayoutWithChargeRow struct {
@@ -328,7 +332,12 @@ type ListOptionMainPayoutWithChargeRow struct {
 }
 
 func (q *Queries) ListOptionMainPayoutWithCharge(ctx context.Context, arg ListOptionMainPayoutWithChargeParams) ([]ListOptionMainPayoutWithChargeRow, error) {
-	rows, err := q.db.Query(ctx, listOptionMainPayoutWithCharge, arg.PayoutComplete, arg.ChargePaymentComplete, arg.ChargeCancelled)
+	rows, err := q.db.Query(ctx, listOptionMainPayoutWithCharge,
+		arg.PayoutComplete,
+		arg.ChargePaymentComplete,
+		arg.ChargeCancelled,
+		arg.PayoutStatus,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -364,13 +373,14 @@ FROM main_payouts mp
     JOIN charge_event_references ce ON ce.id = cd.charge_event_id
     JOIN options_infos oi ON oi.option_user_id = ce.option_user_id
     JOIN users u ON oi.host_id = u.id
-WHERE mp.is_complete = $1 AND ce.is_complete = $2 AND ct.cancelled = $3 AND NOW() + INTERVAL '1 hour' < (cd.end_date + INTERVAL '40 hours') AND mp.type = 'charge_ticket_reference'
+WHERE mp.is_complete = $1 AND ce.is_complete = $2 AND ct.cancelled = $3 AND NOW() + INTERVAL '1 hour' < (cd.end_date + INTERVAL '40 hours') AND mp.type = 'charge_ticket_reference' AND mp.status = $4 AND mp.blocked = false
 `
 
 type ListTicketMainPayoutWithChargeParams struct {
-	PayoutComplete        bool `json:"payout_complete"`
-	ChargePaymentComplete bool `json:"charge_payment_complete"`
-	ChargeCancelled       bool `json:"charge_cancelled"`
+	PayoutComplete        bool   `json:"payout_complete"`
+	ChargePaymentComplete bool   `json:"charge_payment_complete"`
+	ChargeCancelled       bool   `json:"charge_cancelled"`
+	PayoutStatus          string `json:"payout_status"`
 }
 
 type ListTicketMainPayoutWithChargeRow struct {
@@ -386,7 +396,12 @@ type ListTicketMainPayoutWithChargeRow struct {
 }
 
 func (q *Queries) ListTicketMainPayoutWithCharge(ctx context.Context, arg ListTicketMainPayoutWithChargeParams) ([]ListTicketMainPayoutWithChargeRow, error) {
-	rows, err := q.db.Query(ctx, listTicketMainPayoutWithCharge, arg.PayoutComplete, arg.ChargePaymentComplete, arg.ChargeCancelled)
+	rows, err := q.db.Query(ctx, listTicketMainPayoutWithCharge,
+		arg.PayoutComplete,
+		arg.ChargePaymentComplete,
+		arg.ChargeCancelled,
+		arg.PayoutStatus,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -426,26 +441,32 @@ func (q *Queries) RemoveMainPayout(ctx context.Context, chargeID uuid.UUID) erro
 
 const updateMainPayout = `-- name: UpdateMainPayout :exec
 UPDATE main_payouts
-SET is_complete = $1,
-    account_number = $2,
-    time_paid = $3,
+SET is_complete = COALESCE($2, is_complete),
+    account_number = COALESCE($3, account_number),
+    time_paid = COALESCE($4, time_paid),
+    status = COALESCE($5, status),
+    blocked = COALESCE($6, blocked),
     updated_at = NOW()
-WHERE charge_id = $4
+WHERE charge_id = $1
 `
 
 type UpdateMainPayoutParams struct {
-	IsComplete    bool      `json:"is_complete"`
-	AccountNumber string    `json:"account_number"`
-	TimePaid      time.Time `json:"time_paid"`
-	ChargeID      uuid.UUID `json:"charge_id"`
+	ChargeID      uuid.UUID          `json:"charge_id"`
+	IsComplete    pgtype.Bool        `json:"is_complete"`
+	AccountNumber pgtype.Text        `json:"account_number"`
+	TimePaid      pgtype.Timestamptz `json:"time_paid"`
+	Status        pgtype.Text        `json:"status"`
+	Blocked       pgtype.Bool        `json:"blocked"`
 }
 
 func (q *Queries) UpdateMainPayout(ctx context.Context, arg UpdateMainPayoutParams) error {
 	_, err := q.db.Exec(ctx, updateMainPayout,
+		arg.ChargeID,
 		arg.IsComplete,
 		arg.AccountNumber,
 		arg.TimePaid,
-		arg.ChargeID,
+		arg.Status,
+		arg.Blocked,
 	)
 	return err
 }
