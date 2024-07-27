@@ -23,8 +23,7 @@ WHERE (user_id = $1 AND reference = $2) OR (user_id = $1 AND id = $3);
 -- name: CountChargeReference :one
 SELECT Count(*)
 FROM charge_references
-WHERE user_id = $1
-ORDER BY created_at DESC;
+WHERE user_id = $1;
 
 -- name: ListChargeReference :many
 SELECT *

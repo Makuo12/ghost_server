@@ -15,7 +15,6 @@ const countChargeReference = `-- name: CountChargeReference :one
 SELECT Count(*)
 FROM charge_references
 WHERE user_id = $1
-ORDER BY created_at DESC
 `
 
 func (q *Queries) CountChargeReference(ctx context.Context, userID uuid.UUID) (int64, error) {
