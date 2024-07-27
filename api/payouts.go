@@ -291,7 +291,7 @@ func (server *Server) ListRefund(ctx *gin.Context) {
 	}
 	count, err := server.store.CountRefund(ctx, db.CountRefundParams{
 		RefundComplete: req.IsComplete,
-		UID:            user.UserID,
+		UID:            user.ID,
 	})
 	if err != nil {
 		log.Printf("Error at  ListRefund in .CountRefund err: %v, user: %v\n", err, user.ID)
@@ -306,7 +306,7 @@ func (server *Server) ListRefund(ctx *gin.Context) {
 	}
 	refunds, err := server.store.ListRefund(ctx, db.ListRefundParams{
 		PayoutIsComplete: req.IsComplete,
-		UID:              user.UserID,
+		UID:              user.ID,
 		Limit:            40,
 		Offset:           int32(req.Offset),
 	})
