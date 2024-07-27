@@ -24,12 +24,15 @@ RETURNING *;
 
 -- name: ListRefund :many
 SELECT
-    re.amount, re.time_paid, od.host_name_option, oi.main_option_type, u.first_name AS host_name, ct.grade, co.cancelled AS option_cancelled, ct.cancelled AS ticket_cancelled, co.end_date AS option_end_date, cd.end_date AS event_end_date, co.start_date AS option_start_date, cd.start_date AS event_start_date, mp.type, co.currency AS option_currency, ce.currency AS event_currency
+    re.amount, re.time_paid, od.host_name_option, oi.main_option_type, u.first_name AS host_name, ct.grade, co.cancelled AS option_cancelled, ct.cancelled AS ticket_cancelled, co.end_date AS option_end_date, cd.end_date AS event_end_date, co.start_date AS option_start_date, cd.start_date AS event_start_date, mp.type, co.currency AS option_currency, ce.currency AS event_currency, cr.currency AS charge_currency, cr.charge AS charge_amount, cr.created_at AS charge_created_at
 FROM refunds AS re
-JOIN main_payouts AS mp ON mp.charge_id = re.charge_id
+LEFT JOIN main_payouts AS mp ON mp.charge_id = re.charge_id
 LEFT JOIN charge_option_references AS co
     ON mp.Type = 'charge_option_reference'
     AND re.charge_id = co.id
+LEFT JOIN charge_references AS cr
+    ON mp.Type = 'charge_reference'
+    AND re.charge_id = cr.id
 LEFT JOIN charge_ticket_references AS ct
     ON mp.Type = 'charge_ticket_references'
     AND re.charge_id = ct.id
@@ -53,10 +56,13 @@ OFFSET $2;
 SELECT
     Count(*)
 FROM refunds AS re
-JOIN main_payouts AS mp ON mp.charge_id = re.charge_id
+LEFT JOIN main_payouts AS mp ON mp.charge_id = re.charge_id
 LEFT JOIN charge_option_references AS co
     ON mp.Type = 'charge_option_reference'
     AND re.charge_id = co.id
+ LEFT JOIN charge_references AS cr
+    ON mp.Type = 'charge_reference'
+    AND re.charge_id = cr.id
 LEFT JOIN charge_ticket_references AS ct
     ON mp.Type = 'charge_ticket_references'
     AND re.charge_id = ct.id

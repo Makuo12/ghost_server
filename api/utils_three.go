@@ -13,6 +13,17 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+func HandleSqlNullInt(s pgtype.Int8) int64 {
+	log.Println("string check good", s.Valid)
+	if s.Valid {
+
+		log.Println("string all good", s)
+		return s.Int64
+	}
+	log.Println("string not all good", s)
+	return 0
+}
+
 func HandleSqlNullString(s pgtype.Text) string {
 	log.Println("string check good", s.Valid)
 	if s.Valid {

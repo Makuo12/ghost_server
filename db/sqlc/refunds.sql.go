@@ -17,10 +17,13 @@ const countRefund = `-- name: CountRefund :one
 SELECT
     Count(*)
 FROM refunds AS re
-JOIN main_payouts AS mp ON mp.charge_id = re.charge_id
+LEFT JOIN main_payouts AS mp ON mp.charge_id = re.charge_id
 LEFT JOIN charge_option_references AS co
     ON mp.Type = 'charge_option_reference'
     AND re.charge_id = co.id
+ LEFT JOIN charge_references AS cr
+    ON mp.Type = 'charge_reference'
+    AND re.charge_id = cr.id
 LEFT JOIN charge_ticket_references AS ct
     ON mp.Type = 'charge_ticket_references'
     AND re.charge_id = ct.id
@@ -102,12 +105,15 @@ func (q *Queries) CreateRefund(ctx context.Context, arg CreateRefundParams) (Ref
 
 const listRefund = `-- name: ListRefund :many
 SELECT
-    re.amount, re.time_paid, od.host_name_option, oi.main_option_type, u.first_name AS host_name, ct.grade, co.cancelled AS option_cancelled, ct.cancelled AS ticket_cancelled, co.end_date AS option_end_date, cd.end_date AS event_end_date, co.start_date AS option_start_date, cd.start_date AS event_start_date, mp.type, co.currency AS option_currency, ce.currency AS event_currency
+    re.amount, re.time_paid, od.host_name_option, oi.main_option_type, u.first_name AS host_name, ct.grade, co.cancelled AS option_cancelled, ct.cancelled AS ticket_cancelled, co.end_date AS option_end_date, cd.end_date AS event_end_date, co.start_date AS option_start_date, cd.start_date AS event_start_date, mp.type, co.currency AS option_currency, ce.currency AS event_currency, cr.currency AS charge_currency, cr.charge AS charge_amount, cr.created_at AS charge_created_at
 FROM refunds AS re
-JOIN main_payouts AS mp ON mp.charge_id = re.charge_id
+LEFT JOIN main_payouts AS mp ON mp.charge_id = re.charge_id
 LEFT JOIN charge_option_references AS co
     ON mp.Type = 'charge_option_reference'
     AND re.charge_id = co.id
+LEFT JOIN charge_references AS cr
+    ON mp.Type = 'charge_reference'
+    AND re.charge_id = cr.id
 LEFT JOIN charge_ticket_references AS ct
     ON mp.Type = 'charge_ticket_references'
     AND re.charge_id = ct.id
@@ -135,21 +141,24 @@ type ListRefundParams struct {
 }
 
 type ListRefundRow struct {
-	Amount          int64       `json:"amount"`
-	TimePaid        time.Time   `json:"time_paid"`
-	HostNameOption  pgtype.Text `json:"host_name_option"`
-	MainOptionType  pgtype.Text `json:"main_option_type"`
-	HostName        pgtype.Text `json:"host_name"`
-	Grade           pgtype.Text `json:"grade"`
-	OptionCancelled pgtype.Bool `json:"option_cancelled"`
-	TicketCancelled pgtype.Bool `json:"ticket_cancelled"`
-	OptionEndDate   pgtype.Date `json:"option_end_date"`
-	EventEndDate    pgtype.Date `json:"event_end_date"`
-	OptionStartDate pgtype.Date `json:"option_start_date"`
-	EventStartDate  pgtype.Date `json:"event_start_date"`
-	Type            string      `json:"type"`
-	OptionCurrency  pgtype.Text `json:"option_currency"`
-	EventCurrency   pgtype.Text `json:"event_currency"`
+	Amount          int64              `json:"amount"`
+	TimePaid        time.Time          `json:"time_paid"`
+	HostNameOption  pgtype.Text        `json:"host_name_option"`
+	MainOptionType  pgtype.Text        `json:"main_option_type"`
+	HostName        pgtype.Text        `json:"host_name"`
+	Grade           pgtype.Text        `json:"grade"`
+	OptionCancelled pgtype.Bool        `json:"option_cancelled"`
+	TicketCancelled pgtype.Bool        `json:"ticket_cancelled"`
+	OptionEndDate   pgtype.Date        `json:"option_end_date"`
+	EventEndDate    pgtype.Date        `json:"event_end_date"`
+	OptionStartDate pgtype.Date        `json:"option_start_date"`
+	EventStartDate  pgtype.Date        `json:"event_start_date"`
+	Type            pgtype.Text        `json:"type"`
+	OptionCurrency  pgtype.Text        `json:"option_currency"`
+	EventCurrency   pgtype.Text        `json:"event_currency"`
+	ChargeCurrency  pgtype.Text        `json:"charge_currency"`
+	ChargeAmount    pgtype.Int8        `json:"charge_amount"`
+	ChargeCreatedAt pgtype.Timestamptz `json:"charge_created_at"`
 }
 
 func (q *Queries) ListRefund(ctx context.Context, arg ListRefundParams) ([]ListRefundRow, error) {
@@ -182,6 +191,9 @@ func (q *Queries) ListRefund(ctx context.Context, arg ListRefundParams) ([]ListR
 			&i.Type,
 			&i.OptionCurrency,
 			&i.EventCurrency,
+			&i.ChargeCurrency,
+			&i.ChargeAmount,
+			&i.ChargeCreatedAt,
 		); err != nil {
 			return nil, err
 		}
