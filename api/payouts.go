@@ -321,30 +321,27 @@ func (server *Server) ListRefund(ctx *gin.Context) {
 		var endDate time.Time
 		var cancelled bool
 		var currency string
-		var amount string
 		switch HandleSqlNullString(p.Type) {
 		case "charge_option_reference":
 			startDate = HandleSqlNullTime(p.OptionStartDate)
 			endDate = HandleSqlNullTime(p.OptionEndDate)
 			cancelled = HandleSqlNullBool(p.OptionCancelled)
 			currency = HandleSqlNullString(p.OptionCurrency)
-			amount = tools.IntToMoneyString(p.Amount)
 		case "charge_ticket_reference":
 			startDate = HandleSqlNullTime(p.EventStartDate)
 			endDate = HandleSqlNullTime(p.EventEndDate)
 			cancelled = HandleSqlNullBool(p.TicketCancelled)
 			currency = HandleSqlNullString(p.EventCurrency)
-			amount = tools.IntToMoneyString(p.Amount)
+			
 		default:
 			currency = HandleSqlNullString(p.ChargeCurrency)
 			startDate = HandleSqlNullTimestamp(p.ChargeCreatedAt)
 			endDate = HandleSqlNullTimestamp(p.ChargeCreatedAt)
-			amount = tools.IntToMoneyString(HandleSqlNullInt(p.ChargeAmount))
 		}
 		data := RefundItem{
 			ID:             tools.UuidToString(uuid.New()),
 			DatePaid:       tools.ConvertDateOnlyToString(p.TimePaid),
-			Amount:         amount,
+			Amount:         tools.IntToMoneyString(p.Amount),
 			HostName:       HandleSqlNullString(p.HostName),
 			HostOptionName: HandleSqlNullString(p.HostNameOption),
 			StartDate:      tools.ConvertDateOnlyToString(startDate),
