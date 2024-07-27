@@ -41,14 +41,14 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 	chargeData, err := server.store.GetChargeReference(ctx, db.GetChargeReferenceParams{
 		UserID:    user.UserID,
 		Reference: req.Reference,
-		ID: chargeID,
+		ID:        chargeID,
 	})
 	if err != nil {
 		log.Printf("error at VerifyPaymentReference at GetChargeReference for userID: %v, err: %v\n", user.UserID, err.Error())
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	resData, err := payment.HandlePaystackVerifyPayment(ctx, server.config.PaystackSecretLiveKey, chargeData.PaymentReference, user)
+	resData, err := payment.HandlePaystackVerifyPayment(ctx, server.config.PaystackSecretLiveKey, chargeData.PaymentReference, true)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -91,6 +91,57 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 	}
 	res := payment.ReferencePaymentResponse{
 		Verified:  successReservation,
+		Card:      cardData,
+		Status:    resData.Data.Status,
+		Bank:      resData.Data.Authorization.Bank,
+		Email:     resData.Data.Customer.Email,
+		StartTime: tools.ConvertTimeFormat(resData.Data.CreatedAt0, tools.DateMMDayYearTime),
+		Channel:   resData.Data.Channel,
+		Currency:  resData.Data.Currency,
+		Amount:    tools.IntToMoneyString(int64(resData.Data.Amount)),
+	}
+	ctx.JSON(http.StatusOK, res)
+}
+
+func (server *Server) GetVerifyPaymentReference(ctx *gin.Context) {
+	var req payment.ReferencePayment
+	// If chargeData.MainObjectType is either options or events then we want willRefund to be true because when it gets to chargeData.MainObjectType if we are making payment it turns to false
+	var cardData payment.CardAddResponse = payment.GetFakeCardRes()
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Printf("Error at VerifyPaymentReference in ShouldBindJSON: %v, currency: %v \n", err.Error(), req.Reference)
+		err = fmt.Errorf("reference invalid")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	user, err := HandleGetUser(ctx, server)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	chargeID := uuid.New()
+	chargeResID, err := tools.StringToUuid(req.ChargeID)
+	if err == nil {
+		chargeID = chargeResID
+	} else {
+		err = nil
+	}
+	chargeData, err := server.store.GetChargeReference(ctx, db.GetChargeReferenceParams{
+		UserID:    user.UserID,
+		Reference: req.Reference,
+		ID:        chargeID,
+	})
+	if err != nil {
+		log.Printf("error at VerifyPaymentReference at GetChargeReference for userID: %v, err: %v\n", user.UserID, err.Error())
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	resData, err := payment.HandlePaystackVerifyPayment(ctx, server.config.PaystackSecretLiveKey, chargeData.PaymentReference, false)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	res := payment.ReferencePaymentResponse{
+		Verified:  false,
 		Card:      cardData,
 		Status:    resData.Data.Status,
 		Bank:      resData.Data.Authorization.Bank,

@@ -33,6 +33,11 @@ ORDER BY created_at DESC
 LIMIT $2
 OFFSET $3;
 
+-- name: ListAllInCompleteChargeReference :many
+SELECT *
+FROM charge_references
+WHERE is_complete = false;
+
 
 -- name: UpdateChargeReferenceComplete :one
 UPDATE charge_references 
@@ -40,6 +45,14 @@ SET
     is_complete = $1,
     updated_at = NOW()
 WHERE user_id = $2 AND reference = $3
+RETURNING *;
+
+-- name: UpdateChargeReference :one
+UPDATE charge_references 
+SET
+    is_complete = $1,
+    updated_at = NOW()
+WHERE user_id = $2 AND id = $3
 RETURNING *;
 
 -- name: RemoveChargeReferenceComplete :exec

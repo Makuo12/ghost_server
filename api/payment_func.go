@@ -105,6 +105,10 @@ func ObjectOptionPaymentReference(ctx context.Context, server *Server, user db.U
 
 }
 
+
+
+
+
 func ObjectEventPaymentReference(ctx context.Context, server *Server, user db.User, reference string, paymentReference string, objectReference uuid.UUID, amount int, currency string, message string) (success bool, err error) {
 	// A reservation request can never be created for a ticket so we don't need to check for a chargeEventReference
 	reserveEventData, err := HandleEventReserveRedisData(tools.UuidToString(user.UserID), reference)
@@ -140,3 +144,4 @@ func CheckPaymentProgress(ctx context.Context, server *Server, chargeID uuid.UUI
 		return fmt.Errorf("This current booking cannot be changed because it is current in use for either refund or payout")
 	}
 }
+

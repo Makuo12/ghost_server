@@ -298,6 +298,11 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 		log.Printf(" Error at cron at job.AddFunc for DailyHandleUserRequest  %v", err.Error())
 	}
 
+	_, err = job.AddFunc("@every 5m", DailyHandleVerifyPayment(ctx, server))
+	if err != nil {
+		log.Printf(" Error at cron at job.AddFunc for DailyHandleUserRequest  %v", err.Error())
+	}
+
 	_, err = job.AddFunc("@every 2m", DailyDeactivateCoHost(ctx, server))
 	if err != nil {
 		log.Printf(" Error at cron at job.AddFunc for DailyDeactivateCoHost  %v", err.Error())
@@ -739,6 +744,7 @@ func (server *Server) setupRouter() {
 	// Payments Methods
 	authRoutes.POST("/users/init/payment/method", server.InitMethodPayment)
 	authRoutes.POST("/users/init/verify/payment/reference", server.VerifyPaymentReference)
+	authRoutes.POST("/users/init/verify/payment/get", server.GetVerifyPaymentReference)
 
 	// Reservation
 	////-> Option

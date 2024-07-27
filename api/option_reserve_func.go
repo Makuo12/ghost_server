@@ -647,7 +647,6 @@ func HandleOptionReserveComplete(server *Server, ctx context.Context, reserveDat
 		optionUserID = charge.OptionUserID
 		log.Println("not at charge, ", chargeRef, chargeID, optionUserID)
 	}
-
 	// We want to store a snap shot of the option
 	err = HandleOptionSnapShot(server, ctx, chargeRef, paystackReference, optionUserID, chargeID)
 	if err != nil {

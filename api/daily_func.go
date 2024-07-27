@@ -8,6 +8,7 @@ import (
 
 	"github.com/makuo12/ghost_server/constants"
 	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/payment"
 	"github.com/makuo12/ghost_server/tools"
 )
 
@@ -97,11 +98,10 @@ func DailyHandleUserRequest(ctx context.Context, server *Server) func() {
 		}
 		for _, r := range requests {
 			HandleURApproved(ctx, server, r.MID, r.Reference, r.ChargeID, r.GuestFirstName, r.HostFirstName, r.GuestUserID, r.HostUserID)
-			
+
 		}
 	}
 }
-
 
 func DailyHandleSnooze(ctx context.Context, server *Server) func() {
 	// All the ids are stored in constants.USER_REQUEST_APPROVE
@@ -165,6 +165,7 @@ func DailyValidatedChargeTicket(ctx context.Context, server *Server) func() {
 		ticketChargeIDs, err := RedisClient.SMembers(RedisContext, constants.SCANNED_CHARGE_TICKET_ID).Result()
 		if err != nil {
 			log.Printf("Error at DailyValidatedChargeTicket in RedisClient.SMembers: %v \n", err.Error())
+			return
 		}
 		if len(ticketChargeIDs) != 0 {
 			// First we would remove it from Redis just to make sure the next cron job doesn't run it
@@ -246,5 +247,43 @@ func DailyHandleUpdateRefund(ctx context.Context, server *Server) func() {
 	// All the ids are stored in constants.USER_REQUEST_APPROVE
 	return func() {
 		HandleDailyRefundUpdate(ctx, server)
+	}
+}
+
+func DailyHandleVerifyPayment(ctx context.Context, server *Server) func() {
+	return func() {
+
+		charges, err := server.store.ListAllInCompleteChargeReference(ctx)
+		if err != nil {
+			log.Printf("Error at DailyHandleVerifyPayment in ListAllInCompleteChargeReference: %v \n", err.Error())
+			return
+		}
+		for _, charge := range charges {
+			user, err := server.store.GetUserByUserID(ctx, charge.UserID)
+			if err != nil {
+				continue
+			}
+			_, err = payment.HandlePaystackVerifyPayment(ctx, server.config.PaystackSecretLiveKey, charge.PaymentReference, true)
+			if err != nil {
+				continue
+			}
+			_, err = server.store.UpdateChargeReference(ctx, db.UpdateChargeReferenceParams{
+				IsComplete: true,
+				UserID:     user.UserID,
+				ID:         charge.ID,
+			})
+			if err != nil {
+				continue
+			}
+			switch charge.MainObjectType {
+			case "options":
+				_, _ = ObjectOptionPaymentReference(ctx, server, user, charge.Reference, charge.PaymentReference, charge.ObjectReference, int(charge.Charge), charge.Currency, "")
+			case "events":
+				_, _ = ObjectEventPaymentReference(ctx, server, user, charge.Reference, charge.PaymentReference, charge.ObjectReference, int(charge.Charge), charge.Currency, "")
+			}
+			if err != nil {
+				continue
+			}
+		}
 	}
 }

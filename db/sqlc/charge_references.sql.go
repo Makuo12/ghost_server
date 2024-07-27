@@ -128,6 +128,48 @@ func (q *Queries) GetChargeReference(ctx context.Context, arg GetChargeReference
 	return i, err
 }
 
+const listAllInCompleteChargeReference = `-- name: ListAllInCompleteChargeReference :many
+SELECT id, user_id, reference, payment_reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at
+FROM charge_references
+WHERE is_complete = false
+`
+
+func (q *Queries) ListAllInCompleteChargeReference(ctx context.Context) ([]ChargeReference, error) {
+	rows, err := q.db.Query(ctx, listAllInCompleteChargeReference)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ChargeReference{}
+	for rows.Next() {
+		var i ChargeReference
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Reference,
+			&i.PaymentReference,
+			&i.ObjectReference,
+			&i.HasObjectReference,
+			&i.MainObjectType,
+			&i.PaymentMedium,
+			&i.PaymentChannel,
+			&i.Reason,
+			&i.IsComplete,
+			&i.Charge,
+			&i.Currency,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listChargeReference = `-- name: ListChargeReference :many
 SELECT id, user_id, reference, payment_reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at
 FROM charge_references
@@ -187,6 +229,44 @@ WHERE reference = $1
 func (q *Queries) RemoveChargeReferenceComplete(ctx context.Context, reference string) error {
 	_, err := q.db.Exec(ctx, removeChargeReferenceComplete, reference)
 	return err
+}
+
+const updateChargeReference = `-- name: UpdateChargeReference :one
+UPDATE charge_references 
+SET
+    is_complete = $1,
+    updated_at = NOW()
+WHERE user_id = $2 AND id = $3
+RETURNING id, user_id, reference, payment_reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at
+`
+
+type UpdateChargeReferenceParams struct {
+	IsComplete bool      `json:"is_complete"`
+	UserID     uuid.UUID `json:"user_id"`
+	ID         uuid.UUID `json:"id"`
+}
+
+func (q *Queries) UpdateChargeReference(ctx context.Context, arg UpdateChargeReferenceParams) (ChargeReference, error) {
+	row := q.db.QueryRow(ctx, updateChargeReference, arg.IsComplete, arg.UserID, arg.ID)
+	var i ChargeReference
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Reference,
+		&i.PaymentReference,
+		&i.ObjectReference,
+		&i.HasObjectReference,
+		&i.MainObjectType,
+		&i.PaymentMedium,
+		&i.PaymentChannel,
+		&i.Reason,
+		&i.IsComplete,
+		&i.Charge,
+		&i.Currency,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const updateChargeReferenceComplete = `-- name: UpdateChargeReferenceComplete :one

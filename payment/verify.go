@@ -6,12 +6,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
-	db "github.com/makuo12/ghost_server/db/sqlc"
 )
 
 // This function help verify any payment using paystack that has a reference
-func HandlePaystackVerifyPayment(ctx context.Context, paystackKey, reference string, user db.User) (resItem PaystackVerifyResponse, err error) {
+func HandlePaystackVerifyPayment(ctx context.Context, paystackKey, reference string, checkSuccess bool) (resItem PaystackVerifyResponse, err error) {
 	log.Println("reference is", reference)
 	var resData = &PaystackVerifyResponse{}
 	clientSide := &http.Client{}
@@ -55,25 +53,20 @@ func HandlePaystackVerifyPayment(ctx context.Context, paystackKey, reference str
 		return
 	}
 
-	// We check to see if the transaction failed
-	if resData.Data.Status != "success" {
-		log.Printf("Error at HandlePaystackVerifyPayment payment did not go through")
-		err = fmt.Errorf(resData.Data.GatewayResponse)
-		return
-	}
-	log.Printf("reference %v\n", resData.Data.Reference)
-	if err != nil {
-		log.Printf("Error at StringToUuid payment was successful, but reference ID was not able to convert %v", err.Error())
-		err = fmt.Errorf("please contact us with error code 404-203-ID, something went wrong. reference ID could not match")
-		return
+	if checkSuccess {
+		// We check to see if the transaction failed
+		if resData.Data.Status != "success" {
+			log.Printf("Error at HandlePaystackVerifyPayment payment did not go through")
+			err = fmt.Errorf(resData.Data.GatewayResponse)
+			return
+		}
 	}
 	resItem = *resData
 	return
 }
 
-
 func GetFakeCardRes() CardAddResponse {
 	detail := CardDetailResponse{"none", "none", "none", "none", "none", "none"}
-	card := CardAddResponse {detail, "none", "none", "none"}
+	card := CardAddResponse{detail, "none", "none", "none"}
 	return card
 }
