@@ -18,7 +18,7 @@ RETURNING *;
 -- name: GetChargeReference :one
 SELECT * 
 FROM charge_references
-WHERE user_id = $1 AND reference = $2;
+WHERE (user_id = $1 AND reference = $2) OR (user_id = $1 AND id = $3);
 
 -- name: CountChargeReference :one
 SELECT Count(*)

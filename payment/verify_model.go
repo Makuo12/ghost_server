@@ -4,6 +4,7 @@ import "time"
 
 type ReferencePayment struct {
 	Reference string `json:"reference"`
+	ChargeID  string `json:"charge_id"`
 	Type      string `json:"type"`
 	AddCard   bool   `json:"add_card"`
 	Message   string `json:"message"`
@@ -18,10 +19,8 @@ type ReferencePaymentResponse struct {
 	StartTime string          `json:"start_time"`
 	Channel   string          `json:"channel"`
 	Currency  string          `json:"currency"`
-	Amount string `json:"amount"`
+	Amount    string          `json:"amount"`
 }
-
-
 
 type PaystackVerifyResponse struct {
 	Status  bool   `json:"status"`

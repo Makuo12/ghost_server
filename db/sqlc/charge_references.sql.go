@@ -97,16 +97,17 @@ func (q *Queries) CreateChargeReference(ctx context.Context, arg CreateChargeRef
 const getChargeReference = `-- name: GetChargeReference :one
 SELECT id, user_id, reference, payment_reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at 
 FROM charge_references
-WHERE user_id = $1 AND reference = $2
+WHERE (user_id = $1 AND reference = $2) OR (user_id = $1 AND id = $3)
 `
 
 type GetChargeReferenceParams struct {
 	UserID    uuid.UUID `json:"user_id"`
 	Reference string    `json:"reference"`
+	ID        uuid.UUID `json:"id"`
 }
 
 func (q *Queries) GetChargeReference(ctx context.Context, arg GetChargeReferenceParams) (ChargeReference, error) {
-	row := q.db.QueryRow(ctx, getChargeReference, arg.UserID, arg.Reference)
+	row := q.db.QueryRow(ctx, getChargeReference, arg.UserID, arg.Reference, arg.ID)
 	var i ChargeReference
 	err := row.Scan(
 		&i.ID,

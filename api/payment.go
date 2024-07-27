@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/makuo12/ghost_server/constants"
 	db "github.com/makuo12/ghost_server/db/sqlc"
 	"github.com/makuo12/ghost_server/payment"
@@ -25,15 +26,22 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	log.Println("Reference: ", req.Reference)
 	user, err := HandleGetUser(ctx, server)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
+	chargeID := uuid.New()
+	chargeResID, err := tools.StringToUuid(req.ChargeID)
+	if err == nil {
+		chargeID = chargeResID
+	} else {
+		err = nil
+	}
 	chargeData, err := server.store.GetChargeReference(ctx, db.GetChargeReferenceParams{
 		UserID:    user.UserID,
 		Reference: req.Reference,
+		ID: chargeID,
 	})
 	if err != nil {
 		log.Printf("error at VerifyPaymentReference at GetChargeReference for userID: %v, err: %v\n", user.UserID, err.Error())
