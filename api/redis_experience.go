@@ -134,6 +134,7 @@ func HandleRedisEventExperience(ctx *gin.Context, server *Server, req Experience
 
 func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 	return func() {
+		HandleClearRedisOptionExperience(ctx, server)
 		log.Println("Here at redis setup event experience")
 		var catKeys []string
 		for _, cat := range algo.EventCategory {
@@ -242,6 +243,7 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 
 func HandleOptionExperienceToRedis(ctx context.Context, server *Server) func() {
 	return func() {
+		HandleClearRedisEventExperience(ctx, server)
 		log.Println("Here at redis setup options experience")
 		var catKeys []string
 		for _, cat := range algo.OptionCategory {
@@ -311,6 +313,44 @@ func HandleOptionExperienceToRedis(ctx context.Context, server *Server) func() {
 		err := RedisClient.SAdd(RedisContext, constants.ALL_EXPERIENCE_CATEGORIES, catKeys).Err()
 		if err != nil {
 			log.Printf("Error at HandleOptionExperienceToRedis in RedisClient.SAdd(RedisContext, constants.ALL_EXPERIENCE_CATEGORIES err: %v\n", err)
+		}
+	}
+}
+
+// DELETE CURRENT OPTIONS AND EVENTS STORED ON REDIS
+func HandleClearRedisOptionExperience(ctx context.Context, server *Server) {
+	for _, category := range algo.OptionCategory {
+		catKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_OPTION, category)
+		result, err := RedisClient.SMembers(RedisContext, catKey).Result()
+		if err != nil {
+			log.Printf("Error at HandleClearRedisOptionExperience in RedisClient.SMembers(RedisContext err: %v, user: %v, catKey: %v\n", err, ctx, catKey)
+			return
+		}
+		for _, r := range result {
+			err = RedisClient.Del(RedisContext, r).Err()
+			if err != nil {
+				log.Printf("Error at HandleClearRedisOptionExperience in RedisClient.HGetAll( err: %v, user: %v, catKey: %v id: %v\n", err, ctx, catKey, r)
+				continue
+			}
+		}
+	}
+}
+
+
+func HandleClearRedisEventExperience(ctx context.Context, server *Server) {
+	for _, category := range algo.EventCategory {
+		catKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_EVENT, category)
+		result, err := RedisClient.SMembers(RedisContext, catKey).Result()
+		if err != nil {
+			log.Printf("Error at HandleClearRedisEventExperience in RedisClient.SMembers(RedisContext err: %v, user: %v, catKey: %v\n", err, ctx, catKey)
+			return
+		}
+		for _, r := range result {
+			err = RedisClient.Del(RedisContext, r).Err()
+			if err != nil {
+				log.Printf("Error at HandleClearRedisEventExperience in RedisClient.HGetAll( err: %v, user: %v, catKey: %v id: %v\n", err, ctx, catKey, r)
+				continue
+			}
 		}
 	}
 }
