@@ -10,8 +10,15 @@ type ReferencePayment struct {
 }
 
 type ReferencePaymentResponse struct {
-	Verified bool            `json:"verified"`
-	Card     CardAddResponse `json:"card"`
+	Status    string          `json:"status"`
+	Bank      string          `json:"bank"`
+	Verified  bool            `json:"verified"`
+	Card      CardAddResponse `json:"card"`
+	Email     string          `json:"email"`
+	StartTime string          `json:"start_time"`
+	Channel   string          `json:"channel"`
+	Currency  string          `json:"currency"`
+	Amount string `json:"amount"`
 }
 
 

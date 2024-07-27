@@ -9,11 +9,11 @@ import (
 	"github.com/makuo12/ghost_server/constants"
 	db "github.com/makuo12/ghost_server/db/sqlc"
 	"github.com/makuo12/ghost_server/payment"
+	"github.com/makuo12/ghost_server/tools"
 )
 
 func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 	var req payment.ReferencePayment
-	
 	// If chargeData.MainObjectType is either options or events then we want willRefund to be true because when it gets to chargeData.MainObjectType if we are making payment it turns to false
 	var willRefund bool = true
 	var successReservation bool = false
@@ -45,7 +45,7 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	
+
 	if !chargeData.IsComplete {
 		chargeData, err = server.store.UpdateChargeReferenceComplete(ctx, db.UpdateChargeReferenceCompleteParams{
 			IsComplete: true,
@@ -82,8 +82,15 @@ func (server *Server) VerifyPaymentReference(ctx *gin.Context) {
 		}
 	}
 	res := payment.ReferencePaymentResponse{
-		Verified: successReservation,
-		Card:     cardData,
+		Verified:  successReservation,
+		Card:      cardData,
+		Status:    resData.Data.Status,
+		Bank:      resData.Data.Authorization.Bank,
+		Email:     resData.Data.Customer.Email,
+		StartTime: tools.ConvertTimeFormat(resData.Data.CreatedAt0, tools.DateMMDayYearTime),
+		Channel:   resData.Data.Channel,
+		Currency:  resData.Data.Currency,
+		Amount:    tools.IntToMoneyString(int64(resData.Data.Amount)),
 	}
 	ctx.JSON(http.StatusOK, res)
 }

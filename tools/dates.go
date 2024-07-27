@@ -292,6 +292,8 @@ func ConvertTimeFormat(t time.Time, format string) string {
 const DateDMMYyyy = "2 Jan 2006"
 
 const DateMMDTime = "Jan 2, 3:04 PM"
+
+const DateMMDayYearTime = "Jan 2 2006, 3:04 PM"
 const DateDMM = "2 Jan"
 
 // ConvertToTimeZone This converts the time to that time zone, but return an error is any found

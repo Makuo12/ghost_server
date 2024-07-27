@@ -3,14 +3,70 @@ package api
 import (
 	"context"
 	"log"
+	"net/http"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	db "github.com/makuo12/ghost_server/db/sqlc"
+	"github.com/makuo12/ghost_server/payment"
 	"github.com/makuo12/ghost_server/payout"
 	"github.com/makuo12/ghost_server/tools"
 )
+
+func (server *Server) ListChargeReference(ctx *gin.Context) {
+	var req payment.ChargeReferenceParams
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Printf("Error at ListChargeReference in ShouldBindJSON: %v, Offset: %v \n", err.Error(), req.Offset)
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	user, err := HandleGetUser(ctx, server)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	count, err := server.store.CountChargeReference(ctx, user.UserID)
+	if err != nil {
+		log.Printf("Error at  ListChargeReference in .CountChargeReferenceByUserID err: %v, user: %v\n", err, user.ID)
+		res := "none"
+		ctx.JSON(http.StatusNoContent, res)
+		return
+	}
+	if count <= int64(req.Offset) || count == 0 {
+		res := "none"
+		ctx.JSON(http.StatusNoContent, res)
+		return
+	}
+	payments, err := server.store.ListChargeReference(ctx, db.ListChargeReferenceParams{
+		UserID: user.UserID,
+		Limit:  40,
+		Offset: int32(req.Offset),
+	})
+	if err != nil {
+		log.Printf("Error at  ListChargeReference in ListChargeReference err: %v, user: %v\n", err, user.ID)
+		res := "none"
+		ctx.JSON(http.StatusNoContent, res)
+	}
+	var resData []payment.ChargeReferenceItem
+	for _, p := range payments {
+		data := payment.ChargeReferenceItem{
+			ChargeID:       tools.UuidToString(p.ID),
+			Reason:         payment.GetChargeReferenceReason(p.Reason),
+			IsComplete:     p.IsComplete,
+			Charge:         tools.IntToMoneyString(p.Charge),
+			Currency:       p.Currency,
+			PaymentChannel: payment.GetChargeReferencePaymentChannel(p.PaymentChannel),
+			CreatedAt:      tools.ConvertTimeFormat(p.CreatedAt, tools.DateMMDayYearTime),
+		}
+		resData = append(resData, data)
+	}
+	res := payment.ChargeReferenceRes{
+		List: resData,
+	}
+	ctx.JSON(http.StatusOK, res)
+}
 
 func HandleOptionPayouts(ctx context.Context, server *Server) {
 	dollarToNaira := server.config.DollarToNaira

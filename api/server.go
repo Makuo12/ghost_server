@@ -803,6 +803,9 @@ func (server *Server) setupRouter() {
 	authRoutes.PUT("/users/user/payment/refund/list", server.ListRefund)
 	authRoutes.PUT("/users/user/payment/refund-payout/list", server.ListRefundPayout)
 
+	// Transactions
+	authRoutes.PUT("/users/user/transactions/list-charge", server.ListChargeReference)
+
 	// Co-Host Secondary
 	authRoutes.PUT("/users/user/option-co-host/co-host-user/list", server.ListOptionCoHostItem)
 	authRoutes.PUT("/users/user/option-co-host/co-host-user/invite/validate", server.ValidateOptionCoHost)

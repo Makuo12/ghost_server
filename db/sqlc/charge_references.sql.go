@@ -11,6 +11,20 @@ import (
 	"github.com/google/uuid"
 )
 
+const countChargeReference = `-- name: CountChargeReference :one
+SELECT Count(*)
+FROM charge_references
+WHERE user_id = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) CountChargeReference(ctx context.Context, userID uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countChargeReference, userID)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
 const createChargeReference = `-- name: CreateChargeReference :one
 INSERT INTO charge_references (
     user_id,
@@ -112,6 +126,57 @@ func (q *Queries) GetChargeReference(ctx context.Context, arg GetChargeReference
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const listChargeReference = `-- name: ListChargeReference :many
+SELECT id, user_id, reference, payment_reference, object_reference, has_object_reference, main_object_type, payment_medium, payment_channel, reason, is_complete, charge, currency, created_at, updated_at
+FROM charge_references
+WHERE user_id = $1
+ORDER BY created_at DESC
+LIMIT $2
+OFFSET $3
+`
+
+type ListChargeReferenceParams struct {
+	UserID uuid.UUID `json:"user_id"`
+	Limit  int32     `json:"limit"`
+	Offset int32     `json:"offset"`
+}
+
+func (q *Queries) ListChargeReference(ctx context.Context, arg ListChargeReferenceParams) ([]ChargeReference, error) {
+	rows, err := q.db.Query(ctx, listChargeReference, arg.UserID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ChargeReference{}
+	for rows.Next() {
+		var i ChargeReference
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Reference,
+			&i.PaymentReference,
+			&i.ObjectReference,
+			&i.HasObjectReference,
+			&i.MainObjectType,
+			&i.PaymentMedium,
+			&i.PaymentChannel,
+			&i.Reason,
+			&i.IsComplete,
+			&i.Charge,
+			&i.Currency,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const removeChargeReferenceComplete = `-- name: RemoveChargeReferenceComplete :exec

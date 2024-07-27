@@ -20,6 +20,20 @@ SELECT *
 FROM charge_references
 WHERE user_id = $1 AND reference = $2;
 
+-- name: CountChargeReference :one
+SELECT Count(*)
+FROM charge_references
+WHERE user_id = $1
+ORDER BY created_at DESC;
+
+-- name: ListChargeReference :many
+SELECT *
+FROM charge_references
+WHERE user_id = $1
+ORDER BY created_at DESC
+LIMIT $2
+OFFSET $3;
+
 
 -- name: UpdateChargeReferenceComplete :one
 UPDATE charge_references 
