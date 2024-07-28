@@ -9,14 +9,56 @@ import (
 	brevo "github.com/getbrevo/brevo-go/lib"
 )
 
-func SendEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName string, toEmail string, code string, templateID string, funcName string, appKey string, expire string) (err error) {
+func SendAdminEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName string, toEmail string, code string, templateID string, funcName string, appKey string, expire string, userEmail string) (err error) {
 	//cfg := brevo.NewConfiguration()
 	////Configure API key authorization: api-key
 	//cfg.AddDefaultHeader("api-key", appKey)
 	params := map[string]any{
-		"code":   code,
-		"year":   fmt.Sprint(time.Now().Year()),
-		"expire": expire,
+		"code":      code,
+		"year":      fmt.Sprint(time.Now().Year()),
+		"useremail": userEmail,
+		"expire":    expire,
+	}
+	dataString := fmt.Sprintf("<html><body><h1>Verify your email address</h1><div>Please verify your email address by entering the six-digit code to continue on Flizzup</div><div>%v</div><footer>Team Flizzup</footer></body></html", code)
+	tID, err := strconv.Atoi(templateID)
+	if err != nil {
+		// Handle error if conversion fails
+		fmt.Println("Error:", err)
+		return
+	}
+	var paramsData map[string]any = params
+	br := brevo.NewAPIClient(cfg)
+	body := brevo.SendSmtpEmail{
+		HtmlContent: dataString,
+		TemplateId:  int64(tID),
+		To: []brevo.SendSmtpEmailTo{
+			{Email: toEmail, Name: toName},
+		},
+		ReplyTo: &brevo.SendSmtpEmailReplyTo{
+			Name:  "team",
+			Email: "info@flizzup.com",
+		},
+		Params: paramsData,
+	}
+	obj, resp, err := br.TransactionalEmailsApi.SendTransacEmail(ctx, body)
+	if err != nil {
+		fmt.Println("Error in TransactionalEmailsApi->SendTransacEmail ", err.Error(), "funcName: ", funcName)
+		return
+	}
+	fmt.Println("SendTransacEmail, response:", resp, "SendTransacEmail object", obj, "funcName: ", funcName)
+	return
+}
+
+func SendVerifyEmailBrevo(ctx context.Context, cfg *brevo.Configuration, toName string, toEmail string, code string, templateID string, funcName string, appKey string, expire string, adminPhoneNumber string, adminContactEmail string) (err error) {
+	//cfg := brevo.NewConfiguration()
+	////Configure API key authorization: api-key
+	//cfg.AddDefaultHeader("api-key", appKey)
+	params := map[string]any{
+		"code":         code,
+		"phonenumber":  adminPhoneNumber,
+		"contactemail": adminContactEmail,
+		"year":         fmt.Sprint(time.Now().Year()),
+		"expire":       expire,
 	}
 	dataString := fmt.Sprintf("<html><body><h1>Verify your email address</h1><div>Please verify your email address by entering the six-digit code to continue on Flizzup</div><div>%v</div><footer>Team Flizzup</footer></body></html", code)
 	tID, err := strconv.Atoi(templateID)

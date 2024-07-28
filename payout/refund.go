@@ -33,7 +33,7 @@ func HandlePaystackFetchRefund(ctx context.Context, paystackKey, refundID string
 	defer res.Body.Close()
 	if res.StatusCode >= 400 {
 		log.Printf("error at %v in http.Get", "HandlePaystackFetchRefund")
-		err = fmt.Errorf("an error %v occurred so your transaction could not be verified,", err.Error())
+		err = fmt.Errorf("an error occurred so your transaction could not be verified")
 		return
 	}
 	if res == nil {

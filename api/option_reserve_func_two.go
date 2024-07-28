@@ -202,7 +202,7 @@ func HandleOptionUserRequest(req MsgRequestResponseParams, msg db.Message, user 
 	} else if notify.Cancelled {
 		charge, errGet := server.store.GetChargeOptionReferenceDetailByRef(ctx, msg.Reference)
 		if errGet != nil {
-			log.Printf("error at HandleOptionUserRequest timeData at RedisClient.SAdd err:%v, user: %v , id: %v \n", err.Error(), msg.ReceiverID, msg.ID)
+			log.Printf("error at HandleOptionUserRequest timeData at RedisClient.SAdd err:%v, user: %v , id: %v \n", errGet.Error(), msg.ReceiverID, msg.ID)
 		} else {
 			header := fmt.Sprintf("Reservation for %v disapproved", charge.HostNameOption)
 			msgString := fmt.Sprintf("Hey %v,\n%v could not approved your booking for %v. No worry's remember you can try again later or find other stays that match the experience you want to have", charge.UserFirstName, user.FirstName, charge.HostNameOption)

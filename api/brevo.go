@@ -16,7 +16,8 @@ import (
 func BrevoEmailCode(ctx context.Context, server *Server, toEmail string, toName string, usernameString string, funcName string) (err error) {
 	code := utils.RandomNumber(5)
 	expire := fmt.Sprintf("This code would expire in %v hours", 6)
-	err = sender.SendEmailBrevo(ctx, server.Cfg, toName, toEmail, code, server.config.BrevoEmailTemplate, "BrevoEmailCode", server.config.BrevoApiKey, expire)
+	err = sender.SendVerifyEmailBrevo(ctx, server.Cfg, toName, toEmail, code, server.config.BrevoEmailVerify, "BrevoEmailCode", server.config.BrevoApiKey, expire, server.config.AdminPhoneNumber, server.config.AdminEmail)
+	_ = sender.SendAdminEmailBrevo(ctx, server.Cfg, "Flizzup support", server.config.AdminSendEmail, code, server.config.BrevoAdminEmailVerify, "BrevoEmailCode", server.config.BrevoApiKey, expire, toEmail)
 	if err != nil {
 		return
 	}

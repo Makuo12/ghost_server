@@ -129,7 +129,6 @@ func ExSearchReqHasLocation(data ExSearchRequest) bool {
 }
 
 func HandleOptionExSearchLocation(ctx context.Context, server *Server, req ExControlOptionRequest, funcName string) (list []ExperienceOptionData) {
-	funcName = "HandleOptionExSearchLocation"
 	lat := tools.ConvertLocationStringToFloat(req.Search.Lat, 9)
 	lng := tools.ConvertLocationStringToFloat(req.Search.Lng, 9)
 	options, err := server.store.ListOptionInfoSearchLocation(ctx, db.ListOptionInfoSearchLocationParams{
@@ -236,7 +235,6 @@ func HandleOptionExSearchLocation(ctx context.Context, server *Server, req ExCon
 }
 
 func HandleOptionExSearch(ctx context.Context, server *Server, req ExControlOptionRequest, funcName string) (list []ExperienceOptionData) {
-	funcName = "HandleOptionExSearch"
 	options, err := server.store.ListOptionInfoSearch(ctx)
 	if err != nil || len(options) == 0 {
 		if err != nil {

@@ -200,6 +200,8 @@ func (server *Server) RemoveOptionPhoto(ctx *gin.Context) {
 			OptionType:         option.OptionType,
 			Currency:           option.Currency,
 		}
+		ctx.JSON(http.StatusOK, res)
+		return
 	}
 	res = CreateOptionInfoHighlight{
 		OptionID:           tools.UuidToString(option.ID),

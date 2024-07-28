@@ -131,7 +131,7 @@ func HandleMainRefund(ctx context.Context, server *Server, chargeID uuid.UUID, h
 		log.Printf("error at HandleMainRefund in json.NewDecoder %v \n", err.Error())
 		BrevoErrorMessage(ctx, server, header, message, "HandleMainRefund")
 	}
-	refundID := fmt.Sprint("%v", resData.Data.ID)
+	refundID := fmt.Sprintf("%v", resData.Data.ID)
 	HandleRefundDB(ctx, server, chargeID, uID, "paystack", resData.Data.Amount, paymentReference, "HandleMainRefund", refundID)
 	HandleRefundPayoutDB(ctx, server, chargeID, hostID, int(hostPercent), serviceFee, totalFee, "HandleMainRefund", currency)
 	return nil
@@ -224,6 +224,12 @@ func HandleRefundSuccess(ctx context.Context, server *Server, funcName string, a
 		},
 		ChargeID: refundData.ChargeID,
 	})
+	if err != nil {
+		header := "Error at HandleRefundWebhook"
+		msg := fmt.Sprintf("Error at HandleRefundWebhook at UpdateRefund err: %v", err)
+		log.Printf("Error at HandleRefundWebhook in SMembers err:%v\n", err.Error())
+		BrevoErrorMessage(ctx, server, header, msg, "HandleRefundWebhook")
+	}
 
 }
 

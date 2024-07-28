@@ -21,7 +21,6 @@ func HandleExEventFilterPrice(ctx context.Context, server *Server, funcName stri
 }
 
 func HandleExEvent(ctx context.Context, server *Server, funcName string, req ExControlEventRequest, events []db.ListEventRow, startPrice string, endPrice string) (resData []ExperienceEventData) {
-	funcName = "HandleExEvent"
 	dollarToCAD := server.config.DollarToCAD
 	dollarToNaira := server.config.DollarToNaira
 	for _, e := range events {
@@ -183,7 +182,6 @@ func HandleExEvent(ctx context.Context, server *Server, funcName string, req ExC
 }
 
 func HandleExEventLocation(ctx context.Context, server *Server, funcName string, req ExControlEventRequest, events []db.ListEventRow, startPrice string, endPrice string) (resData []ExperienceEventData) {
-	funcName = "HandleExEventLocation"
 	dollarToCAD := server.config.DollarToCAD
 	dollarToNaira := server.config.DollarToNaira
 	lat := tools.ConvertLocationStringToFloat(req.Search.Lat, 9)

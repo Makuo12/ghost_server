@@ -11,24 +11,26 @@ import (
 // to get the values of the variables and store then in the struct
 // we need to use the unmarshal behavior of viper USING mapstructure
 type Config struct {
-	DBSource                           string `mapstructure:"DB_Source"`
-	MigrationURL                       string `mapstructure:"MIGRATION_URL"`
-	HTTPServerAddress                  string `mapstructure:"HTTP_SERVER_ADDRESS"`
-	GRPCServerAddress                  string `mapstructure:"GRPC_SERVER_ADDRESS"`
-	TokenSymmetricKey                  string `mapstructure:"TOKEN_SYMMETRIC_KEY"`
-	BrevoEmailTemplate                 string `mapstructure:"BREVO_EMAIL_TEMPLATE"`
-	BrevoInviteTemplate                string `mapstructure:"BREVO_INVITE_TEMPLATE"`
-	BrevoCoHostDeactivateTemplate      string `mapstructure:"BREVO_COHOST_DEACTIVATE_TEMPLATE"`
-	BrevoAccountChangeTemplate         string `mapstructure:"BREVO_ACCOUNT_CHANGE_TEMPLATE"`
-	BrevoReserveRequestTemplate        string `mapstructure:"BREVO_RESERVE_REQUEST_TEMPLATE"`
-	BrevoReservationRequestDisapproved string `mapstructure:"BREVO_RESERVATION_REQUEST_DISAPPROVED"`
-	BrevoReservationRequestApproved    string `mapstructure:"BREVO_RESERVATION_REQUEST_APPROVED"`
-	BrevoDatesUnavailable string `mapstructure:"BREVO_DATES_UNAVAILABLE"`
+	DBSource                                   string        `mapstructure:"DB_Source"`
+	MigrationURL                               string        `mapstructure:"MIGRATION_URL"`
+	HTTPServerAddress                          string        `mapstructure:"HTTP_SERVER_ADDRESS"`
+	GRPCServerAddress                          string        `mapstructure:"GRPC_SERVER_ADDRESS"`
+	TokenSymmetricKey                          string        `mapstructure:"TOKEN_SYMMETRIC_KEY"`
+	BrevoEmailTemplate                         string        `mapstructure:"BREVO_EMAIL_TEMPLATE"`
+	BrevoAdminEmailVerify                      string        `mapstructure:"BREVO_ADMIN_EMAIL_VERIFY"`
+	BrevoEmailVerify                           string        `mapstructure:"BREVO_EMAIL_VERIFY"`
+	BrevoInviteTemplate                        string        `mapstructure:"BREVO_INVITE_TEMPLATE"`
+	BrevoCoHostDeactivateTemplate              string        `mapstructure:"BREVO_COHOST_DEACTIVATE_TEMPLATE"`
+	BrevoAccountChangeTemplate                 string        `mapstructure:"BREVO_ACCOUNT_CHANGE_TEMPLATE"`
+	BrevoReserveRequestTemplate                string        `mapstructure:"BREVO_RESERVE_REQUEST_TEMPLATE"`
+	BrevoReservationRequestDisapproved         string        `mapstructure:"BREVO_RESERVATION_REQUEST_DISAPPROVED"`
+	BrevoReservationRequestApproved            string        `mapstructure:"BREVO_RESERVATION_REQUEST_APPROVED"`
+	BrevoDatesUnavailable                      string        `mapstructure:"BREVO_DATES_UNAVAILABLE"`
 	BrevoPaymentSuccess                        string        `mapstructure:"BREVO_PAYMENT_SUCCESS"`
 	BrevoOptionPaymentSuccess                  string        `mapstructure:"BREVO_OPTION_PAYMENT_SUCCESS"`
 	BrevoOptionHostPaymentSuccess              string        `mapstructure:"BREVO_OPTION_HOST_PAYMENT_SUCCESS"`
 	BrevoReservationRequestDisapprovedTemplate string        `mapstructure:"BREVO_RESERVE_REQUEST_DISAPPROVED_TEMPLATE"`
-	BrevoErrorMessage string `mapstructure:"BREVO_ERROR_MESSAGE"`
+	BrevoErrorMessage                          string        `mapstructure:"BREVO_ERROR_MESSAGE"`
 	BrevoReserveAcceptedTemplate               string        `mapstructure:"BREVO_RESERVE_REQUEST_ACCEPTED_TEMPLATE"`
 	BrevoPaymentFailed                         string        `mapstructure:"BREVO_PAYMENT_FAILED"`
 	AccessTokenDuration                        time.Duration `mapstructure:"ACCESS_TOKEN_DURATION"`
@@ -78,7 +80,7 @@ type Config struct {
 	OptionExDayCount                           int           `mapstructure:"OPTION_EX_DAY_COUNT"`
 	AdminPhoneNumber                           string        `mapstructure:"ADMIN_PHONE_NUMBER"`
 	AdminEmail                                 string        `mapstructure:"ADMIN_EMAIL"`
-	
+	AdminSendEmail                             string        `mapstructure:"ADMIN_SEND_EMAIL"`
 }
 
 func LoadConfig(path string) (config Config, err error) {

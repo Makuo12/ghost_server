@@ -179,7 +179,7 @@ func GetImageListItem(images []string) ([]string, []string) {
 		split := strings.Split(image, "*")
 		if len(split) == 2 {
 			myPaths = append(myPaths, split[0])
-			myUrls = append(myUrls, split[0])
+			myUrls = append(myUrls, split[1])
 		}
 	}
 	return myPaths, myUrls

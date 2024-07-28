@@ -34,7 +34,7 @@ func HandlePaystackVerifyPayout(ctx context.Context, paystackKey string, referen
 	defer res.Body.Close()
 	if res.StatusCode >= 400 {
 		log.Printf("error at %v in http.Get", "HandlePaystackVerifyPayment")
-		err = fmt.Errorf("an error %v occurred so your transaction could not be verified,", err.Error())
+		err = fmt.Errorf("an error occurred so your transaction could not be verified")
 		return
 	}
 	if res == nil {
