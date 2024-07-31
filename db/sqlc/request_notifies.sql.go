@@ -178,7 +178,7 @@ JOIN charge_option_references cor on cor.reference = m.reference
 JOIN users u on u.user_id = cor.user_id
 JOIN options_infos oi on oi.option_user_id = cor.option_user_id
 JOIN users hu on hu.id = oi.host_id
-WHERE rn.status = "request_payment"
+WHERE rn.status = 'request_payment'
 `
 
 type ListRequestNotifyPaymentRow struct {
