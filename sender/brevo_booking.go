@@ -471,6 +471,51 @@ func SendReservationRequestApprovedBrevo(ctx context.Context, cfg *brevo.Configu
 	return
 }
 
+func SendReservationRequestBrevo(ctx context.Context, cfg *brevo.Configuration, header string, hostOptionName string, hostName string, guestFirstName string, checkIn string, checkout string, adminPhoneNumber string, adminContactEmail string, message string, toEmail string, toName string, templateID string, expire string, funcName string, appKey string) (err error) {
+	//cfg := brevo.NewConfiguration()
+	////Configure API key authorization: api-key
+	//cfg.AddDefaultHeader("api-key", appKey)
+	params := map[string]any{
+		"firstname":    guestFirstName,
+		"name":         hostOptionName,
+		"checkin":      checkIn,
+		"checkout":     checkout,
+		"hostname":     hostName,
+		"expire":       expire,
+		"phonenumber":  adminPhoneNumber,
+		"contactemail": adminContactEmail,
+		"year":         fmt.Sprint(time.Now().Year()),
+	}
+	dataString := fmt.Sprintf("<html><body><h1>%v</h1><div>%v</div><div>%v</div><footer>Team Flizzup</footer></body></html", header, message, hostOptionName)
+	tID, err := strconv.Atoi(templateID)
+	if err != nil {
+		// Handle error if conversion fails
+		fmt.Println("Error:", err)
+		return
+	}
+	var paramsData map[string]any = params
+	br := brevo.NewAPIClient(cfg)
+	body := brevo.SendSmtpEmail{
+		HtmlContent: dataString,
+		TemplateId:  int64(tID),
+		To: []brevo.SendSmtpEmailTo{
+			{Email: toEmail, Name: toName},
+		},
+		ReplyTo: &brevo.SendSmtpEmailReplyTo{
+			Name:  "team",
+			Email: "info@flizzup.com",
+		},
+		Params: paramsData,
+	}
+	obj, resp, err := br.TransactionalEmailsApi.SendTransacEmail(ctx, body)
+	if err != nil {
+		fmt.Println("Error in TransactionalEmailsApi->SendTransacEmail ", err.Error(), "funcName: ", funcName)
+		return
+	}
+	fmt.Println("SendOptionPaymentSuccessBrevo, response:", resp, "SendTransacEmail object", obj, "funcName: ", funcName)
+	return
+}
+
 func SendReservationRequestDisapprovedBrevo(ctx context.Context, cfg *brevo.Configuration, header string, hostOptionName string, hostName string, guestFirstName string, checkIn string, checkout string, adminPhoneNumber string, adminContactEmail string, message string, toEmail string, toName string, templateID string, funcName string, appKey string) (err error) {
 	//cfg := brevo.NewConfiguration()
 	////Configure API key authorization: api-key

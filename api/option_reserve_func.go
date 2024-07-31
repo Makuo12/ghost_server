@@ -530,11 +530,11 @@ func HandleOptionReserveRequest(server *Server, ctx context.Context, payMethodRe
 	// First we create a CreateMessageParams struct
 	// SenderID is the user because that is the person booking
 	// ReceiverID is the option.host_id because that is the owner
-	startDate, err := tools.ConvertDateFormat(reserveData.StartDate, tools.DateDMM)
+	startDate, err := tools.ConvertDateFormat(reserveData.StartDate, tools.DateDMMYyyy)
 	if err != nil {
 		startDate = reserveData.StartDate
 	}
-	endDate, err := tools.ConvertDateFormat(reserveData.EndDate, tools.DateDMM)
+	endDate, err := tools.ConvertDateFormat(reserveData.EndDate, tools.DateDMMYyyy)
 	if err != nil {
 		endDate = reserveData.EndDate
 	}
@@ -562,8 +562,9 @@ func HandleOptionReserveRequest(server *Server, ctx context.Context, payMethodRe
 		err = fmt.Errorf("error 301-e occurred, pls contact us")
 		return
 	}
+
 	// Send an email notification
-	BrevoReservationRequest(ctx, server, receiver.Email, receiver.FirstName, header, msg, "HandleOptionReserveRequest", user.ID, receiver.Email, receiver.FirstName, receiver.LastName, tools.UuidToString(charge.ID), receiver.UserID.String(), user.Email, user.FirstName, user.LastName, user.UserID.String())
+	BrevoReservationRequest(ctx, server, receiver.Email, receiver.FirstName, header, msg, "HandleOptionReserveRequest", receiver.HostNameOption, receiver.Email, receiver.FirstName, receiver.LastName, tools.UuidToString(charge.ID), receiver.UserID.String(), user.Email, user.FirstName, user.LastName, user.UserID.String(), startDate, endDate)
 	//
 	HandleUserIdApn(ctx, server, receiver.UserID, header, msg)
 	// When we create a message we want to create a room is this user and the receiver doesn't have a room

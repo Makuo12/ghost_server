@@ -170,45 +170,7 @@ func SendCoHostDeactivateBrevo(ctx context.Context, cfg *brevo.Configuration, co
 	return
 }
 
-func SendReservationRequestBrevo(ctx context.Context, cfg *brevo.Configuration, header string, message string, expire string, toEmail string, toName string, templateID string, funcName string, appKey string) (err error) {
-	//cfg := brevo.NewConfiguration()
-	////Configure API key authorization: api-key
-	//cfg.AddDefaultHeader("api-key", appKey)
-	params := map[string]any{
-		"header":  header,
-		"message": message,
-		"expire":  expire,
-		"year":    fmt.Sprint(time.Now().Year()),
-	}
-	dataString := fmt.Sprintf("<html><body><h1>%v</h1><div>%v</div><div>%v</div><footer>Team Flizzup</footer></body></html", header, message, expire)
-	tID, err := strconv.Atoi(templateID)
-	if err != nil {
-		// Handle error if conversion fails
-		fmt.Println("Error:", err)
-		return
-	}
-	var paramsData map[string]any = params
-	br := brevo.NewAPIClient(cfg)
-	body := brevo.SendSmtpEmail{
-		HtmlContent: dataString,
-		TemplateId:  int64(tID),
-		To: []brevo.SendSmtpEmailTo{
-			{Email: toEmail, Name: toName},
-		},
-		ReplyTo: &brevo.SendSmtpEmailReplyTo{
-			Name:  "team",
-			Email: "info@flizzup.com",
-		},
-		Params: paramsData,
-	}
-	obj, resp, err := br.TransactionalEmailsApi.SendTransacEmail(ctx, body)
-	if err != nil {
-		fmt.Println("Error in TransactionalEmailsApi->SendTransacEmail ", err.Error(), "funcName: ", funcName)
-		return
-	}
-	fmt.Println("SendTransacEmail, response:", resp, "SendTransacEmail object", obj, "funcName: ", funcName)
-	return
-}
+
 
 func SendAdminReservationRequestBrevo(ctx context.Context, cfg *brevo.Configuration, hostEmail string, hostFirstName string, hostLastName string, chargeID string, hostPublicID string, guestEmail string, guestFirstName string, guestLastName string, guestPublicID string, expire string, templateID string, funcName string, appKey string) {
 	toEmail := "sylviauwa@gmail.com"
