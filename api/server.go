@@ -231,106 +231,106 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	//	log.Printf(" Error at cron at job.AddFunc for DailyDeactivateCoHost  %v", err.Error())
 	//}
 	// Schedule the daily function to run at 5 hours
-	_, err = job.AddFunc("@every 2m", DailyRemoveOptionReserveUser)
-	if err != nil {
-		log.Printf("Error at cron at job.AddFunc for DailyRemoveOptionReserveUser %v", err.Error())
-	}
-	// Schedule the daily function to run at 5 hours
-	_, err = job.AddFunc("@every 2m", DailyRemoveEventReserveUser)
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyRemoveEventReserveUser  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", DailyRemoveOptionReserveUser)
+	//if err != nil {
+	//	log.Printf("Error at cron at job.AddFunc for DailyRemoveOptionReserveUser %v", err.Error())
+	//}
+	//// Schedule the daily function to run at 5 hours
+	//_, err = job.AddFunc("@every 2m", DailyRemoveEventReserveUser)
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyRemoveEventReserveUser  %v", err.Error())
+	//}
 
-	// Daily refund
-	_, err = job.AddFunc("@every 1h", DailyHandleSendRefund(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyHandleSendRefund  %v", err.Error())
-	}
-	_, err = job.AddFunc("@every 3h", DailyHandleUpdateRefund(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyHandleUpdateRefund  %v", err.Error())
-	}
-	// End of Refund
+	//// Daily refund
+	//_, err = job.AddFunc("@every 1h", DailyHandleSendRefund(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyHandleSendRefund  %v", err.Error())
+	//}
+	//_, err = job.AddFunc("@every 3h", DailyHandleUpdateRefund(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyHandleUpdateRefund  %v", err.Error())
+	//}
+	//// End of Refund
 
-	// Daily Transfer
-	_, err = job.AddFunc("@every 6h", DailyHandlePayouts(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyHandlePayouts  %v", err.Error())
-	}
-	_, err = job.AddFunc("@every 4h", DailyHandleStatusPayouts(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyHandleStatusPayouts  %v", err.Error())
-	}
-	// End of Transfer
+	//// Daily Transfer
+	//_, err = job.AddFunc("@every 6h", DailyHandlePayouts(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyHandlePayouts  %v", err.Error())
+	//}
+	//_, err = job.AddFunc("@every 4h", DailyHandleStatusPayouts(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyHandleStatusPayouts  %v", err.Error())
+	//}
+	//// End of Transfer
 
-	// Daily Refund Payouts
-	_, err = job.AddFunc("@every 10h", DailyHandleRefundPayouts(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyHandleRefundPayouts  %v", err.Error())
-	}
-	_, err = job.AddFunc("@every 8h", DailyHandleStatusRefundPayouts(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyHandleStatusRefundPayouts  %v", err.Error())
-	}
-	// End of Refund Payouts
+	//// Daily Refund Payouts
+	//_, err = job.AddFunc("@every 10h", DailyHandleRefundPayouts(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyHandleRefundPayouts  %v", err.Error())
+	//}
+	//_, err = job.AddFunc("@every 8h", DailyHandleStatusRefundPayouts(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyHandleStatusRefundPayouts  %v", err.Error())
+	//}
+	//// End of Refund Payouts
 
-	// Event date change
-	_, err = job.AddFunc("@every 1m", DailyChangeDateEventHostUpdate(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyChangeDateEventHostUpdate  %v", err.Error())
-	}
+	//// Event date change
+	//_, err = job.AddFunc("@every 1m", DailyChangeDateEventHostUpdate(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyChangeDateEventHostUpdate  %v", err.Error())
+	//}
 
-	// Event date cancellation
-	_, err = job.AddFunc("@every 1m", DailyCreateEventHostCancel(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyCreateEventHostCancel  %v", err.Error())
-	}
+	//// Event date cancellation
+	//_, err = job.AddFunc("@every 1m", DailyCreateEventHostCancel(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyCreateEventHostCancel  %v", err.Error())
+	//}
 
-	// Snooze
-	_, err = job.AddFunc("@every 2m", DailyHandleSnooze(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyHandleSnooze  %v", err.Error())
-	}
+	//// Snooze
+	//_, err = job.AddFunc("@every 2m", DailyHandleSnooze(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyHandleSnooze  %v", err.Error())
+	//}
 
-	// User Request
+	//// User Request
 	_, err = job.AddFunc("@every 2m", DailyHandleUserRequest(ctx, server))
 	if err != nil {
 		log.Printf(" Error at cron at job.AddFunc for DailyHandleUserRequest  %v", err.Error())
 	}
 
-	_, err = job.AddFunc("@every 5m", DailyHandleVerifyPayment(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyHandleUserRequest  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 5m", DailyHandleVerifyPayment(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyHandleUserRequest  %v", err.Error())
+	//}
 
-	_, err = job.AddFunc("@every 2m", DailyDeactivateCoHost(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyDeactivateCoHost  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", DailyDeactivateCoHost(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyDeactivateCoHost  %v", err.Error())
+	//}
 
-	_, err = job.AddFunc("@every 2m", DailyValidatedChargeTicket(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyValidatedChargeTicket  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", DailyValidatedChargeTicket(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyValidatedChargeTicket  %v", err.Error())
+	//}
 
-	_, err = job.AddFunc("@every 2m", DailyValidatedChargeOption(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyValidatedChargeOption  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", DailyValidatedChargeOption(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyValidatedChargeOption  %v", err.Error())
+	//}
 
-	//// Experience
-	//HandleOptionExperienceToRedis(ctx, server)
-	//HandleEventExperienceToRedis(ctx, server)
+	////// Experience
+	////HandleOptionExperienceToRedis(ctx, server)
+	////HandleEventExperienceToRedis(ctx, server)
 
-	_, err = job.AddFunc("@every 2m", HandleOptionExperienceToRedis(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for HandleOptionExperienceToRedis  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", HandleOptionExperienceToRedis(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for HandleOptionExperienceToRedis  %v", err.Error())
+	//}
 
-	_, err = job.AddFunc("@every 2m", HandleEventExperienceToRedis(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for HandleEventExperienceToRedis  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", HandleEventExperienceToRedis(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for HandleEventExperienceToRedis  %v", err.Error())
+	//}
 
 	//_, err = job.AddFunc("@every 2m", HandleImageMetaData(ctx, server))
 	//if err != nil {
