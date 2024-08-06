@@ -422,6 +422,7 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, refere
 	}
 	if !resChallenged {
 		if resData.Data.Status != "success" {
+			msgString := fmt.Sprintf("%s has approved your booking request for %s. However, the dates are no more available so we could not proceed further with the payments. The issue was because of %s", guestFirstName, charge.HostNameOption, resData.Data.GatewayResponse)
 			CreateTypeNotification(ctx, server, mid, guestUserID, constants.OPTION_BOOKING_PAYMENT_UNSUCCESSFUL, msgString, false, header)
 			HandleURApprovedFailed(ctx, server, charge, header, msgString, true)
 			log.Println("pay 8: ", resData.Data.GatewayResponse)
