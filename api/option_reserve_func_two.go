@@ -333,7 +333,6 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, refere
 	log.Println("starting payment")
 	successUrl := server.config.PaymentSuccessUrl
 	failureUrl := server.config.PaymentFailUrl
-
 	_, err := server.store.UpdateRequestNotify(ctx, db.UpdateRequestNotifyParams{
 		Status: pgtype.Text{
 			String: constants.SENT_REQUEST,
@@ -432,9 +431,12 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, refere
 			// We want to save a recept in the database
 			// We also want to store a snap shot of what the shortlet looks like
 			// Creating snapshot
+			HandleURComplete(ctx, server, charge, option)
 			dateString := tools.HandleReadableDates(charge.StartDate, charge.EndDate, tools.DateDMM)
 			msg := fmt.Sprintf("Hey %v,\nI would like to thank you for letting me stay in your place from %v.", charge.HostFirstName, dateString)
 			err := HandleOptionReserveComplete(server, ctx, ExperienceReserveOModel{}, charge.Reference, resData.Data.Reference, guest, msg, true)
+			log.Println("payment good")
+			
 			if err != nil {
 				header = fmt.Sprintf("Payment for %v successful, but couldn't generate receipt", charge.HostNameOption)
 				log.Printf("Error at HandleURApproved in HandleOptionReserveComplete: %v, cardID: %v, hostUserID: %v \n", err.Error(), cardID, hostUserID)
@@ -460,6 +462,28 @@ func HandleURApprovedFailed(ctx context.Context, server *Server, charge db.GetCh
 		BrevoPaymentFailed(ctx, server, charge.GuestEmail, charge.UserFirstName, header, message, "HandleURApproved", charge.ChargeID, charge.HostEmail, charge.HostFirstName, charge.HostLastName, tools.UuidToString(charge.ChargeID), tools.UuidToString(charge.HostUserID), charge.GuestEmail, charge.UserFirstName, charge.UserLastName, tools.UuidToString(charge.GuestUserID), charge.HostNameOption, checkIn, checkout)
 	}
 
+}
+
+func HandleURComplete(ctx context.Context, server *Server, charge db.GetChargeOptionReferenceDetailByRefRow, option db.GetOptionInfoCustomerRow) {
+	host, err := server.store.GetOptionInfoUserIDByUserID(ctx, charge.OptionUserID)
+		if err != nil {
+			log.Printf("Error at HandleOptionReserveRequest in GetOptionInfoByUserID: %v optionID: %v referenceID: %v, pay_method_reference: %v\n", err.Error(), charge.OptionUserID, charge.Reference, charge.Reference)
+			err = nil
+		} else {
+			header := "Payment and Reservation confirmed"
+			msg := "Thank you for using Flizzup"
+			checkIn := tools.HandleReadableDate(charge.StartDate, tools.DateDMMYyyy)
+			checkout := tools.HandleReadableDate(charge.EndDate, tools.DateDMMYyyy)
+			BrevoOptionPaymentSuccess(ctx, server, header, msg, "FinalOptionReserveDetail", charge.ChargeID, host.Email, host.FirstName, host.LastName, tools.UuidToString(charge.ChargeID), tools.UuidToString(host.UserID), option.Email, option.FirstName, option.LastName, tools.UuidToString(option.UserID), host.HostNameOption, checkIn, checkout)
+			// Notification for Guest
+			msg = "Payment received, and reservation confirmed! Check your email for further information about your booking, including scheduling an inspection and our 100% refund policy if the property does not match the app's description."
+			header = fmt.Sprintf("Hey %v, booking confirmed", option.FirstName)
+			CreateTypeNotification(ctx, server, charge.ChargeID, option.UserID, constants.OPTION_PAYMENT_SUCCESSFUL, msg, false, header)
+			// Notification for Host
+			msg = fmt.Sprintf("You have a new booking at %v! Check your email for further details.", host.HostNameOption)
+			header = fmt.Sprintf("Hey %v", host.FirstName)
+			CreateTypeNotification(ctx, server, charge.ChargeID, host.UserID, constants.HOST_OPTION_PAYMENT_SUCCESSFUL, msg, false, header)
+		}
 }
 
 func HandleReserveCard(ctx context.Context, server *Server, user db.User, funcName string) (string, payment.CardDetailResponse, bool) {
