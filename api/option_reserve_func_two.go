@@ -424,7 +424,7 @@ func HandleURApproved(ctx context.Context, server *Server, mid uuid.UUID, refere
 		if resData.Data.Status != "success" {
 			CreateTypeNotification(ctx, server, mid, guestUserID, constants.OPTION_BOOKING_PAYMENT_UNSUCCESSFUL, msgString, false, header)
 			HandleURApprovedFailed(ctx, server, charge, header, msgString, true)
-			log.Println("pay 8")
+			log.Println("pay 8: ", resData.Data.GatewayResponse)
 			return
 		} else {
 			// Payment was successful
