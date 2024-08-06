@@ -277,7 +277,7 @@ func DailyHandleVerifyPayment(ctx context.Context, server *Server) func() {
 			}
 			switch charge.MainObjectType {
 			case "options":
-				_, _ = ObjectOptionPaymentReference(ctx, server, user, charge.Reference, charge.PaymentReference, charge.ObjectReference, int(charge.Charge), charge.Currency, "")
+				_, _ = ObjectOptionPaymentReference(ctx, server, user, charge.Reference, charge.PaymentReference, charge.ObjectReference, int(charge.Charge), charge.Currency, "", charge)
 			case "events":
 				_, _ = ObjectEventPaymentReference(ctx, server, user, charge.Reference, charge.PaymentReference, charge.ObjectReference, int(charge.Charge), charge.Currency, "")
 			}

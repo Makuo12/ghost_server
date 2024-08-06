@@ -52,10 +52,10 @@ func ObjectOptionPaymentReference(ctx context.Context, server *Server, user db.U
 	if err != nil {
 		log.Printf("Error at ObjectOptionPaymentReference in GetChargeOptionReferenceByID: %v, reference: %v, userID: %v \n", err.Error(), objectReference, user.UserID)
 		err = nil
-		reserveOptionData, err = HandleOptionReserveRedisData(tools.UuidToString(user.UserID), reference)
+		reserveOptionData, err = HandleOptionReserveRedisData(tools.UuidToString(user.ID), reference)
 		if err != nil {
 			log.Printf("Error at ObjectOptionPaymentReference in HandleOptionReserveRedisData: %v, reference: %v, userID: %v \n", err.Error(), reference, user.UserID)
-			err = fmt.Errorf("req.Reference has expired, please try again")
+			err = fmt.Errorf("Reference has expired, please try again")
 			return
 		}
 		if amount != tools.ConvertToPaystackCharge(reserveOptionData.TotalFee) {
