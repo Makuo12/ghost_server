@@ -62,7 +62,7 @@ func BrevoReservationRequest(ctx context.Context, server *Server, toEmail string
 	if err != nil {
 		return
 	}
-	sender.SendAdminReservationRequestBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoReserveRequestTemplate, funcName, server.config.BrevoApiKey)
+	sender.SendAdminReservationRequestBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoAdminEmailVerify, funcName, server.config.BrevoApiKey)
 }
 
 func BrevoAccountChange(ctx context.Context, server *Server, toEmail string, toName string, usernameString string, funcName string, mainHeader string, header string, message string) (err error) {
