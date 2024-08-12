@@ -244,7 +244,6 @@ func HandleEventExperienceToRedis(ctx context.Context, server *Server) func() {
 func HandleOptionExperienceToRedis(ctx context.Context, server *Server) func() {
 	return func() {
 		HandleClearRedisEventExperience(ctx, server)
-		log.Println("Here at redis setup options experience")
 		var catKeys []string
 		for _, cat := range algo.OptionCategory {
 			catKey := fmt.Sprintf("%v&%v", constants.EXPERIENCE_OPTION, cat)

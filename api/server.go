@@ -225,11 +225,12 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	ctx := context.Background()
 
 	job := cron.New()
-
-	_, err = job.AddFunc("@every 2m", RemoveOptionInfoAdmin(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyDeactivateCoHost  %v", err.Error())
-	}
+////// Caution
+	//_, err = job.AddFunc("@every 2m", RemoveOptionInfoAdmin(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyDeactivateCoHost  %v", err.Error())
+	//}
+	//////
 	// Schedule the daily function to run at 5 hours
 	_, err = job.AddFunc("@every 2m", DailyRemoveOptionReserveUser)
 	if err != nil {
@@ -274,17 +275,17 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	}
 	// End of Refund Payouts
 
-	// Event date change
-	_, err = job.AddFunc("@every 1m", DailyChangeDateEventHostUpdate(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyChangeDateEventHostUpdate  %v", err.Error())
-	}
+	//// Event date change
+	//_, err = job.AddFunc("@every 1m", DailyChangeDateEventHostUpdate(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyChangeDateEventHostUpdate  %v", err.Error())
+	//}
 
-	// Event date cancellation
-	_, err = job.AddFunc("@every 1m", DailyCreateEventHostCancel(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyCreateEventHostCancel  %v", err.Error())
-	}
+	//// Event date cancellation
+	//_, err = job.AddFunc("@every 1m", DailyCreateEventHostCancel(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyCreateEventHostCancel  %v", err.Error())
+	//}
 
 	// Snooze
 	_, err = job.AddFunc("@every 2m", DailyHandleSnooze(ctx, server))
@@ -308,10 +309,10 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 		log.Printf(" Error at cron at job.AddFunc for DailyDeactivateCoHost  %v", err.Error())
 	}
 
-	_, err = job.AddFunc("@every 2m", DailyValidatedChargeTicket(ctx, server))
-	if err != nil {
-		log.Printf(" Error at cron at job.AddFunc for DailyValidatedChargeTicket  %v", err.Error())
-	}
+	//_, err = job.AddFunc("@every 2m", DailyValidatedChargeTicket(ctx, server))
+	//if err != nil {
+	//	log.Printf(" Error at cron at job.AddFunc for DailyValidatedChargeTicket  %v", err.Error())
+	//}
 
 	_, err = job.AddFunc("@every 2m", DailyValidatedChargeOption(ctx, server))
 	if err != nil {
