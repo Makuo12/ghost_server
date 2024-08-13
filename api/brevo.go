@@ -98,7 +98,7 @@ func BrevoReservationRequestDisapproved(ctx context.Context, server *Server, toE
 	if err != nil {
 		return
 	}
-	sender.SendAdminReservationRequestDisapprovedBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoReserveRequestTemplate, funcName, server.config.BrevoApiKey)
+	sender.SendAdminReservationRequestDisapprovedBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoAdminEmailVerify, funcName, server.config.BrevoApiKey)
 }
 
 //func BrevoPaymentSuccess(ctx context.Context, server *Server, toEmail string, toName string, header string, message string, funcName string, coID uuid.UUID, hostEmail string, hostFirstName string, hostLastName string, chargeID string, hostPublicID string, guestEmail string, guestFirstName string, guestLastName string, guestPublicID string) {
@@ -117,7 +117,7 @@ func BrevoPaymentFailed(ctx context.Context, server *Server, toEmail string, toN
 	if err != nil {
 		return
 	}
-	sender.SendAdminPaymentFailedBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoReserveRequestTemplate, funcName, server.config.BrevoApiKey)
+	sender.SendAdminPaymentFailedBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoAdminEmailVerify, funcName, server.config.BrevoApiKey)
 }
 
 func BrevoDateUnavailable(ctx context.Context, server *Server, toEmail string, toName string, header string, message string, funcName string, coID uuid.UUID, hostEmail string, hostFirstName string, hostLastName string, chargeID string, hostPublicID string, guestEmail string, guestFirstName string, guestLastName string, guestPublicID string, hostOptionName string, checkIn string, checkout string) {
@@ -126,7 +126,7 @@ func BrevoDateUnavailable(ctx context.Context, server *Server, toEmail string, t
 	if err != nil {
 		return
 	}
-	sender.SendAdminPaymentFailedBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoReserveRequestTemplate, funcName, server.config.BrevoApiKey)
+	sender.SendAdminPaymentFailedBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoAdminEmailVerify, funcName, server.config.BrevoApiKey)
 }
 
 
@@ -136,7 +136,7 @@ func BrevoReservationRequestApproved(ctx context.Context, server *Server, toEmai
 	if err != nil {
 		return
 	}
-	sender.SendAdminReservationRequestApprovedBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoReserveRequestTemplate, funcName, server.config.BrevoApiKey)
+	sender.SendAdminReservationRequestApprovedBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, expire, server.config.BrevoAdminEmailVerify, funcName, server.config.BrevoApiKey)
 }
 
 func BrevoOptionPaymentSuccess(ctx context.Context, server *Server, header string, message string, funcName string, coID uuid.UUID, hostEmail string, hostFirstName string, hostLastName string, chargeID string, hostPublicID string, guestEmail string, guestFirstName string, guestLastName string, guestPublicID string, hostOptionName string, checkIn string, checkout string) {
@@ -148,7 +148,7 @@ func BrevoOptionPaymentSuccess(ctx context.Context, server *Server, header strin
 	if err != nil {
 		return
 	}
-	sender.SendAdminPaymentSuccessBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, "none", server.config.BrevoReserveRequestTemplate, funcName, server.config.BrevoApiKey)
+	sender.SendAdminPaymentSuccessBrevo(ctx, server.Cfg, hostEmail, hostFirstName, hostLastName, chargeID, hostPublicID, guestEmail, guestFirstName, guestLastName, guestPublicID, "none", server.config.BrevoAdminEmailVerify, funcName, server.config.BrevoApiKey)
 }
 
 func BrevoErrorMessage(ctx context.Context, server *Server, header string, message string, funcName string) {
