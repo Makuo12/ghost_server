@@ -93,6 +93,17 @@ func (server *Server) FinalOptionReserveDetail(ctx *gin.Context) {
 		return
 	}
 
+	
+	detailRes, hasResData, totalFee, refRes, reserveData, fromCharge, chargeData, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, req.Message, req.Reference)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	if hasResData {
+		// This means we are meant to send a reservation request response
+		ctx.JSON(http.StatusOK, detailRes)
+		return
+	}
 	card, err := server.store.GetCard(ctx, db.GetCardParams{
 		ID:     cardID,
 		UserID: user.ID,
@@ -101,16 +112,6 @@ func (server *Server) FinalOptionReserveDetail(ctx *gin.Context) {
 		log.Printf("Error at FinalOptionReserveDetail in GetCard: %v, cardID: %v, userID: %v \n", err.Error(), cardID, user.ID)
 		err = fmt.Errorf("this payment option does not exist")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	detailRes, hasResData, totalFee, refRes, reserveData, fromCharge, chargeData, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, tools.UuidToString(card.ID), req.Message, req.Reference)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
-	if hasResData {
-		// This means we are meant to send a reservation request response
-		ctx.JSON(http.StatusOK, detailRes)
 		return
 	}
 	if reserveData.Currency != card.Currency && !fromCharge {
@@ -259,7 +260,7 @@ func (server *Server) FinalOptionReserveVerificationDetail(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	detailRes, hasResData, _, refRes, reserveData, fromCharge, chargeData, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, "no card at 2 factor verification", req.Message, req.Reference)
+	detailRes, hasResData, _, refRes, reserveData, fromCharge, chargeData, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, req.Message, req.Reference)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -320,7 +321,7 @@ func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPay
 	//var reference string
 	switch arg.MainOptionType {
 	case "options":
-		detailDataRes, hasResData, totalFee, _, resData, fromCharge, chargeData, errData := HandleFinalOptionReserveDetail(server, ctx, arg.Reference, user, arg.Reference, arg.Message, paymentReference)
+		detailDataRes, hasResData, totalFee, _, resData, fromCharge, chargeData, errData := HandleFinalOptionReserveDetail(server, ctx, arg.Reference, user, arg.Message, paymentReference)
 		if errData != nil {
 			err = errData
 			return

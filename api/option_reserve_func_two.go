@@ -27,7 +27,7 @@ func HandleReserveOption(user db.User, server *Server, ctx *gin.Context, startDa
 	return
 }
 
-func HandleFinalOptionReserveDetail(server *Server, ctx context.Context, reference string, user db.User, cardID string, msg string, payMethodReference string) (res FinalOptionReserveRequestDetailRes, hasResData bool, totalFee string, refRes string, reserveData ExperienceReserveOModel, fromCharge bool, chargeData db.ChargeOptionReference, err error) {
+func HandleFinalOptionReserveDetail(server *Server, ctx context.Context, reference string, user db.User, msg string, payMethodReference string) (res FinalOptionReserveRequestDetailRes, hasResData bool, totalFee string, refRes string, reserveData ExperienceReserveOModel, fromCharge bool, chargeData db.ChargeOptionReference, err error) {
 	charge, err := server.store.GetChargeOptionReferenceByRef(ctx, db.GetChargeOptionReferenceByRefParams{
 		Reference: reference,
 		UserID:    user.UserID,
