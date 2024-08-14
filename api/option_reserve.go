@@ -80,13 +80,7 @@ func (server *Server) FinalOptionReserveDetail(ctx *gin.Context) {
 	}
 	successUrl := server.config.PaymentSuccessUrl
 	failureUrl := server.config.PaymentFailUrl
-	cardID, err := tools.StringToUuid(req.ID)
-	if err != nil {
-		log.Printf("Error at FinalOptionReserveDetail in StringToUuid: %v, reqID: %v \n", err.Error(), req.ID)
-		err = fmt.Errorf("this payment option does not exist")
-		ctx.JSON(http.StatusBadRequest, errorResponse(err))
-		return
-	}
+	
 	user, err := HandleGetUser(ctx, server)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
@@ -102,6 +96,13 @@ func (server *Server) FinalOptionReserveDetail(ctx *gin.Context) {
 	if hasResData {
 		// This means we are meant to send a reservation request response
 		ctx.JSON(http.StatusOK, detailRes)
+		return
+	}
+	cardID, err := tools.StringToUuid(req.ID)
+	if err != nil {
+		log.Printf("Error at FinalOptionReserveDetail in StringToUuid: %v, reqID: %v \n", err.Error(), req.ID)
+		err = fmt.Errorf("this payment option does not exist")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
 	card, err := server.store.GetCard(ctx, db.GetCardParams{
