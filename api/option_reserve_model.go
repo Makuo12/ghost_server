@@ -59,7 +59,7 @@ type CreateOptionReserveDetailRes struct {
 type FinalOptionReserveDetailParams struct {
 	Reference string `json:"reference" binding:"required"`
 	// ID  is the card ID we would use to get the card
-	ID      string `json:"id" binding:"required"`
+	ID      string `json:"id"`
 	Message string `json:"message"`
 }
 
