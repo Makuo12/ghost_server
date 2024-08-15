@@ -101,10 +101,22 @@ func HandleOptionUserRequest(req MsgRequestResponseParams, msg db.Message, user 
 		return
 	}
 	if req.Approved {
-		if tools.ServerStringEmpty(user.DefaultCard) {
+		// Lets try get the default card
+		cardID, err := tools.StringToUuid(guest.DefaultCard)
+		if err != nil {
+			err = nil
 			status = constants.PENDING_PAYMENT
 		} else {
-			status = constants.REQUEST_PAYMENT
+			_, err = server.store.GetCard(ctx, db.GetCardParams{
+				ID:     cardID,
+				UserID: guest.ID,
+			})
+			if err != nil {
+				err = nil
+				status = constants.PENDING_PAYMENT
+			} else {
+				status = constants.REQUEST_PAYMENT
+			}
 		}
 	}
 	// This means that it is the host response
