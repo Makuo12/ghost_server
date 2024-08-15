@@ -140,7 +140,7 @@ func (server *Server) NotificationOptionReserveDetail(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-	if time.Now().Add(time.Hour).After(charge.StartDate) || time.Now().Add(time.Hour).After(nData.CreatedAt.Add(time.Hour*48)) {
+	if time.Now().Add(time.Hour).After(charge.StartDate) || time.Now().Add(time.Hour).After(charge.StartDate.Add(time.Hour*48)) {
 		err = errors.New("this reservation is no more available for booking because current date has passed your booking start date")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
@@ -172,6 +172,88 @@ func (server *Server) NotificationOptionReserveDetail(ctx *gin.Context) {
 	}
 	// We update charge option reference cause the user is using a new currency
 	err = UpdateChargeOptionReferencePrice(ctx, server, reserveData, user, "NotificationOptionReserveDetail")
+	res := NotificationOptionReserveDetailRes{
+		ReserveData:   reserveData,
+		DefaultCardID: defaultCardID,
+		HasCard:       hasCard,
+		CardDetail:    cardDetail,
+		OptionDetail:  resOption,
+		Option:        mainOptionData,
+	}
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	log.Printf("NotificationOptionReserveDetail successfully (%v) id: %v\n", user.Email, user.ID)
+	ctx.JSON(http.StatusOK, res)
+}
+
+
+func (server *Server) PendingOptionReserveDetail(ctx *gin.Context) {
+	var req PendingOptionReserveDetailParams
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Printf("error at PendingOptionReserveDetail in ShouldBindJSON: %v \n", err)
+		err = fmt.Errorf("there was an error while processing your inputs please try again later")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	user, err := HandleGetUser(ctx, server)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	chargeID, err := tools.StringToUuid(req.ChargeID)
+	if err != nil {
+		log.Printf("error at PendingOptionReserveDetail at tools.StringToUuid nID %v,: %v, userID: %v\n", chargeID, err.Error(), user.ID)
+		err = errors.New("this listing does not exist")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	charge, err := server.store.GetChargeOptionReference(ctx, db.GetChargeOptionReferenceParams{
+		ID:               chargeID,
+		UserID:           user.UserID,
+		PaymentCompleted: false,
+		ChargeCancelled:  false,
+		RequestApproved:  true,
+	})
+	if err != nil {
+		log.Printf("error at PendingOptionReserveDetail at store.GetChargeOptionReference chargeID %v, err := tools.StringToUuid: %v, userID: %v\n", chargeID, err.Error(), user.ID)
+		err = errors.New("this reservation you made was either not accepted or not found")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	if time.Now().Add(time.Hour).After(charge.StartDate) || time.Now().Add(time.Hour).After(charge.StartDate.Add(time.Hour*48)) {
+		err = errors.New("this reservation is no more available for booking because current date has passed your booking start date")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	defaultCardID, cardDetail, hasCard := HandleReserveCard(ctx, server, user, "PendingOptionReserveDetail")
+	reserveData, err := HandleOptionChargeToReserve(server, charge, req.Currency)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	// Experience Option Info Detail
+	reqDetail := ExperienceDetailParams{
+		OptionUserID:   reserveData.OptionUserID,
+		MainOptionType: "options",
+		Currency:       req.Currency,
+	}
+	resOption, hasData, err := HandleDetailOptionExperience(ctx, server, reqDetail)
+	if err != nil || !hasData {
+		if !hasData && err == nil {
+			err = errors.New("listing details was not found")
+		}
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	mainOptionData, err := HandleChargeToOptionData(ctx, server, charge, "PendingOptionReserveDetail", req.Currency)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	// We update charge option reference cause the user is using a new currency
+	err = UpdateChargeOptionReferencePrice(ctx, server, reserveData, user, "PendingOptionReserveDetail")
 	res := NotificationOptionReserveDetailRes{
 		ReserveData:   reserveData,
 		DefaultCardID: defaultCardID,

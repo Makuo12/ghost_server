@@ -771,6 +771,9 @@ func (server *Server) setupRouter() {
 	authRoutes.PUT("/users/user/notification/list", server.ListNotification)
 	authRoutes.PUT("/users/user/notification/detail", server.NotificationOptionReserveDetail)
 
+	// Pending Payment
+	authRoutes.PUT("/users/user/pending-payment/detail", server.PendingOptionReserveDetail)
+
 	// Request Notify
 	authRoutes.PUT("/users/user/request-notify/list", server.ListRequestNotify)
 	authRoutes.PUT("/users/user/option/request-notify/user-request/get", server.GetOUserRequestNotifyDetail)

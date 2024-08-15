@@ -878,18 +878,19 @@ type ReportOption struct {
 }
 
 type RequestNotify struct {
-	MID       uuid.UUID `json:"m_id"`
-	StartDate string    `json:"start_date"`
-	EndDate   string    `json:"end_date"`
-	HasPrice  bool      `json:"has_price"`
-	SamePrice bool      `json:"same_price"`
-	Price     int64     `json:"price"`
-	ItemID    string    `json:"item_id"`
-	Status    string    `json:"status"`
-	Approved  bool      `json:"approved"`
-	Cancelled bool      `json:"cancelled"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	MID          uuid.UUID `json:"m_id"`
+	StartDate    string    `json:"start_date"`
+	EndDate      string    `json:"end_date"`
+	HasPrice     bool      `json:"has_price"`
+	SamePrice    bool      `json:"same_price"`
+	Price        int64     `json:"price"`
+	ItemID       string    `json:"item_id"`
+	ApprovedDate time.Time `json:"approved_date"`
+	Status       string    `json:"status"`
+	Approved     bool      `json:"approved"`
+	Cancelled    bool      `json:"cancelled"`
+	CreatedAt    time.Time `json:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at"`
 }
 
 type ScannedCharge struct {

@@ -33,6 +33,13 @@ type NotificationOptionReserveDetailParams struct {
 	ID       string `json:"id"`
 }
 
+type PendingOptionReserveDetailParams struct {
+	Currency string `json:"currency"`
+	ChargeID string `json:"charge_id"`
+}
+
+
+
 type NotificationOptionReserveDetailRes struct {
 	ReserveData   ExperienceReserveOModel    `json:"reserve_data"`
 	DefaultCardID string                     `json:"default_card_id"`

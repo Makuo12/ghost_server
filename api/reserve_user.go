@@ -64,6 +64,15 @@ func (server *Server) ListReserveUserItem(ctx *gin.Context) {
 				res = resEvent
 			}
 		}
+	} else if req.Type == "pending" {
+		resOption, hasData, err := HandlePendingListReserveUserOptionItem(server, ctx, user, req)
+		if err != nil || !hasData {
+			data := "none"
+			ctx.JSON(http.StatusNoContent, data)
+			return
+		} else {
+			res = resOption
+		}
 	} else {
 		err = fmt.Errorf("page not found")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

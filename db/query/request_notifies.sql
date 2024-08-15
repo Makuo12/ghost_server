@@ -37,12 +37,47 @@ WHERE o_i.option_user_id = $1;
 -- name: ListRequestNotifyPayment :many
 SELECT cor.id AS charge_id, rn.m_id, u.first_name AS guest_first_name, u.user_id AS guest_user_id, hu.first_name AS host_first_name, hu.user_id AS host_user_id, cor.reference 
 FROM request_notifies rn
-JOIN messages m on m.id = rn.m_id
-JOIN charge_option_references cor on cor.reference = m.reference
-JOIN users u on u.user_id = cor.user_id
-JOIN options_infos oi on oi.option_user_id = cor.option_user_id
-JOIN users hu on hu.id = oi.host_id
+    JOIN messages m on m.id = rn.m_id
+    JOIN charge_option_references cor on cor.reference = m.reference
+    JOIN users u on u.user_id = cor.user_id
+    JOIN options_infos oi on oi.option_user_id = cor.option_user_id
+    JOIN users hu on hu.id = oi.host_id
 WHERE rn.status = 'request_payment';
+
+
+-- name: CountRequestNotifyPendingPayment :one
+SELECT Count(*)
+FROM request_notifies rn
+    JOIN messages m on m.id = rn.m_id
+    JOIN charge_option_references co on co.reference = m.reference
+    JOIN users u on u.user_id = co.user_id
+    JOIN options_infos oi on oi.option_user_id = co.option_user_id
+    JOIN users hu on hu.id = oi.host_id
+    JOIN shortlets s on oi.id = s.option_id
+    JOIN locations l on l.option_id = oi.id
+    JOIN options_info_photos o_p_p on oi.id = o_p_p.option_id
+    JOIN check_in_out_details cid on oi.id = cid.option_id
+    JOIN options_info_details od on oi.id = od.option_id
+WHERE rn.status = 'pending_payment' AND u.id = $1 AND NOW() < rn.approved_date + INTERVAL '24 hours' AND co.is_complete = false;
+
+
+-- name: ListRequestNotifyPendingPayment :many
+SELECT co.id AS charge_id, rn.m_id, u.first_name AS guest_first_name, u.user_id AS guest_user_id, hu.first_name AS host_first_name, hu.user_id AS host_user_id, co.reference, oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.main_image, o_p_p.images, u.image AS host_image, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone
+FROM request_notifies rn
+    JOIN messages m on m.id = rn.m_id
+    JOIN charge_option_references co on co.reference = m.reference
+    JOIN users u on u.user_id = co.user_id
+    JOIN options_infos oi on oi.option_user_id = co.option_user_id
+    JOIN users hu on hu.id = oi.host_id
+    JOIN shortlets s on oi.id = s.option_id
+    JOIN locations l on l.option_id = oi.id
+    JOIN options_info_photos o_p_p on oi.id = o_p_p.option_id
+    JOIN check_in_out_details cid on oi.id = cid.option_id
+    JOIN options_info_details od on oi.id = od.option_id
+WHERE rn.status = 'pending_payment' AND u.id = $1 AND NOW() < rn.approved_date + INTERVAL '24 hours' AND co.is_complete = false
+ORDER BY co.end_date DESC
+LIMIT $2
+OFFSET $3;
 
 
 -- name: UpdateRequestNotify :one
@@ -54,6 +89,7 @@ SET
     same_price = COALESCE(sqlc.narg(same_price), same_price),
     item_id = COALESCE(sqlc.narg(item_id), item_id),
     approved = COALESCE(sqlc.narg(approved), approved),
+    approved_date = COALESCE(sqlc.narg(approved_date), approved_date),
     cancelled = COALESCE(sqlc.narg(cancelled), cancelled),
     status = COALESCE(sqlc.narg(status), status),
     updated_at = NOW()

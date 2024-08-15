@@ -412,6 +412,22 @@ ORDER BY co.end_date DESC
 LIMIT $4
 OFFSET $5;
 
+
+SELECT oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.main_image, o_p_p.images, u.image AS host_image, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone
+FROM charge_option_references co
+    JOIN options_infos oi on oi.option_user_id = co.option_user_id
+    JOIN options_info_details od on oi.id = od.option_id
+    JOIN options_info_photos o_p_p on oi.id = o_p_p.option_id
+    JOIN check_in_out_details cid on oi.id = cid.option_id
+    JOIN users u on u.id = oi.host_id
+    JOIN shortlets s on oi.id = s.option_id
+    JOIN locations l on l.option_id = oi.id
+    LEFT JOIN charge_reviews cr on cr.charge_id = co.id
+WHERE co.user_id = $1 AND co.cancelled = $2 AND co.is_complete = $3 AND (NOW() > co.end_date + INTERVAL '8 hours' AND EXISTS (SELECT 1 FROM charge_reviews cr WHERE cr.charge_id = co.id AND cr.is_published = TRUE) OR NOW() > co.end_date + INTERVAL '13 days')
+ORDER BY co.end_date DESC
+LIMIT $4
+OFFSET $5;
+
 -- name: GetChargeOptionReferencePayment :one
 SELECT mp.status AS main_payout_status, rp.status AS refund_payout_status, mr.status AS main_refund_status
 FROM charge_option_references co

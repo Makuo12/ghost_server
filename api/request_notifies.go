@@ -192,11 +192,20 @@ func (server *Server) MsgRequestResponse(ctx *gin.Context) {
 		err = fmt.Errorf("this message cannot be accessed by you")
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
+	}	
+	// We use the senderID to get the guest
+
+	guest, err := server.store.GetUserByUserID(ctx, msg.SenderID)
+	if err != nil {
+		log.Printf("Error at MsgRequestResponse in GetUserByUserID: %v, MsgID: %v \n", err.Error(), req.MsgID)
+		err = fmt.Errorf("the guest cannot be found")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
 	}
 
 	switch msg.Type {
 	case "user_request":
-		res, err := HandleOptionUserRequest(req, msg, user, server, ctx)
+		res, err := HandleOptionUserRequest(req, msg, user, guest, server, ctx)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, errorResponse(err))
 			return

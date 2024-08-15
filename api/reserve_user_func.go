@@ -246,6 +246,80 @@ func HandleVisitedListReserveUserOptionItem(server *Server, ctx *gin.Context, us
 	return
 }
 
+// Pending Payments
+func HandlePendingListReserveUserOptionItem(server *Server, ctx *gin.Context, user db.User, req ListReserveUserItemParams) (res ListReserveUserItemRes, hasData bool, err error) {
+	count, err := server.store.CountRequestNotifyPendingPayment(ctx, user.ID)
+	if err != nil {
+		log.Printf("Error at  HandlePendingListReserveUserOptionItem in CountRequestNotifyPendingPayment err: %v, user: %v\n", err, user.ID)
+		hasData = false
+		return
+	}
+	if count <= int64(req.Offset) || count == 0 {
+		hasData = false
+		return
+	}
+	pending, err := server.store.ListRequestNotifyPendingPayment(ctx, db.ListRequestNotifyPendingPaymentParams{
+		ID:     user.ID,
+		Limit:      10,
+		Offset:     int32(req.Offset),
+	})
+	if err != nil {
+		log.Printf("Error atHandlePendingListReserveUserOptionItem in GetChargeOptionReferenceVisited err: %v, user: %v\n", err, user.ID)
+		hasData = false
+		return
+	}
+	var resData []ReserveUserItem
+
+	for _, p := range pending {
+		roomID, err := SingleContextRoom(ctx, server, user.UserID, p.UserID, "HandleMessageListen")
+		if err != nil {
+			continue
+		}
+		timeString, timeType := HandleReserveUserTime(p.ArriveAfter, p.ArriveBefore)
+		data := ReserveUserItem{
+			ID:             tools.UuidToString(p.ID),
+			MainOption:     p.MainOptionType,
+			HostNameOption: p.HostNameOption,
+			HostUserID:     tools.UuidToString(p.UserID),
+			StartDate:      tools.ConvertDateOnlyToString(p.StartDate),
+			EndDate:        tools.ConvertDateOnlyToString(p.EndDate),
+			HostName:       p.FirstName,
+			HostImage:      p.HostImage,
+			MainImage:      p.MainImage,
+			Images:         p.Images,
+			StartTime:      timeString,
+			Timezone:       p.TimeZone,
+			EndTime:        p.LeaveBefore,
+			CheckInMethod:  p.CheckInMethod,
+			Type:           timeType,
+			Grade:          "none",
+			OptionType:     p.TypeOfShortlet,
+			SpaceType:      p.SpaceType,
+			State:          p.State,
+			Country:        p.Country,
+			Street:         p.Street,
+			City:           p.City,
+			ReviewStatus:   "none",
+			RoomID:         tools.UuidToString(roomID),
+		}
+		resData = append(resData, data)
+	}
+	onLastIndex := false
+	hasData = true
+	if count <= int64(req.Offset+len(pending)) {
+		onLastIndex = true
+	}
+	res = ListReserveUserItemRes{
+		List:        resData,
+		MainOption:  req.MainOption,
+		Offset:      req.Offset + len(pending),
+		OnLastIndex: onLastIndex,
+		UserID:      tools.UuidToString(user.UserID),
+	}
+	return
+}
+
+
 func HandleVisitedListReserveUserEventItem(server *Server, ctx *gin.Context, user db.User, req ListReserveUserItemParams) (res ListReserveUserItemRes, hasData bool, err error) {
 	log.Printf("reserves 126 %v \n", user.UserID)
 	count, err := server.store.CountChargeTicketReferenceVisited(ctx, db.CountChargeTicketReferenceVisitedParams{

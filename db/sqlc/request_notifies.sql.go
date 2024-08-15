@@ -7,6 +7,7 @@ package db
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -39,6 +40,29 @@ func (q *Queries) CountRequestNotifyID(ctx context.Context, arg CountRequestNoti
 		arg.Cancelled,
 		arg.Approved,
 	)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const countRequestNotifyPendingPayment = `-- name: CountRequestNotifyPendingPayment :one
+SELECT Count(*)
+FROM request_notifies rn
+    JOIN messages m on m.id = rn.m_id
+    JOIN charge_option_references co on co.reference = m.reference
+    JOIN users u on u.user_id = co.user_id
+    JOIN options_infos oi on oi.option_user_id = co.option_user_id
+    JOIN users hu on hu.id = oi.host_id
+    JOIN shortlets s on oi.id = s.option_id
+    JOIN locations l on l.option_id = oi.id
+    JOIN options_info_photos o_p_p on oi.id = o_p_p.option_id
+    JOIN check_in_out_details cid on oi.id = cid.option_id
+    JOIN options_info_details od on oi.id = od.option_id
+WHERE rn.status = 'pending_payment' AND u.id = $1 AND NOW() < rn.approved_date + INTERVAL '24 hours' AND co.is_complete = false
+`
+
+func (q *Queries) CountRequestNotifyPendingPayment(ctx context.Context, id uuid.UUID) (int64, error) {
+	row := q.db.QueryRow(ctx, countRequestNotifyPendingPayment, id)
 	var count int64
 	err := row.Scan(&count)
 	return count, err
@@ -173,11 +197,11 @@ func (q *Queries) ListRequestNotifyID(ctx context.Context, arg ListRequestNotify
 const listRequestNotifyPayment = `-- name: ListRequestNotifyPayment :many
 SELECT cor.id AS charge_id, rn.m_id, u.first_name AS guest_first_name, u.user_id AS guest_user_id, hu.first_name AS host_first_name, hu.user_id AS host_user_id, cor.reference 
 FROM request_notifies rn
-JOIN messages m on m.id = rn.m_id
-JOIN charge_option_references cor on cor.reference = m.reference
-JOIN users u on u.user_id = cor.user_id
-JOIN options_infos oi on oi.option_user_id = cor.option_user_id
-JOIN users hu on hu.id = oi.host_id
+    JOIN messages m on m.id = rn.m_id
+    JOIN charge_option_references cor on cor.reference = m.reference
+    JOIN users u on u.user_id = cor.user_id
+    JOIN options_infos oi on oi.option_user_id = cor.option_user_id
+    JOIN users hu on hu.id = oi.host_id
 WHERE rn.status = 'request_payment'
 `
 
@@ -219,6 +243,119 @@ func (q *Queries) ListRequestNotifyPayment(ctx context.Context) ([]ListRequestNo
 	return items, nil
 }
 
+const listRequestNotifyPendingPayment = `-- name: ListRequestNotifyPendingPayment :many
+SELECT co.id AS charge_id, rn.m_id, u.first_name AS guest_first_name, u.user_id AS guest_user_id, hu.first_name AS host_first_name, hu.user_id AS host_user_id, co.reference, oi.main_option_type, u.user_id, od.host_name_option, co.start_date, u.image, co.end_date, u.first_name, co.id, cid.arrive_after, cid.arrive_before, cid.leave_before, s.check_in_method, s.type_of_shortlet, s.space_type, o_p_p.main_image, o_p_p.images, u.image AS host_image, co.total_fee, co.date_booked, co.currency, l.street, l.city, l.state, l.country, oi.time_zone
+FROM request_notifies rn
+    JOIN messages m on m.id = rn.m_id
+    JOIN charge_option_references co on co.reference = m.reference
+    JOIN users u on u.user_id = co.user_id
+    JOIN options_infos oi on oi.option_user_id = co.option_user_id
+    JOIN users hu on hu.id = oi.host_id
+    JOIN shortlets s on oi.id = s.option_id
+    JOIN locations l on l.option_id = oi.id
+    JOIN options_info_photos o_p_p on oi.id = o_p_p.option_id
+    JOIN check_in_out_details cid on oi.id = cid.option_id
+    JOIN options_info_details od on oi.id = od.option_id
+WHERE rn.status = 'pending_payment' AND u.id = $1 AND NOW() < rn.approved_date + INTERVAL '24 hours' AND co.is_complete = false
+ORDER BY co.end_date DESC
+LIMIT $2
+OFFSET $3
+`
+
+type ListRequestNotifyPendingPaymentParams struct {
+	ID     uuid.UUID `json:"id"`
+	Limit  int32     `json:"limit"`
+	Offset int32     `json:"offset"`
+}
+
+type ListRequestNotifyPendingPaymentRow struct {
+	ChargeID       uuid.UUID `json:"charge_id"`
+	MID            uuid.UUID `json:"m_id"`
+	GuestFirstName string    `json:"guest_first_name"`
+	GuestUserID    uuid.UUID `json:"guest_user_id"`
+	HostFirstName  string    `json:"host_first_name"`
+	HostUserID     uuid.UUID `json:"host_user_id"`
+	Reference      string    `json:"reference"`
+	MainOptionType string    `json:"main_option_type"`
+	UserID         uuid.UUID `json:"user_id"`
+	HostNameOption string    `json:"host_name_option"`
+	StartDate      time.Time `json:"start_date"`
+	Image          string    `json:"image"`
+	EndDate        time.Time `json:"end_date"`
+	FirstName      string    `json:"first_name"`
+	ID             uuid.UUID `json:"id"`
+	ArriveAfter    string    `json:"arrive_after"`
+	ArriveBefore   string    `json:"arrive_before"`
+	LeaveBefore    string    `json:"leave_before"`
+	CheckInMethod  string    `json:"check_in_method"`
+	TypeOfShortlet string    `json:"type_of_shortlet"`
+	SpaceType      string    `json:"space_type"`
+	MainImage      string    `json:"main_image"`
+	Images         []string  `json:"images"`
+	HostImage      string    `json:"host_image"`
+	TotalFee       int64     `json:"total_fee"`
+	DateBooked     time.Time `json:"date_booked"`
+	Currency       string    `json:"currency"`
+	Street         string    `json:"street"`
+	City           string    `json:"city"`
+	State          string    `json:"state"`
+	Country        string    `json:"country"`
+	TimeZone       string    `json:"time_zone"`
+}
+
+func (q *Queries) ListRequestNotifyPendingPayment(ctx context.Context, arg ListRequestNotifyPendingPaymentParams) ([]ListRequestNotifyPendingPaymentRow, error) {
+	rows, err := q.db.Query(ctx, listRequestNotifyPendingPayment, arg.ID, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListRequestNotifyPendingPaymentRow{}
+	for rows.Next() {
+		var i ListRequestNotifyPendingPaymentRow
+		if err := rows.Scan(
+			&i.ChargeID,
+			&i.MID,
+			&i.GuestFirstName,
+			&i.GuestUserID,
+			&i.HostFirstName,
+			&i.HostUserID,
+			&i.Reference,
+			&i.MainOptionType,
+			&i.UserID,
+			&i.HostNameOption,
+			&i.StartDate,
+			&i.Image,
+			&i.EndDate,
+			&i.FirstName,
+			&i.ID,
+			&i.ArriveAfter,
+			&i.ArriveBefore,
+			&i.LeaveBefore,
+			&i.CheckInMethod,
+			&i.TypeOfShortlet,
+			&i.SpaceType,
+			&i.MainImage,
+			&i.Images,
+			&i.HostImage,
+			&i.TotalFee,
+			&i.DateBooked,
+			&i.Currency,
+			&i.Street,
+			&i.City,
+			&i.State,
+			&i.Country,
+			&i.TimeZone,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateRequestNotify = `-- name: UpdateRequestNotify :one
 UPDATE request_notifies
 SET 
@@ -228,23 +365,25 @@ SET
     same_price = COALESCE($4, same_price),
     item_id = COALESCE($5, item_id),
     approved = COALESCE($6, approved),
-    cancelled = COALESCE($7, cancelled),
-    status = COALESCE($8, status),
+    approved_date = COALESCE($7, approved_date),
+    cancelled = COALESCE($8, cancelled),
+    status = COALESCE($9, status),
     updated_at = NOW()
-WHERE m_id = $9 
-RETURNING m_id, start_date, end_date, has_price, same_price, price, item_id, status, approved, cancelled, created_at, updated_at
+WHERE m_id = $10 
+RETURNING m_id, start_date, end_date, has_price, same_price, price, item_id, approved_date, status, approved, cancelled, created_at, updated_at
 `
 
 type UpdateRequestNotifyParams struct {
-	StartDate pgtype.Text `json:"start_date"`
-	EndDate   pgtype.Text `json:"end_date"`
-	HasPrice  pgtype.Bool `json:"has_price"`
-	SamePrice pgtype.Bool `json:"same_price"`
-	ItemID    pgtype.Text `json:"item_id"`
-	Approved  pgtype.Bool `json:"approved"`
-	Cancelled pgtype.Bool `json:"cancelled"`
-	Status    pgtype.Text `json:"status"`
-	MID       uuid.UUID   `json:"m_id"`
+	StartDate    pgtype.Text        `json:"start_date"`
+	EndDate      pgtype.Text        `json:"end_date"`
+	HasPrice     pgtype.Bool        `json:"has_price"`
+	SamePrice    pgtype.Bool        `json:"same_price"`
+	ItemID       pgtype.Text        `json:"item_id"`
+	Approved     pgtype.Bool        `json:"approved"`
+	ApprovedDate pgtype.Timestamptz `json:"approved_date"`
+	Cancelled    pgtype.Bool        `json:"cancelled"`
+	Status       pgtype.Text        `json:"status"`
+	MID          uuid.UUID          `json:"m_id"`
 }
 
 func (q *Queries) UpdateRequestNotify(ctx context.Context, arg UpdateRequestNotifyParams) (RequestNotify, error) {
@@ -255,6 +394,7 @@ func (q *Queries) UpdateRequestNotify(ctx context.Context, arg UpdateRequestNoti
 		arg.SamePrice,
 		arg.ItemID,
 		arg.Approved,
+		arg.ApprovedDate,
 		arg.Cancelled,
 		arg.Status,
 		arg.MID,
@@ -268,6 +408,7 @@ func (q *Queries) UpdateRequestNotify(ctx context.Context, arg UpdateRequestNoti
 		&i.SamePrice,
 		&i.Price,
 		&i.ItemID,
+		&i.ApprovedDate,
 		&i.Status,
 		&i.Approved,
 		&i.Cancelled,

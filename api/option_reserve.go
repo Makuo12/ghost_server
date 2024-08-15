@@ -86,8 +86,6 @@ func (server *Server) FinalOptionReserveDetail(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
-
-	
 	detailRes, hasResData, totalFee, refRes, reserveData, fromCharge, chargeData, err := HandleFinalOptionReserveDetail(server, ctx, req.Reference, user, req.Message, req.Reference)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))

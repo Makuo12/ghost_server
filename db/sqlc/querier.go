@@ -37,6 +37,7 @@ type Querier interface {
 	CountRefund(ctx context.Context, arg CountRefundParams) (int64, error)
 	CountRefundPayout(ctx context.Context, arg CountRefundPayoutParams) (int64, error)
 	CountRequestNotifyID(ctx context.Context, arg CountRequestNotifyIDParams) (int64, error)
+	CountRequestNotifyPendingPayment(ctx context.Context, id uuid.UUID) (int64, error)
 	CountTicketPaymentUser(ctx context.Context, arg CountTicketPaymentUserParams) (int64, error)
 	CountVid(ctx context.Context) (int64, error)
 	CreateAccount(ctx context.Context, arg CreateAccountParams) error
@@ -502,6 +503,7 @@ type Querier interface {
 	ListRefundPayoutWithUser(ctx context.Context, arg ListRefundPayoutWithUserParams) ([]ListRefundPayoutWithUserRow, error)
 	ListRequestNotifyID(ctx context.Context, arg ListRequestNotifyIDParams) ([]ListRequestNotifyIDRow, error)
 	ListRequestNotifyPayment(ctx context.Context) ([]ListRequestNotifyPaymentRow, error)
+	ListRequestNotifyPendingPayment(ctx context.Context, arg ListRequestNotifyPendingPaymentParams) ([]ListRequestNotifyPendingPaymentRow, error)
 	ListSpaceArea(ctx context.Context, optionID uuid.UUID) ([]SpaceArea, error)
 	ListSpaceAreaImages(ctx context.Context, arg ListSpaceAreaImagesParams) ([][]string, error)
 	ListSpaceAreaRooms(ctx context.Context, optionID uuid.UUID) ([]ListSpaceAreaRoomsRow, error)

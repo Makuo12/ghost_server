@@ -15,7 +15,12 @@ const SCANNED_CHARGE_OPTION_ID = "SCANNED_CHARGE_OPTION_ID"
 // Used for notifications
 const SCANNED_CHARGE_OPTION = "scanned_charge_option"
 
+
+// This would be used for those that have default payment method
 const REQUEST_PAYMENT = "request_payment"
+
+// This would be used if no default payment method is available
+const PENDING_PAYMENT = "pending_payment"
 
 
 const SENT_REQUEST = "sent_request"

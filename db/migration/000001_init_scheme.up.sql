@@ -1038,6 +1038,7 @@ CREATE TABLE "request_notifies" (
   "same_price" boolean NOT NULL,
   "price" bigint NOT NULL,
   "item_id" varchar NOT NULL,
+  "approved_date" timestamptz NOT NULL DEFAULT (now()),
   "status" varchar NOT NULL DEFAULT 'normal',
   "approved" boolean NOT NULL DEFAULT false,
   "cancelled" boolean NOT NULL DEFAULT false,
