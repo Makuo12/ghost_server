@@ -316,7 +316,6 @@ func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPay
 	var hasObjectReference = false
 	var currency string
 	var fee string
-	paymentReference = uuid.New().String()
 	//var reference string
 	switch arg.MainOptionType {
 	case "options":
@@ -352,18 +351,23 @@ func ReservePaymentMethod(ctx context.Context, server *Server, arg InitMethodPay
 		fee = resData.TotalFee
 		//reference = arg.Reference
 	}
-	_, err = CreateChargeReference(ctx, server, user.UserID, arg.Reference, paymentReference, objectReference, hasObjectReference, reason, currency, arg.MainOptionType, fee, "ReservePaymentMethod")
+	
+	paystackBankCharge, paystackPWT, paystackUSSD, paystackCard, actualPaymentReference, err := ReservePaymentChannel(ctx, server, arg, user, fee, reason)
 	if err != nil {
 		return
 	}
-	paystackBankCharge, paystackPWT, paystackUSSD, paystackCard, err = ReservePaymentChannel(ctx, server, arg, user, fee, paymentReference, reason)
+	paymentReference = actualPaymentReference
+	_, err = CreateChargeReference(ctx, server, user.UserID, arg.Reference, actualPaymentReference, objectReference, hasObjectReference, reason, currency, arg.MainOptionType, fee, "ReservePaymentMethod")
+	if err != nil {
+		return
+	}
 	return
 }
 
-func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPaymentParams, user db.User, charge string, reference string, reason string) (paystackBankCharge payment.PaystackBankAccountMainRes, paystackPWT payment.PaystackPWTMainRes, paystackUSSD payment.PaystackUSSDRes, paystackCard payment.InitCardChargeRes, err error) {
+func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPaymentParams, user db.User, charge string, reason string) (paystackBankCharge payment.PaystackBankAccountMainRes, paystackPWT payment.PaystackPWTMainRes, paystackUSSD payment.PaystackUSSDRes, paystackCard payment.InitCardChargeRes, actualPaymentReference string, err error) {
 	switch arg.PaymentChannel {
 	case constants.PAYSTACK_BANK_ACCOUNT:
-		res, errData := payment.HandlePaystackBankAccount(ctx, server.config.PaystackSecretLiveKey, charge, reference, arg.PaystackBankAccount, user.Email)
+		res, errData := payment.HandlePaystackBankAccount(ctx, server.config.PaystackSecretLiveKey, charge, arg.PaystackBankAccount, user.Email)
 		if errData != nil {
 			err = errData
 		} else {
@@ -375,9 +379,10 @@ func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPa
 				Reference:   res.Data.Reference,
 				DisplayText: res.Data.DisplayText,
 			}
+			actualPaymentReference = res.Data.Reference
 		}
 	case constants.PAYSTACK_PWT:
-		res, errData := payment.HandlePaystackPWT(ctx, server.config.PaystackSecretLiveKey, charge, reference, user.Email)
+		res, errData := payment.HandlePaystackPWT(ctx, server.config.PaystackSecretLiveKey, charge, user.Email)
 		if errData != nil {
 			err = errData
 		} else {
@@ -393,9 +398,10 @@ func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPa
 				AccountNumber: res.Data.AccountNumber,
 				ExpiresAt:     res.Data.AccountExpiresAt,
 			}
+			actualPaymentReference = res.Data.Reference
 		}
 	case constants.PAYSTACK_CARD:
-		res, errData := payment.HandlePaystackCard(ctx, server.config.PaystackSecretLiveKey, charge, reference, arg.Currency, user.Email, reason)
+		res, errData := payment.HandlePaystackCard(ctx, server.config.PaystackSecretLiveKey, charge, arg.Currency, user.Email, reason)
 		if errData != nil {
 			err = errData
 		} else {
@@ -404,9 +410,10 @@ func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPa
 			paystackUSSD = payment.EmptyPaystackUSSD()
 			//paystackCard = payment.EmptyPaystackCard()
 			paystackCard = res
+			actualPaymentReference = res.Reference
 		}
 	case constants.PAYSTACK_USSD:
-		res, errData := payment.HandlePaystackUSSD(ctx, server.config.PaystackSecretLiveKey, charge, reference, arg.PaystackUSSD, user.Email, user.FirstName)
+		res, errData := payment.HandlePaystackUSSD(ctx, server.config.PaystackSecretLiveKey, charge, arg.PaystackUSSD, user.Email, user.FirstName)
 		if errData != nil {
 			err = errData
 		} else {
@@ -419,6 +426,7 @@ func ReservePaymentChannel(ctx context.Context, server *Server, arg InitMethodPa
 				DisplayText: res.Data.DisplayText,
 				USSDCode:    res.Data.UssdCode,
 			}
+			actualPaymentReference = res.Data.Reference
 		}
 	}
 	return

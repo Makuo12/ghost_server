@@ -9,13 +9,14 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/makuo12/ghost_server/tools"
 )
 
-func HandlePaystackCard(ctx context.Context, paystackKey string, charge string, reference string, currency string, email string, reason string) (resItem InitCardChargeRes, err error) {
+func HandlePaystackCard(ctx context.Context, paystackKey string, charge string, currency string, email string, reason string) (resItem InitCardChargeRes, err error) {
 	paystackCharge := ConvertToPaystackCharge(charge)
 	resItem = InitCardChargeRes{
-		Reference: reference,
+		Reference: uuid.New().String(),
 		Reason:    reason,
 		Charge:    paystackCharge,
 		Currency:  currency,
@@ -24,7 +25,7 @@ func HandlePaystackCard(ctx context.Context, paystackKey string, charge string, 
 	return
 }
 
-func HandlePaystackBankAccount(ctx context.Context, paystackKey string, charge string, reference string, arg PaystackGetBankAccountParams, email string) (resItem PaystackBankChargeAttempt, err error) {
+func HandlePaystackBankAccount(ctx context.Context, paystackKey string, charge string, arg PaystackGetBankAccountParams, email string) (resItem PaystackBankChargeAttempt, err error) {
 	var resData = &PaystackBankChargeAttempt{}
 	var resValidationError = &PaystackValidationError{}
 	var resApiError = &PaystackApiError{}
@@ -36,7 +37,7 @@ func HandlePaystackBankAccount(ctx context.Context, paystackKey string, charge s
 		Phone:         arg.Phone,
 		AccountNumber: arg.AccountNumber,
 		Token:         arg.Token,
-		Reference:     reference,
+		//Reference:     reference,
 	}
 
 	url := "https://api.paystack.co/charge"
@@ -99,15 +100,15 @@ func HandlePaystackBankAccount(ctx context.Context, paystackKey string, charge s
 	return
 }
 
-func HandlePaystackPWT(ctx context.Context, paystackKey string, charge string, reference string, email string) (resItem PaystackPWTRes, err error) {
+func HandlePaystackPWT(ctx context.Context, paystackKey string, charge string, email string) (resItem PaystackPWTRes, err error) {
 	var resData = &PaystackPWTRes{}
 	var resValidationError = &PaystackValidationError{}
 	amount := tools.ConvertToPaystackChargeString(charge)
 	transferTime := PaystackBankTransfer{time.Now().Add(time.Minute * 30).Format("2006-01-02T15:04:05Z")}
 	bankData := PaystackPaymentWithTransferParams{
-		Email:        email,
-		Amount:       amount,
-		Reference:    reference,
+		Email:  email,
+		Amount: amount,
+		//Reference:    reference,
 		BankTransfer: transferTime,
 	}
 	url := "https://api.paystack.co/charge"
@@ -157,7 +158,7 @@ func HandlePaystackPWT(ctx context.Context, paystackKey string, charge string, r
 	return
 }
 
-func HandlePaystackUSSD(ctx context.Context, paystackKey string, charge string, reference string, ussdCode string, email string, firstName string) (resItem PaystackUSSDChargeAttempt, err error) {
+func HandlePaystackUSSD(ctx context.Context, paystackKey string, charge string, ussdCode string, email string, firstName string) (resItem PaystackUSSDChargeAttempt, err error) {
 	var resData = &PaystackUSSDChargeAttempt{}
 	var resApiError = &PaystackApiError{}
 	amount := tools.ConvertToPaystackChargeString(charge)
@@ -166,11 +167,11 @@ func HandlePaystackUSSD(ctx context.Context, paystackKey string, charge string, 
 	}
 	ussdType := PaystackUSSDType{ussdCode}
 	bankData := PaystackUSSDParams{
-		Email:     email,
-		Amount:    amount,
-		Reference: reference,
-		USSD:      ussdType,
-		MetaData:  metaData,
+		Email:  email,
+		Amount: amount,
+		//Reference: reference,
+		USSD:     ussdType,
+		MetaData: metaData,
 	}
 	url := "https://api.paystack.co/charge"
 	var bearer = "Bearer " + paystackKey
