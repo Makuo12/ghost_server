@@ -283,7 +283,7 @@ func HandlePendingListReserveUserOptionItem(server *Server, ctx *gin.Context, us
 			HostUserID:     tools.UuidToString(p.UserID),
 			StartDate:      tools.ConvertDateOnlyToString(p.StartDate),
 			EndDate:        tools.ConvertDateOnlyToString(p.EndDate),
-			HostName:       p.FirstName,
+			HostName:       p.HostFirstName,
 			HostImage:      p.HostImage,
 			MainImage:      p.MainImage,
 			Images:         p.Images,
