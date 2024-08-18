@@ -1078,6 +1078,44 @@ func (server *Server) DeleteOptionUserPhotoStored(ctx *gin.Context) {
 
 }
 
+func (server *Server) DeleteCompleteOptionPhoto(ctx *gin.Context) {
+	var req db.DeleteOptionInfoPhotoParams
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		log.Printf("Error at DeleteOptionPhoto in ShouldBindJSON: %v, optionID: %v \n", err.Error(), req.OptionID)
+		err = fmt.Errorf("error occurred while taking you back")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	log.Println(req)
+	requestID, err := tools.StringToUuid(req.OptionID)
+	if err != nil {
+		log.Printf("Error at tools.StringToUuid: %v, optionID: %v \n", err.Error(), req.OptionID)
+		err = fmt.Errorf("error occurred while processing your request")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	_, _, option, _, _, err := HandleGetCompleteOptionEditOptionInfo(requestID, ctx, server, true)
+	if err != nil {
+		err = fmt.Errorf("you cannot access this resource")
+		ctx.JSON(http.StatusForbidden, errorResponse(err))
+		return
+	}
+	optionPhoto, err := server.store.GetOptionInfoPhoto(ctx, option.ID)
+	if err != nil {
+		log.Println("error something went wrong, ", err)
+		err = fmt.Errorf("something went wrong while uploading your photos, try again")
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	res, err := server.store.DeleteOptionPhoto(ctx, req, optionPhoto, server.Bucket)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, errorResponse(err))
+		return
+	}
+	ctx.JSON(http.StatusOK, res)
+
+}
+
 func (server *Server) DeleteOptionPhoto(ctx *gin.Context) {
 	var req db.DeleteOptionInfoPhotoParams
 	if err := ctx.ShouldBindJSON(&req); err != nil {
