@@ -480,6 +480,7 @@ func (server *Server) setupRouter() {
 	authRoutes.POST("/users/option-photo/create", server.CreateOptionPhoto)
 	authRoutes.DELETE("/users/option-photo/remove", server.RemoveOptionPhoto)
 	authRoutes.POST("/users/option-photo/upload", server.UploadOptionPhoto)
+	authRoutes.POST("/users/option-photo/completed/upload", server.UploadOptionCompletePhoto)
 	authRoutes.DELETE("/users/option-photo/upload/delete", server.DeleteOptionPhoto)
 
 	authRoutes.POST("/users/option-question/create", server.CreateOptionQuestion)
