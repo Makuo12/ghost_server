@@ -19,6 +19,7 @@ type Config struct {
 	BrevoEmailTemplate                         string        `mapstructure:"BREVO_EMAIL_TEMPLATE"`
 	BrevoAdminEmailVerify                      string        `mapstructure:"BREVO_ADMIN_EMAIL_VERIFY"`
 	BrevoEmailVerify                           string        `mapstructure:"BREVO_EMAIL_VERIFY"`
+	BrevoWithMessage                           string        `mapstructure:"BREVO_WITH_MESSAGE"`
 	BrevoInviteTemplate                        string        `mapstructure:"BREVO_INVITE_TEMPLATE"`
 	BrevoCoHostDeactivateTemplate              string        `mapstructure:"BREVO_COHOST_DEACTIVATE_TEMPLATE"`
 	BrevoAccountChangeTemplate                 string        `mapstructure:"BREVO_ACCOUNT_CHANGE_TEMPLATE"`
