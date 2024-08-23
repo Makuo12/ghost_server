@@ -45,6 +45,7 @@ const IS_TOP_SELLER = "IS_TOP_SELLER"
 
 // LOCATION INFO
 const CITY = "CITY"
+const STREET = "STREET"
 const STATE = "STATE"
 const COUNTRY = "COUNTRY"
 const LAT = "LAT"

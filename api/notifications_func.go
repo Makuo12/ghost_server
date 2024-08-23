@@ -207,6 +207,8 @@ func HandleChargeToOptionData(ctx context.Context, server *Server, charge db.Cha
 		TypeOfShortlet:   data.TypeOfShortlet,
 		State:            data.State,
 		Country:          data.Country,
+		Street:           data.Street,
+		City:             data.City,
 		HostName:         data.FirstName,
 		HostJoined:       tools.ConvertDateOnlyToString(data.CreatedAt),
 		HostVerified:     data.IsVerified_2,

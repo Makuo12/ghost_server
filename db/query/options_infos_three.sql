@@ -1,7 +1,7 @@
 -- Mostly for handling filters
 
 -- name: ListOptionInfoSearchLocation :many
-SELECT oi.option_user_id, oi.id, oid.host_name_option, oi.is_verified AS option_is_verified, oip.main_image, oip.images, oq.host_as_individual, op.price, op.weekend_price, oi.currency, s.type_of_shortlet, l.state, l.country, oi.category, oi.category_two, oi.category_three, oi.category_four, u.first_name AS host_name, u.created_at, id.is_verified AS host_verified, u.image AS host_image, oid.pets_allowed, s.guest_welcomed, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, s.space_type, s.check_in_method, obm.instant_book
+SELECT oi.option_user_id, oi.id, oid.host_name_option, oi.is_verified AS option_is_verified, oip.main_image, oip.images, oq.host_as_individual, op.price, op.weekend_price, oi.currency, s.type_of_shortlet, l.state, l.country, oi.category, oi.category_two, oi.category_three, oi.category_four, u.first_name AS host_name, u.created_at, id.is_verified AS host_verified, u.image AS host_image, oid.pets_allowed, s.guest_welcomed, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, s.space_type, s.check_in_method, obm.instant_book, l.street, l.city
 FROM options_infos oi
     JOIN options_info_details oid on oi.id = oid.option_id
     JOIN options_info_photos oip on oi.id = oip.option_id
@@ -21,7 +21,7 @@ WHERE oi.is_complete = true AND oi.is_active = true AND u.is_active = true AND u
     ) AS FLOAT) < CAST($5 AS FLOAT));
 
 -- name: ListOptionInfoSearch :many
-SELECT oi.option_user_id, oi.id, oid.host_name_option, oi.is_verified AS option_is_verified, oip.main_image, oip.images, oq.host_as_individual, op.price, op.weekend_price, oi.currency, s.type_of_shortlet, l.state, l.country, oi.category, oi.category_two, oi.category_three, oi.category_four, u.first_name AS host_name, u.created_at, id.is_verified AS host_verified, u.image AS host_image, oid.pets_allowed, s.guest_welcomed, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, s.space_type, s.check_in_method, obm.instant_book
+SELECT oi.option_user_id, oi.id, oid.host_name_option, oi.is_verified AS option_is_verified, oip.main_image, oip.images, oq.host_as_individual, op.price, op.weekend_price, oi.currency, s.type_of_shortlet, l.state, l.country, oi.category, oi.category_two, oi.category_three, oi.category_four, u.first_name AS host_name, u.created_at, id.is_verified AS host_verified, u.image AS host_image, oid.pets_allowed, s.guest_welcomed, oas.advance_notice, oas.auto_block_dates, oas.advance_notice_condition, oas.preparation_time, oas.availability_window, otl.min_stay_day, otl.max_stay_night, otl.manual_approve_request_pass_max, otl.allow_reservation_request, s.space_type, s.check_in_method, obm.instant_book, l.street, l.city
 FROM options_infos oi
     JOIN options_info_details oid on oi.id = oid.option_id
     JOIN options_info_photos oip on oi.id = oip.option_id

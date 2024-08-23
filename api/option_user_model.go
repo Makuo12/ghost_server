@@ -15,6 +15,8 @@ type ExperienceOptionData struct {
 	TypeOfShortlet string   `json:"type_of_shortlet"`
 	State          string   `json:"state"`
 	Country        string   `json:"country"`
+	Street         string   `json:"street"`
+	City           string   `json:"city"`
 	HostName       string   `json:"host_name"`
 	HostJoined     string   `json:"host_joined"`
 	HostVerified   bool     `json:"host_verified"`
