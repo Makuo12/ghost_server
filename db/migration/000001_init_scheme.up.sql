@@ -1618,5 +1618,3 @@ ALTER TABLE "single_rooms" ADD FOREIGN KEY ("user_one") REFERENCES "users" ("use
 ALTER TABLE "single_rooms" ADD FOREIGN KEY ("user_two") REFERENCES "users" ("user_id");
 
 ALTER TABLE "notifications" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("user_id");
-
-ALTER TABLE "option_book_methods" ADD FOREIGN KEY ("good_track_record") REFERENCES "event_date_tickets" ("event_date_time_id");
