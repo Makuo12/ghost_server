@@ -42,6 +42,7 @@
         "ToTsquery",
         "unlist",
         "upgrader",
-        "USSD"
+        "USSD",
+        "Webpush"
     ]
 }

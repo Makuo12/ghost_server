@@ -89,23 +89,29 @@ func SendApn(ctx context.Context, server *Server, deviceToken string, msg string
 	badgeNumber := 1
 	// See documentation on defining a message payload.
 	notification := &messaging.Message{
-    Notification: &messaging.Notification{
-        Title: title,
-        Body:  msg,
-    },
-    APNS: &messaging.APNSConfig{
-        Headers: map[string]string{
-            "apns-priority": "10",
-        },
-        Payload: &messaging.APNSPayload{
-            Aps: &messaging.Aps{
-                Sound: "default",
-                Badge: &badgeNumber, // Add your badge number here
-            },
-        },
-    },
-    Token: registrationToken,
-}
+		Notification: &messaging.Notification{
+			Title: title,
+			Body:  msg,
+		},
+		APNS: &messaging.APNSConfig{
+			Headers: map[string]string{
+				"apns-priority": "10",
+			},
+			Payload: &messaging.APNSPayload{
+				Aps: &messaging.Aps{
+					Sound: "default",
+					Badge: &badgeNumber, // Add your badge number here
+				},
+			},
+		},
+		// Still working on it
+		//Webpush: &messaging.WebpushConfig{
+		//	FcmOptions: &messaging.WebpushFcmOptions{
+		//		Link: "https://yourapp.com/link-to-resource",
+		//	},
+		//},
+		Token: registrationToken,
+	}
 
 	// Send a message to the device corresponding to the provided
 	// registration token.
