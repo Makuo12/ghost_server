@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DBSource = "postgresql://postgres:Si73gangan@localhost:5105/flex_server?sslmode=disable"
+	DBSource = "postgresql://postgres:Filler@localhost:5105/flex_server?sslmode=disable"
 )
 
 var testStore *SQLStore

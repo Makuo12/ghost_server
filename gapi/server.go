@@ -78,12 +78,11 @@ func NewServer(config utils.Config, store *db.SQLStore) (*Server, error) {
 	// rdb := redis.NewFailoverClient(&redis.FailoverOptions{
 	// 	MasterName: "Flex",
 	// 	SentinelAddrs: adr,
-	// 	SentinelPassword: "Si73gangan",
 	// 	DB: 0,
 	// })
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     "redis_flex:6379",
-		Password: "Si73gangan", // no password set
+		Addr:     "",
+		Password: "", // no password set
 		DB:       0,            // use default DB
 	})
 	RedisClient = rdb
